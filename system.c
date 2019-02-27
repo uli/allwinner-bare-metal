@@ -12,5 +12,5 @@ void udelay(uint32_t d) {
 }
 
 void reboot(uint32_t seconds) {
-  WDOG0_MODE = (seconds << 4) | 1;
+  WDOG0_MODE = 0;//(seconds << 4) | 1;
 }
