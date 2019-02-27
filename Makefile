@@ -34,4 +34,4 @@ clean:
 	rm -f *.o os.*
 
 install: os.bin
-	sunxi-fel spl ../u-boot/spl/sunxi-spl.bin write 0x4e000000 os.bin exe 0x4e000000
+	sudo sunxi-fel spl ./sunxi-spl.bin write 0x4e000000 os.bin exe 0x4e000000
