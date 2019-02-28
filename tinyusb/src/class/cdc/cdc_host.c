@@ -1,0 +1,243 @@
+/**************************************************************************/
+/*!
+    @file     cdc_host.c
+    @author   hathach (tinyusb.org)
+
+    @section LICENSE
+
+    Software License Agreement (BSD License)
+
+    Copyright (c) 2013, hathach (tinyusb.org)
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+    1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+    3. Neither the name of the copyright holders nor the
+    names of its contributors may be used to endorse or promote products
+    derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
+    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+    This file is part of the tinyusb stack.
+*/
+/**************************************************************************/
+
+#include "tusb_option.h"
+
+#if (TUSB_OPT_HOST_ENABLED && CFG_TUH_CDC)
+
+#define _TINY_USB_SOURCE_FILE_
+
+//--------------------------------------------------------------------+
+// INCLUDE
+//--------------------------------------------------------------------+
+#include "common/tusb_common.h"
+#include "cdc_host.h"
+
+//--------------------------------------------------------------------+
+// MACRO CONSTANT TYPEDEF
+//--------------------------------------------------------------------+
+
+//--------------------------------------------------------------------+
+// INTERNAL OBJECT & FUNCTION DECLARATION
+//--------------------------------------------------------------------+
+STATIC_VAR cdch_data_t cdch_data[CFG_TUSB_HOST_DEVICE_MAX]; // TODO to be static
+
+static inline cdc_pipeid_t get_app_pipeid(pipe_handle_t pipe_hdl)
+{
+  cdch_data_t const * p_cdc = &cdch_data[pipe_hdl.dev_addr-1];
+
+  return pipehandle_is_equal( pipe_hdl, p_cdc->pipe_notification ) ? CDC_PIPE_NOTIFICATION :
+         pipehandle_is_equal( pipe_hdl, p_cdc->pipe_in           ) ? CDC_PIPE_DATA_IN      :
+         pipehandle_is_equal( pipe_hdl, p_cdc->pipe_out          ) ? CDC_PIPE_DATA_OUT     : CDC_PIPE_ERROR;
+}
+
+static inline bool tusbh_cdc_is_mounted(uint8_t dev_addr)
+{
+  return pipehandle_is_valid(cdch_data[dev_addr-1].pipe_in) && pipehandle_is_valid(cdch_data[dev_addr-1].pipe_out);
+}
+
+bool tuh_cdc_is_busy(uint8_t dev_addr, cdc_pipeid_t pipeid)
+{
+  if ( !tusbh_cdc_is_mounted(dev_addr) ) return false;
+
+  cdch_data_t const * p_cdc = &cdch_data[dev_addr-1];
+
+  switch (pipeid)
+  {
+    case CDC_PIPE_NOTIFICATION:
+      return hcd_pipe_is_busy( p_cdc->pipe_notification );
+
+    case CDC_PIPE_DATA_IN:
+      return hcd_pipe_is_busy( p_cdc->pipe_in );
+
+    case CDC_PIPE_DATA_OUT:
+      return hcd_pipe_is_busy( p_cdc->pipe_out );
+
+    default:
+      return false;
+  }
+}
+
+//--------------------------------------------------------------------+
+// APPLICATION API (parameter validation needed)
+//--------------------------------------------------------------------+
+bool tuh_cdc_serial_is_mounted(uint8_t dev_addr)
+{
+  // TODO consider all AT Command as serial candidate
+  return tusbh_cdc_is_mounted(dev_addr)                                         &&
+      (CDC_COMM_PROTOCOL_ATCOMMAND <= cdch_data[dev_addr-1].interface_protocol) &&
+      (cdch_data[dev_addr-1].interface_protocol <= CDC_COMM_PROTOCOL_ATCOMMAND_CDMA);
+}
+
+tusb_error_t tuh_cdc_send(uint8_t dev_addr, void const * p_data, uint32_t length, bool is_notify)
+{
+  TU_ASSERT( tusbh_cdc_is_mounted(dev_addr),  TUSB_ERROR_CDCH_DEVICE_NOT_MOUNTED);
+  TU_ASSERT( p_data != NULL && length, TUSB_ERROR_INVALID_PARA);
+
+  pipe_handle_t pipe_out = cdch_data[dev_addr-1].pipe_out;
+  if ( hcd_pipe_is_busy(pipe_out) ) return TUSB_ERROR_INTERFACE_IS_BUSY;
+
+  return hcd_pipe_xfer( pipe_out, (void *) p_data, length, is_notify);
+}
+
+tusb_error_t tuh_cdc_receive(uint8_t dev_addr, void * p_buffer, uint32_t length, bool is_notify)
+{
+  TU_ASSERT( tusbh_cdc_is_mounted(dev_addr),  TUSB_ERROR_CDCH_DEVICE_NOT_MOUNTED);
+  TU_ASSERT( p_buffer != NULL && length, TUSB_ERROR_INVALID_PARA);
+
+  pipe_handle_t pipe_in = cdch_data[dev_addr-1].pipe_in;
+  if ( hcd_pipe_is_busy(pipe_in) ) return TUSB_ERROR_INTERFACE_IS_BUSY;
+
+  return hcd_pipe_xfer( pipe_in, p_buffer, length, is_notify);
+}
+
+//--------------------------------------------------------------------+
+// USBH-CLASS DRIVER API
+//--------------------------------------------------------------------+
+void cdch_init(void)
+{
+  tu_memclr(cdch_data, sizeof(cdch_data_t)*CFG_TUSB_HOST_DEVICE_MAX);
+}
+
+bool cdch_open_subtask(uint8_t dev_addr, tusb_desc_interface_t const *p_interface_desc, uint16_t *p_length)
+{
+  // TODO change following assert to subtask_assert
+  if ( CDC_COMM_SUBCLASS_ABSTRACT_CONTROL_MODEL != p_interface_desc->bInterfaceSubClass) return TUSB_ERROR_CDC_UNSUPPORTED_SUBCLASS;
+
+  if ( !(tu_within(CDC_COMM_PROTOCOL_ATCOMMAND, p_interface_desc->bInterfaceProtocol, CDC_COMM_PROTOCOL_ATCOMMAND_CDMA) ||
+         0xff == p_interface_desc->bInterfaceProtocol) )
+  {
+    return TUSB_ERROR_CDC_UNSUPPORTED_PROTOCOL;
+  }
+
+  uint8_t const * p_desc;
+  cdch_data_t * p_cdc;
+
+  p_desc = descriptor_next ( (uint8_t const *) p_interface_desc );
+  p_cdc  = &cdch_data[dev_addr-1]; // non-static variable cannot be used after OS service call
+
+  p_cdc->interface_number   = p_interface_desc->bInterfaceNumber;
+  p_cdc->interface_protocol = p_interface_desc->bInterfaceProtocol; // TODO 0xff is consider as rndis candidate, other is virtual Com
+
+  //------------- Communication Interface -------------//
+  (*p_length) = sizeof(tusb_desc_interface_t);
+
+  while( TUSB_DESC_CLASS_SPECIFIC == p_desc[DESC_OFFSET_TYPE] )
+  { // Communication Functional Descriptors
+    if ( CDC_FUNC_DESC_ABSTRACT_CONTROL_MANAGEMENT == cdc_functional_desc_typeof(p_desc) )
+    { // save ACM bmCapabilities
+      p_cdc->acm_capability = ((cdc_desc_func_acm_t const *) p_desc)->bmCapabilities;
+    }
+
+    (*p_length) += p_desc[DESC_OFFSET_LEN];
+    p_desc = descriptor_next(p_desc);
+  }
+
+  if ( TUSB_DESC_ENDPOINT == p_desc[DESC_OFFSET_TYPE])
+  { // notification endpoint if any
+    p_cdc->pipe_notification = hcd_pipe_open(dev_addr, (tusb_desc_endpoint_t const *) p_desc, TUSB_CLASS_CDC);
+
+    (*p_length) += p_desc[DESC_OFFSET_LEN];
+    p_desc = descriptor_next(p_desc);
+
+    TU_ASSERT(pipehandle_is_valid(p_cdc->pipe_notification));
+  }
+
+  //------------- Data Interface (if any) -------------//
+  if ( (TUSB_DESC_INTERFACE == p_desc[DESC_OFFSET_TYPE]) &&
+       (TUSB_CLASS_CDC_DATA      == ((tusb_desc_interface_t const *) p_desc)->bInterfaceClass) )
+  {
+    (*p_length) += p_desc[DESC_OFFSET_LEN];
+    p_desc = descriptor_next(p_desc);
+
+    // data endpoints expected to be in pairs
+    for(uint32_t i=0; i<2; i++)
+    {
+      tusb_desc_endpoint_t const *p_endpoint = (tusb_desc_endpoint_t const *) p_desc;
+      TU_ASSERT(TUSB_DESC_ENDPOINT == p_endpoint->bDescriptorType);
+      TU_ASSERT(TUSB_XFER_BULK == p_endpoint->bmAttributes.xfer);
+
+      pipe_handle_t * p_pipe_hdl =  ( p_endpoint->bEndpointAddress &  TUSB_DIR_IN_MASK ) ?
+          &p_cdc->pipe_in : &p_cdc->pipe_out;
+
+      (*p_pipe_hdl) = hcd_pipe_open(dev_addr, p_endpoint, TUSB_CLASS_CDC);
+      TU_ASSERT ( pipehandle_is_valid(*p_pipe_hdl) );
+
+      (*p_length) += p_desc[DESC_OFFSET_LEN];
+      p_desc = descriptor_next( p_desc );
+    }
+  }
+
+  // FIXME mounted class flag is not set yet
+  tuh_cdc_mounted_cb(dev_addr);
+
+  // FIXME move to seperate API : connect
+  tusb_control_request_t request =
+  {
+    .bmRequestType_bit = { .recipient = TUSB_REQ_RCPT_INTERFACE, .type = TUSB_REQ_TYPE_CLASS, .direction = TUSB_DIR_OUT },
+    .bRequest = CDC_REQUEST_SET_CONTROL_LINE_STATE,
+    .wValue = 0x03, // dtr on, cst on
+    .wIndex = p_cdc->interface_number,
+    .wLength = 0
+  };
+
+  TU_ASSERT( usbh_control_xfer(dev_addr, &request, NULL) );
+
+  return true;
+}
+
+void cdch_isr(pipe_handle_t pipe_hdl, xfer_result_t event, uint32_t xferred_bytes)
+{
+  tuh_cdc_xfer_isr( pipe_hdl.dev_addr, event, get_app_pipeid(pipe_hdl), xferred_bytes );
+}
+
+void cdch_close(uint8_t dev_addr)
+{
+  cdch_data_t * p_cdc = &cdch_data[dev_addr-1];
+
+  (void) hcd_pipe_close(p_cdc->pipe_notification);
+  (void) hcd_pipe_close(p_cdc->pipe_in);
+  (void) hcd_pipe_close(p_cdc->pipe_out);
+
+  tu_memclr(p_cdc, sizeof(cdch_data_t));
+
+  tuh_cdc_unmounted_cb(dev_addr);
+
+}
+
+#endif
