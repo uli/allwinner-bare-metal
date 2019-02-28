@@ -120,3 +120,57 @@ void usb_init() {
   uart_print("\r\n");
 
 }
+
+#include <common/binary.h>
+#include <common/tusb_types.h>
+
+void hcd_int_enable(uint8_t rhport)
+{
+  uart_print("USB int enable\r\n");
+}
+
+void hcd_int_disable(uint8_t rhport)
+{
+  uart_print("USB int disable\r\n");
+}
+
+extern uint32_t tick_counter;
+uint32_t tusb_hal_millis(void)
+{
+  return tick_counter * 1000 / 60;
+}
+
+void tuh_hid_keyboard_mounted_cb(uint8_t dev_addr)
+{
+  // application set-up
+  uart_print("\na Keyboard device (address %d) is mounted\n");//, dev_addr);
+}
+
+void tuh_hid_keyboard_unmounted_cb(uint8_t dev_addr)
+{
+  // application tear-down
+  uart_print("\na Keyboard device (address %d) is unmounted\n");//, dev_addr);
+}
+
+// invoked ISR context
+void tuh_hid_keyboard_isr(uint8_t dev_addr, xfer_result_t event)
+{
+
+}
+
+void tuh_hid_mouse_mounted_cb(uint8_t dev_addr)
+{
+  // application set-up
+  uart_print("\na Mouse device (address %d) is mounted\n");//, dev_addr);
+}
+
+void tuh_hid_mouse_unmounted_cb(uint8_t dev_addr)
+{
+  // application tear-down
+  uart_print("\na Mouse device (address %d) is unmounted\n");//, dev_addr);
+}
+
+// invoked ISR context
+void tuh_hid_mouse_isr(uint8_t dev_addr, xfer_result_t event)
+{
+}
