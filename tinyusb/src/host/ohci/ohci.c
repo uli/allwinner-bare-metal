@@ -38,7 +38,7 @@
 
 #include <common/tusb_common.h>
 
-#if TUSB_OPT_HOST_ENABLED && (CFG_TUSB_MCU == OPT_MCU_LPC175X_6X || CFG_TUSB_MCU == OPT_MCU_LPC40XX)
+#if TUSB_OPT_HOST_ENABLED && (CFG_TUSB_MCU == OPT_MCU_LPC175X_6X || CFG_TUSB_MCU == OPT_MCU_LPC40XX || CFG_TUSB_MCU == OPT_MCU_H3)
 //--------------------------------------------------------------------+
 // INCLUDE
 //--------------------------------------------------------------------+
@@ -54,7 +54,11 @@
 //--------------------------------------------------------------------+
 // MACRO CONSTANT TYPEDEF
 //--------------------------------------------------------------------+
+#if CFG_TUSB_MCU == OPT_MCU_H3
+#define OHCI_REG               ((ohci_registers_t *) USB1_BASE)
+#else
 #define OHCI_REG               ((ohci_registers_t *) LPC_USB_BASE)
+#endif
 
 enum {
   OHCI_CONTROL_FUNCSTATE_RESET = 0,
