@@ -49,6 +49,7 @@
 
 // defined by compiler flags for flexibility
 #define CFG_TUSB_MCU OPT_MCU_H3
+#define CFG_TUSB_MEM_SECTION __attribute__ ((section ("UNCACHED")))
 
 #ifndef CFG_TUSB_MCU
   #error CFG_TUSB_MCU must be defined
