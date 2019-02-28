@@ -145,10 +145,13 @@ uint32_t tusb_hal_millis(void)
   return tick_counter * 1000 / 60;
 }
 
+static hid_keyboard_report_t usb_keyboard_report;
+
 void tuh_hid_keyboard_mounted_cb(uint8_t dev_addr)
 {
   // application set-up
   uart_print("\na Keyboard device (address %d) is mounted\n");//, dev_addr);
+  tuh_hid_keyboard_get_report(dev_addr, (uint8_t*) &usb_keyboard_report); // first report
 }
 
 void tuh_hid_keyboard_unmounted_cb(uint8_t dev_addr)
@@ -160,7 +163,20 @@ void tuh_hid_keyboard_unmounted_cb(uint8_t dev_addr)
 // invoked ISR context
 void tuh_hid_keyboard_isr(uint8_t dev_addr, xfer_result_t event)
 {
+  switch(event)
+  {
+    case XFER_RESULT_SUCCESS:
+      tuh_hid_keyboard_get_report(dev_addr, (uint8_t*) &usb_keyboard_report);
+      printf("kbdrep %02X\r\n", usb_keyboard_report.keycode[0]);
+      break;
 
+    case XFER_RESULT_FAILED:
+      tuh_hid_keyboard_get_report(dev_addr, (uint8_t*) &usb_keyboard_report); // ignore & continue
+      break;
+
+    default :
+    break;
+  }
 }
 
 void tuh_hid_mouse_mounted_cb(uint8_t dev_addr)
