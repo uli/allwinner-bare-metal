@@ -150,14 +150,14 @@ static hid_keyboard_report_t usb_keyboard_report;
 void tuh_hid_keyboard_mounted_cb(uint8_t dev_addr)
 {
   // application set-up
-  uart_print("\na Keyboard device (address %d) is mounted\n");//, dev_addr);
+  printf("\na Keyboard device (address %d) is mounted\n", dev_addr);
   tuh_hid_keyboard_get_report(dev_addr, (uint8_t*) &usb_keyboard_report); // first report
 }
 
 void tuh_hid_keyboard_unmounted_cb(uint8_t dev_addr)
 {
   // application tear-down
-  uart_print("\na Keyboard device (address %d) is unmounted\n");//, dev_addr);
+  printf("\na Keyboard device (address %d) is unmounted\n", dev_addr);
 }
 
 // invoked ISR context
@@ -182,13 +182,13 @@ void tuh_hid_keyboard_isr(uint8_t dev_addr, xfer_result_t event)
 void tuh_hid_mouse_mounted_cb(uint8_t dev_addr)
 {
   // application set-up
-  uart_print("\na Mouse device (address %d) is mounted\n");//, dev_addr);
+  printf("\na Mouse device (address %d) is mounted\n", dev_addr);
 }
 
 void tuh_hid_mouse_unmounted_cb(uint8_t dev_addr)
 {
   // application tear-down
-  uart_print("\na Mouse device (address %d) is unmounted\n");//, dev_addr);
+  printf("\na Mouse device (address %d) is unmounted\n", dev_addr);
 }
 
 // invoked ISR context
