@@ -21,7 +21,7 @@ os.elf: $(OBJS) $(LIBC_OBJS)
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f $(OBJS) os.*
+	rm -f $(OBJS) $(LIBC_OBJS) os.*
 
 install: os.bin
 	sudo sunxi-fel spl ./sunxi-spl.bin write 0x4e000000 os.bin exe 0x4e000000
