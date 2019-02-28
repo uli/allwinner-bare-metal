@@ -44,7 +44,10 @@ void startup() {
   install_ivt();
 
   // Go back to sleep
-  while(1) asm("wfi");
+  while(1) {
+    asm("wfi");
+    usb_task();
+  }
 }
 
 void game_tick_next() {

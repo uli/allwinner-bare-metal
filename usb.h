@@ -73,3 +73,4 @@ struct hcca {
 } __attribute__ ((aligned (256)));
 
 void usb_init();
+void usb_task();

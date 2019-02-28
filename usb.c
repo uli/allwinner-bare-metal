@@ -179,3 +179,8 @@ void tuh_hid_mouse_unmounted_cb(uint8_t dev_addr)
 void tuh_hid_mouse_isr(uint8_t dev_addr, xfer_result_t event)
 {
 }
+
+void usb_task(void)
+{
+  tusb_task();
+}
