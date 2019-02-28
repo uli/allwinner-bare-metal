@@ -5,10 +5,12 @@
 
 extern uint32_t _ivt;
 void game_tick_next();
+void hal_hcd_isr(uint8_t hostid);
 
 // Called when an interrupt is triggered
 // Currently this is always triggered by at new frame at 60Hz
 void __attribute__((interrupt("FIQ"))) interrupt(void) {
+  hal_hcd_isr(0);
   game_tick_next();
   LCD0_GINT0 &= ~(1<<12);
 }
