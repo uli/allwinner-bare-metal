@@ -4,6 +4,8 @@
 #include "ports.h"
 #include "system.h"
 
+#include <tusb.h>
+
 // Allocate memory for a setup request and a setup response in DRAM
 char setup_request[8] __attribute__ ((section ("UNCACHED"))) __attribute__ ((aligned (16)));
 char setup_response[8] __attribute__ ((section ("UNCACHED"))) __attribute__ ((aligned (16)));
@@ -22,6 +24,7 @@ void usb_init() {
   USB1_HCI_ICR    = 0x00000701;
   USB1_HCI_UNK1 = 0;
 
+#if 0
   // Reset OHCI
   USB1_O_HCCOMMANDSTATUS |= 1;
   while(USB1_O_HCCOMMANDSTATUS & 1);
@@ -118,7 +121,9 @@ void usb_init() {
     uart_print(" ");
   }
   uart_print("\r\n");
-
+#else
+  tusb_init();
+#endif
 }
 
 #include <common/binary.h>
