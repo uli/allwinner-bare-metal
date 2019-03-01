@@ -47,6 +47,7 @@ void startup() {
   uart_print("Ready!\r\n");
   game_start();
 
+  set_pin_mode(PORTF, 6, 0);	// SD CD pin
 
   // Go back to sleep
   while(1) {
