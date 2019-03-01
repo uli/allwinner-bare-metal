@@ -6,11 +6,15 @@
 #include "interrupts.h"
 #include "ccu.h"
 #include "usb.h"
+#include "fs.h"
+#include <stdio.h>
 
 uint32_t tick_counter;
 
 void game_tick(uint32_t tick_counter);
 void game_start();
+
+int sd_detect;
 
 void startup() {
   init_bss();
@@ -48,6 +52,15 @@ void startup() {
   while(1) {
     asm("wfi");
     usb_task();
+    if (!sd_detect && !get_pin_data(PORTF, 6)) {
+      printf("card in\n");
+      if (!fs_init())
+        sd_detect = 1;
+    } else if (sd_detect && get_pin_data(PORTF, 6)) {
+      printf("card out\n");
+      fs_deinit();
+      sd_detect = 0;
+    }
   }
 }
 
