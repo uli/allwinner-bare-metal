@@ -128,10 +128,15 @@ void usb_init() {
 
 #include <common/binary.h>
 #include <common/tusb_types.h>
+#include "interrupts.h"
 
 void hcd_int_enable(uint8_t rhport)
 {
+  struct gicd_reg* gicd = (struct gicd_reg*) GICD_BASE;
   uart_print("USB int enable\r\n");
+  gicd->isenabler[107/32] = 1<<(107%32);
+  gicd->itargetsr[107] = 1;
+  gicd->ipriorityr[107] = 1;
 }
 
 void hcd_int_disable(uint8_t rhport)
@@ -145,7 +150,7 @@ uint32_t tusb_hal_millis(void)
   return tick_counter * 1000 / 60;
 }
 
-static hid_keyboard_report_t usb_keyboard_report;
+static hid_keyboard_report_t usb_keyboard_report __attribute__ ((section ("UNCACHED")));
 
 void tuh_hid_keyboard_mounted_cb(uint8_t dev_addr)
 {
@@ -166,8 +171,13 @@ void tuh_hid_keyboard_isr(uint8_t dev_addr, xfer_result_t event)
   switch(event)
   {
     case XFER_RESULT_SUCCESS:
+      printf("kbdrep %02X %02X %02X %02X\r\n",
+        usb_keyboard_report.keycode[0],
+        usb_keyboard_report.keycode[1],
+        usb_keyboard_report.keycode[2],
+        usb_keyboard_report.keycode[3]
+      );
       tuh_hid_keyboard_get_report(dev_addr, (uint8_t*) &usb_keyboard_report);
-      printf("kbdrep %02X\r\n", usb_keyboard_report.keycode[0]);
       break;
 
     case XFER_RESULT_FAILED:

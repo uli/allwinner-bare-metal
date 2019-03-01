@@ -55,7 +55,7 @@
 // MACRO CONSTANT TYPEDEF
 //--------------------------------------------------------------------+
 #if CFG_TUSB_MCU == OPT_MCU_H3
-#define OHCI_REG               ((ohci_registers_t *) USB1_BASE)
+#define OHCI_REG               ((ohci_registers_t *) (USB1_BASE + 0x400))
 #else
 #define OHCI_REG               ((ohci_registers_t *) LPC_USB_BASE)
 #endif
