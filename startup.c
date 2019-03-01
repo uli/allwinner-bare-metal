@@ -17,6 +17,9 @@ void game_start();
 int sd_detect;
 
 void startup() {
+  // Set up MMU and paging configuration
+  mmu_init();
+
   init_bss();
 
   // Reboot in n seconds using watchdog
@@ -28,9 +31,6 @@ void startup() {
   // Configure the UART for debugging
   uart_init();
   uart_print("Booting!\r\n");
-
-  // Set up MMU and paging configuration
-  mmu_init();
 
   // Illuminate the power LED
   set_pin_mode(PORTL, 10, 1); // PORT L10 output
