@@ -17,6 +17,8 @@ void game_start();
 int sd_detect;
 
 void startup() {
+  install_ivt();
+
   // Set up MMU and paging configuration
   mmu_init();
 
@@ -38,8 +40,6 @@ void startup() {
 
   // Configure display
   display_init((volatile uint32_t*)(0x60000000-VIDEO_RAM_BYTES));
-
-  install_ivt();
 
   // USB
   usb_init();
