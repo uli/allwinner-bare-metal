@@ -38,11 +38,8 @@ void install_ivt() {
   for(int n=0; n<2*8; n++)
     destination[n] = source[n];
 
-  struct gicd_reg* gicd = (struct gicd_reg*) GICD_BASE;
-  gicd->ctlr = 1;
-  gicd->isenabler[118/32] = 1<<(118%32);
-  gicd->itargetsr[118] = 1;
-  gicd->ipriorityr[118] = 1;
+  irq_enable(118);	// LCD0
+
   struct gicc_reg* gicc = (struct gicc_reg*) GICC_BASE;
   gicc->ctlr = 1;
   gicc->pmr = 10;

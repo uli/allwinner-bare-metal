@@ -132,16 +132,12 @@ void usb_init() {
 
 void hcd_int_enable(uint8_t rhport)
 {
-  struct gicd_reg* gicd = (struct gicd_reg*) GICD_BASE;
-  uart_print("USB int enable\r\n");
-  gicd->isenabler[107/32] = 1<<(107%32);
-  gicd->itargetsr[107] = 1;
-  gicd->ipriorityr[107] = 1;
+  irq_enable(107);
 }
 
 void hcd_int_disable(uint8_t rhport)
 {
-  uart_print("USB int disable\r\n");
+  irq_disable(107);
 }
 
 extern uint32_t tick_counter;
