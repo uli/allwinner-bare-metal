@@ -31,3 +31,8 @@ void set_pin_data(uint32_t port_addr, uint32_t pin, uint32_t data) {
     port->data &= ~(1 << pin);
   }
 }
+
+int get_pin_data(uint32_t port_addr, uint32_t pin) {
+  struct port_registers * port = (struct port_registers *)port_addr;
+  return !!(port->data & (1 << pin));
+}
