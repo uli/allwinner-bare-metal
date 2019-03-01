@@ -1,6 +1,7 @@
 SECTIONS
 {
   . = 0x4e000000;
+  _hend = . ;
   .text : {
     boot.o(.text)
     *(.text)
