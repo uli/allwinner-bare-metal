@@ -31,31 +31,30 @@
 /* Platform dependent macros and functions needed to be modified           */
 /*-------------------------------------------------------------------------*/
 
-#include <bcm2835.h>						/* Include device specific declaration file here */
+#include "../ports.h"			/* Include device specific declaration file here */
+#include "../system.h"
 
 //#define		INIT_PORT()	init_port()			/* Initialize MMC control port (CS=H, CLK=L, DI=H, DO=in) */
-#define 	DLY_US(n)	bcm2835_delay(n)	/* Delay n microseconds */
+#define 	DLY_US(n)	udelay(n)	/* Delay n microseconds */
 
-#define		CS_H()		bcm2835_gpio_set(RPI_GPIO_P1_26)	/* Set MMC CS "high" */
-#define 	CS_L()		bcm2835_gpio_clr(RPI_GPIO_P1_26)	/* Set MMC CS "low" */
-#define 	CK_H()		bcm2835_gpio_set(RPI_GPIO_P1_23)	/* Set MMC SCLK "high" */
-#define		CK_L()		bcm2835_gpio_clr(RPI_GPIO_P1_23)	/* Set MMC SCLK "low" */
-#define 	DI_H()		bcm2835_gpio_set(RPI_GPIO_P1_19)	/* Set MMC DI "high" */
-#define 	DI_L()		bcm2835_gpio_clr(RPI_GPIO_P1_19)	/* Set MMC DI "low" */
-#define 	DO			bcm2835_gpio_lev(RPI_GPIO_P1_21)	/* Test for MMC DO ('H':true, 'L':false) */
+#define		CS_H()		set_pin_data(PORTF, 4, 1)	/* Set MMC CS "high" */
+#define 	CS_L()		set_pin_data(PORTF, 4, 0)	/* Set MMC CS "low" */
+#define 	CK_H()		set_pin_data(PORTF, 2, 1)	/* Set MMC SCLK "high" */
+#define		CK_L()		set_pin_data(PORTF, 2, 0)	/* Set MMC SCLK "low" */
+#define 	DI_H()		set_pin_data(PORTF, 3, 1)	/* Set MMC DI "high" */
+#define 	DI_L()		set_pin_data(PORTF, 3, 0)	/* Set MMC DI "low" */
+#define 	DO		get_pin_data(PORTF, 1)	/* Test for MMC DO ('H':true, 'L':false) */
 
 
 
 void init_port(void) {
-	bcm2835_init();
-
-	bcm2835_gpio_fsel(RPI_GPIO_P1_23, BCM2835_GPIO_FSEL_OUTP); // CLK
-	bcm2835_gpio_clr(RPI_GPIO_P1_23);
-	bcm2835_gpio_fsel(RPI_GPIO_P1_19, BCM2835_GPIO_FSEL_OUTP); // MOSI
-	bcm2835_gpio_set(RPI_GPIO_P1_19);
-	bcm2835_gpio_fsel(RPI_GPIO_P1_26, BCM2835_GPIO_FSEL_OUTP); // CE1
-	bcm2835_gpio_set(RPI_GPIO_P1_26);
-	bcm2835_gpio_fsel(RPI_GPIO_P1_21, BCM2835_GPIO_FSEL_INPT); // MISO
+	set_pin_mode(PORTF, 4, 1);
+	CS_H();
+	set_pin_mode(PORTF, 2, 1);
+	CK_H();
+	set_pin_mode(PORTF, 3, 1);
+	DI_H();
+	set_pin_mode(PORTF, 1, 0);
 }
 
 
