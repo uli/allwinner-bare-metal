@@ -18,9 +18,12 @@ int irq_pending(uint32_t irq)
 // Called when an interrupt is triggered
 // Currently this is always triggered by at new frame at 60Hz
 void __attribute__((interrupt("FIQ"))) interrupt(void) {
-  hal_hcd_isr(0);
-  game_tick_next();
-  LCD0_GINT0 &= ~(1<<12);
+  if (irq_pending(107))
+    hal_hcd_isr(0);
+  if (irq_pending(118)) {
+    game_tick_next();
+    LCD0_GINT0 &= ~(1<<12);
+  }
 }
 
 void irq_enable(uint32_t irq)
