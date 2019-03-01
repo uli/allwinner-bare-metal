@@ -7,6 +7,14 @@ extern uint32_t _ivt;
 void game_tick_next();
 void hal_hcd_isr(uint8_t hostid);
 
+int irq_pending(uint32_t irq)
+{
+  struct gicd_reg* gicd = (struct gicd_reg*) GICD_BASE;
+  if (gicd->ispendr[irq / 32] & (1 << (irq % 32)))
+    return 1;
+  return 0;
+}
+
 // Called when an interrupt is triggered
 // Currently this is always triggered by at new frame at 60Hz
 void __attribute__((interrupt("FIQ"))) interrupt(void) {

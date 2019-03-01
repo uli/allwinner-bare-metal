@@ -8,8 +8,8 @@ struct gicd_reg {
   uint32_t igroupr[32];    /* 0x080 - 0x0FC */
   uint32_t isenabler[32];
   uint32_t icenabler[32];
-  uint32_t ispender[32];
-  uint32_t icpender[32];
+  uint32_t ispendr[32];
+  uint32_t icpendr[32];
   uint32_t isactiver[32];
   uint32_t icactiver[32];
   uint8_t  ipriorityr[1024];
@@ -50,3 +50,4 @@ void install_ivt();
 
 void irq_enable(uint32_t irq);
 void irq_disable(uint32_t irq);
+int irq_pending(uint32_t irq);
