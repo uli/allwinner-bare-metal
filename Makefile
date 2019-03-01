@@ -13,7 +13,9 @@ USB_OBJS = tinyusb/src/host/ohci/ohci.o tinyusb/src/host/usbh.o tinyusb/src/host
 LIBC_CSRC = $(wildcard Baselibc/src/*.c) libc_io.c
 LIBC_OBJS = $(LIBC_CSRC:.c=.o)
 
-ALL_OBJS = $(OBJS) $(USB_OBJS) $(LIBC_OBJS)
+SD_OBJS = sdgpio/mmcbb.o sdgpio/ff.o
+
+ALL_OBJS = $(OBJS) $(USB_OBJS) $(LIBC_OBJS) $(SD_OBJS)
 
 os.bin: os.elf
 	$(OBJCOPY) -O binary --remove-section .uncached os.elf os.bin
