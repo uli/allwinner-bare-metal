@@ -1,7 +1,5 @@
 #define GICD_BASE 0x01C81000
 
-
-#define GICD_BASE 0x01C81000
 struct gicd_reg {
   uint32_t ctlr;           /* 0x000 */
   uint32_t typer;          /* 0x004 */
@@ -49,3 +47,6 @@ struct gicc_reg {
 };
 
 void install_ivt();
+
+void irq_enable(uint32_t irq);
+void irq_disable(uint32_t irq);

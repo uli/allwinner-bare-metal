@@ -15,6 +15,22 @@ void __attribute__((interrupt("FIQ"))) interrupt(void) {
   LCD0_GINT0 &= ~(1<<12);
 }
 
+void irq_enable(uint32_t irq)
+{
+  struct gicd_reg* gicd = (struct gicd_reg*) GICD_BASE;
+  gicd->ctlr = 1;
+  gicd->isenabler[irq/32] = 1<<(irq%32);
+  gicd->itargetsr[irq] = 1;
+  gicd->ipriorityr[irq] = 1;
+
+}
+
+void irq_disable(uint32_t irq)
+{
+  struct gicd_reg* gicd = (struct gicd_reg*) GICD_BASE;
+  gicd->icenabler[irq/32] = 1 << (irq % 32);
+}
+
 // Copy the interrupt table from _ivt to 0x0
 void install_ivt() {
   uint32_t* source = &_ivt;
