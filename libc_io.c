@@ -5,6 +5,8 @@ static size_t stdio_write(FILE *instance, const char *bp, size_t n)
 	if (instance == stdout || instance == stderr) {
 		int c = n;
 		while(c--) {
+			if (*bp == '\n')
+				uart_putc('\r');
 			uart_putc(*bp++);
 		}
 		return n;

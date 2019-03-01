@@ -167,7 +167,7 @@ void tuh_hid_keyboard_isr(uint8_t dev_addr, xfer_result_t event)
   switch(event)
   {
     case XFER_RESULT_SUCCESS:
-      printf("kbdrep %02X %02X %02X %02X\r\n",
+      printf("kbdrep %02X %02X %02X %02X\n",
         usb_keyboard_report.keycode[0],
         usb_keyboard_report.keycode[1],
         usb_keyboard_report.keycode[2],
