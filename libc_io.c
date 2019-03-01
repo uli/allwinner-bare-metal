@@ -2,17 +2,14 @@
 #include "uart.h"
 static size_t stdio_write(FILE *instance, const char *bp, size_t n)
 {
-	if (instance == stdout || instance == stderr) {
-		int c = n;
-		while(c--) {
-			if (*bp == '\n')
-				uart_putc('\r');
-			uart_putc(*bp++);
-		}
-		return n;
-	} else {
-		return 0;
+	int c = n;
+	(void)instance;	// always stdout or stderr
+	while(c--) {
+		if (*bp == '\n')
+			uart_putc('\r');
+		uart_putc(*bp++);
 	}
+	return n;
 }
 
 static struct File_methods stdio_methods = {
