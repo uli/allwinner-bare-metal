@@ -36,3 +36,29 @@ int get_pin_data(uint32_t port_addr, uint32_t pin) {
   struct port_registers * port = (struct port_registers *)port_addr;
   return !!(port->data & (1 << pin));
 }
+
+void set_pin_drive(uint32_t port_addr, uint32_t pin, uint32_t strength)
+{
+  volatile struct port_registers *port = (struct port_registers *)port_addr;
+  if (pin < 16) {
+  	port->drv0 &= 3 << pin * 2;
+  	port->drv0 |= strength << pin * 2;
+  } else {
+  	pin -= 16;
+  	port->drv1 &= 3 << pin * 2;
+  	port->drv1 |= strength << pin * 2;
+  }
+}
+
+void set_pin_pull(uint32_t port_addr, uint32_t pin, uint32_t pull)
+{
+  volatile struct port_registers *port = (struct port_registers *)port_addr;
+  if (pin < 16) {
+  	port->pul0 &= 3 << pin * 2;
+  	port->pul0 |= pull << pin * 2;
+  } else {
+  	pin -= 16;
+  	port->pul1 &= 3 << pin * 2;
+  	port->pul1 |= pull << pin * 2;
+  }
+}
