@@ -123,7 +123,10 @@ void sd_send_init(void)
 /* MMC/SD commands */
 #define CMD0	(0)			/* GO_IDLE_STATE */
 #define CMD1	(1)			/* SEND_OP_COND */
+#define CMD2	(2)			/* ALL_SEND_CID */
+#define CMD3	(3)			/* SEND_RELATIVE_ADDR */
 #define	ACMD41	(0x80+41)	/* SEND_OP_COND (SDC) */
+#define CMD7	(7)			/* SELECT_CARD */
 #define CMD8	(8)			/* SEND_IF_COND */
 #define CMD9	(9)			/* SEND_CSD */
 #define CMD10	(10)		/* SEND_CID */
@@ -289,7 +292,7 @@ DSTATUS disk_initialize (
 )
 {
 	BYTE ty, cmd;
-	UINT tmr;
+	UINT tmr, rca;
 	DSTATUS s;
 
 	if (pdrv) return RES_NOTRDY;
@@ -327,6 +330,13 @@ DSTATUS disk_initialize (
 			if (!tmr || send_cmd(CMD16, 512) != 0)	/* Set R/W block length to 512 */
 				ty = 0;
 		}
+		if (send_cmd(CMD2, 0) == 0 &&
+		    send_cmd(CMD3, 0) == 0) {
+			rca = SUNXI_SD_RESP0(0) >> 16;
+			if (send_cmd(CMD7, rca << 16) != 0)
+				ty = 0;
+		} else
+			ty = 0;
 	}
 	CardType = ty;
 	s = ty ? 0 : STA_NOINIT;
