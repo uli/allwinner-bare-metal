@@ -10,15 +10,18 @@ volatile uint32_t framebuffer3[512*512] __attribute__ ((section ("UNCACHED")));
 
 void display_clocks_init() {
   // Set up shared and dedicated clocks for HDMI, LCD/TCON and DE2
-  PLL_DE_CTRL      = 0x91002300;//(1<<31) | (1<<24) | (17<<8) | (0<<0); // 432MHz
-  PLL_VIDEO_CTRL   = 0x93006207;//(1<<31) | (1<<25) | (1<<24) | (98<<8) | (7<<0); // 297MHz
+  PLL_DE_CTRL      = (1<<31) | (1<<24) | (17<<8) | (0<<0); // 432MHz
+  PLL_VIDEO_CTRL   = (1<<31) | (1<<25) | (1<<24) | (98<<8) | (7<<0); // 297MHz
   BUS_CLK_GATING1 |= (1<<12) | (1<<11) | (1<<3); // Enable DE, HDMI, TCON0	// check
   BUS_SOFT_RST1   |= (1<<12) | (3<<10) | (1<<3); // De-assert reset of DE, HDMI0/1, TCON0
-//  BUS_SOFT_RST1 = 0x00701C09;
-  DE_CLK           = 0x81000001;//(1<<31) | (1<<24); // Enable DE clock, set source to PLL_DE
-  HDMI_CLK         = 0x80000001;//(1<<31); // Enable HDMI clk (use PLL3)
+  DE_CLK           = (1<<31) | (1<<24); // Enable DE clock, set source to PLL_DE
+  HDMI_CLK         = (1<<31); // Enable HDMI clk (use PLL3)
   HDMI_SLOW_CLK    = (1<<31); // Enable HDMI slow clk	// check
-  TCON0_CLK        = 0x80000001;//(1<<31) | 3; // Enable TCON0 clk, divide by 4
+
+  // XXX: OPi seems to be running at a lower frequency.
+  //TCON0_CLK        = (1<<31) | 3; // Enable TCON0 clk, divide by 4
+  // This setting, also used by the Linux kernel, works.
+  TCON0_CLK        = 0x80000001;
 }
 
 void hdmi_init() {
