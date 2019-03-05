@@ -60,7 +60,7 @@
 #define SUNXI_MMC_STATUS_FIFO_FULL	(1 << 3)
 
 // Flags for SUNXI_SD_RINTSTS(n) registers
-#define SUNXI_MMC_RINT_COMMAND_DONE				(1 << 2)
+#define SUNXI_MMC_RINT_COMMAND_DONE		(1 << 2)
 #define SUNXI_MMC_RINT_DATA_OVER		(1 << 3)
 #define SUNXI_MMC_RINT_AUTO_COMMAND_DONE	(1 << 14)
 
@@ -75,6 +75,7 @@ static void sd_change_clock(DWORD div)
 {
 	debug("%s\n", __FUNCTION__);
 
+	// Turn off clock
 	SUNXI_SD_CLKDIV(0) = 0;
 
 	SUNXI_SD_CMD(0) = 0x80202000;	// change clock
@@ -85,8 +86,10 @@ static void sd_change_clock(DWORD div)
 	SUNXI_SD_RINTSTS(0) = SUNXI_SD_RINTSTS(0);	// clear interrupts
 	debug("off\n");
 
+	// Set clock source and dividers
 	SDMMC0_CLK = 0x8002000e;
 
+	// Turn clock back on
 	SUNXI_SD_CLKDIV(0) = 0x10000 | div;
 
 	SUNXI_SD_CMD(0) = 0x80202000;	// change clock
@@ -215,13 +218,14 @@ BYTE send_cmd_data (		/* Returns command response (bit7==1:Send failed)*/
 		for (int i = 0; i < bytes / 4; ++i) {
 			while (SUNXI_SD_STATUS(0) & wait_bit) {
 				udelay(10);
+				debug("wbit %d R %08X S %08X\n", wait_bit,
+					SUNXI_SD_RINTSTS(0), SUNXI_SD_STATUS(0));
 				// XXX: timeout!
 			}
 			if (is_write)
 				SUNXI_SD_FIFO(0) = buf32[i];
 			else
 				buf32[i] = SUNXI_SD_FIFO(0);
-			printf("xferd dword %d %08X\n", i, buf32[i]);
 		}
 	}
 
@@ -283,8 +287,8 @@ DSTATUS disk_status (
 	/* Check if the card is kept initialized */
 	s = Stat;
 	if (!(s & STA_NOINIT)) {
-//		if (send_cmd(CMD13, 0))	/* Read card status */
-//			s = STA_NOINIT;
+		if (send_cmd(CMD13, 0))	/* Read card status */
+			s = STA_NOINIT;
 	}
 	Stat = s;
 
@@ -456,7 +460,7 @@ DRESULT disk_ioctl (
 	res = RES_ERROR;
 	switch (cmd) {
 		case CTRL_SYNC :		/* Make sure that no pending write process */
-			// XXX: um...
+			// XXX: How?
 			res = RES_OK;
 			break;
 
