@@ -113,8 +113,8 @@ void init_port(void) {
 		set_pin_drive(PORTF, i, 2);
 	}
 
-	// FIFO DMA, SDR, IRQ/global DMA/debounce off, DMA/FIFO/soft reset
-	SUNXI_SD_CTRL(0) = 0x00000007;
+	// no FIFO DMA, SDR, IRQ/global DMA/debounce off, DMA/FIFO/soft reset
+	SUNXI_SD_CTRL(0) = 0x80000007;
 	SUNXI_SD_CTYPE(0) = 0;		// bus width 1 bit
 	SDMMC0_CLK = 0x8002000e;
 
