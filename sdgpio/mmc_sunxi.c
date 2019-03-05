@@ -214,7 +214,7 @@ BYTE send_cmd_data (		/* Returns command response (bit7==1:Send failed)*/
 		DWORD *buf32 = (DWORD *)buf;
 		for (int i = 0; i < bytes / 4; ++i) {
 			while (SUNXI_SD_STATUS(0) & wait_bit) {
-				// wait
+				udelay(10);
 				// XXX: timeout!
 			}
 			if (is_write)
@@ -310,7 +310,6 @@ DSTATUS disk_initialize (
 	udelay(1000);
 	init_port();
 
-	udelay(1000);
 	sd_send_init();
 
 	ty = 0;
@@ -340,11 +339,16 @@ DSTATUS disk_initialize (
 			if (!tmr || send_cmd(CMD16, 512) != 0)	/* Set R/W block length to 512 */
 				ty = 0;
 		}
-		if (send_cmd(CMD2, 0) == 0 &&
-		    send_cmd(CMD3, 0) == 0) {
-			rca = SUNXI_SD_RESP0(0) >> 16;
-			if (send_cmd(CMD7, rca << 16) != 0)
-				ty = 0;
+		if (send_cmd(CMD2, 0) == 0) {
+			// If we don't wait here, the initialization fails when
+			// debug output is switched off.
+			// XXX: Find out what the proper procedure is at this point.
+			udelay(1000);
+			if (send_cmd(CMD3, 0) == 0) {
+				rca = SUNXI_SD_RESP0(0) >> 16;
+				if (send_cmd(CMD7, rca << 16) != 0)
+					ty = 0;
+			}
 		} else
 			ty = 0;
 	}
