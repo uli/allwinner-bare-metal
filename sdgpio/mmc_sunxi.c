@@ -89,6 +89,7 @@ static void sd_change_clock(DWORD div)
 
 	// Set clock source and dividers
 	SDMMC0_CLK = 0x8002000e;
+	//SDMMC0_CLK = 0x8140030B;	// u-boot after initialization
 
 	// Turn clock back on
 	SUNXI_SD_CLKDIV(0) = 0x10000 | div;
