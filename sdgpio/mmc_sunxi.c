@@ -11,6 +11,9 @@
 / * Redistributions of source code must retain the above copyright notice.
 /-------------------------------------------------------------------------*/
 
+//#define DEBUG_SDMMC
+#define DEBUG_READ_FIRST_BLOCK
+
 #include "diskio.h"		/* Common include file for FatFs and disk I/O layer */
 
 
@@ -22,6 +25,12 @@
 #include "../system.h"
 #include "../ccu.h"
 #include <stdio.h>
+
+#ifdef DEBUG_SDMMC
+#define debug printf
+#else
+#define debug(...)
+#endif
 
 // Base address of SDMMC controllers
 #define SUNXI_SD_BASE_BASE	0x01c0f000
@@ -64,7 +73,8 @@
 
 static void sd_change_clock(DWORD div)
 {
-	printf("%s\n", __FUNCTION__);
+	debug("%s\n", __FUNCTION__);
+
 	SUNXI_SD_CLKDIV(0) = 0;
 
 	SUNXI_SD_CMD(0) = 0x80202000;	// change clock
@@ -73,7 +83,7 @@ static void sd_change_clock(DWORD div)
 		// XXX: timeout!
 	}
 	SUNXI_SD_RINTSTS(0) = SUNXI_SD_RINTSTS(0);	// clear interrupts
-	printf("off\n");
+	debug("off\n");
 
 	SDMMC0_CLK = 0x8002000e;
 
@@ -88,7 +98,7 @@ static void sd_change_clock(DWORD div)
 }
 
 void init_port(void) {
-	printf("%s\n", __FUNCTION__);
+	debug("%s\n", __FUNCTION__);
 	BUS_CLK_GATING0 |= (1 << 8);	// pass clock
 	BUS_SOFT_RST0 &= ~(1 << 8);
 	udelay(200);
@@ -109,7 +119,7 @@ void init_port(void) {
 
 void sd_send_init(void)
 {
-	printf("%s\n", __FUNCTION__);
+	debug("%s\n", __FUNCTION__);
 	SUNXI_SD_CTYPE(0) = 0;	// bus width 1
 	SUNXI_SD_CMDARG(0) = 0;
 	SUNXI_SD_CMD(0) = 0x80008000;	// CMD0, don't change clock, send init seq
@@ -166,7 +176,7 @@ BYTE send_cmd_data (		/* Returns command response (bit7==1:Send failed)*/
 )
 {
 	BYTE n;
-	printf("%s cmd %d arg %08X buf 0x%08x bytes %d\n", __FUNCTION__, cmd, arg, buf, bytes);
+	debug("%s cmd %d arg %08X buf 0x%08x bytes %d\n", __FUNCTION__, cmd, arg, buf, bytes);
 	int is_write = cmd == CMD24 || cmd == CMD25;
 
 	if (cmd == CMD12)
@@ -195,7 +205,7 @@ BYTE send_cmd_data (		/* Returns command response (bit7==1:Send failed)*/
 	
 	SUNXI_SD_CMDARG(0) = arg;
 
-	printf("cmd reg %08X\n", cmdreg);
+	debug("cmd reg %08X\n", cmdreg);
 	SUNXI_SD_CMD(0) = cmdreg;
 
 	if (buf) {
@@ -236,7 +246,7 @@ BYTE send_cmd_data (		/* Returns command response (bit7==1:Send failed)*/
 
 	SUNXI_SD_RINTSTS(0) = 0xffffffff;
 	SUNXI_SD_CTRL(0) |= 2;	// reset FIFO
-	printf("resp0 %08X\n", SUNXI_SD_RESP0(0));
+	debug("resp0 %08X\n", SUNXI_SD_RESP0(0));
 	
 	return 0;			/* Return with the response value */
 }
@@ -342,17 +352,19 @@ DSTATUS disk_initialize (
 	s = ty ? 0 : STA_NOINIT;
 	Stat = s;
 
+#ifdef DEBUG_READ_FIRST_BLOCK
 	printf("type %d\n", ty);
 	if (!s) {
 		BYTE buf[512];
 		disk_read(0, buf, 0, 1);
-		for (int i = 0; i < 128; ++i) {
+		for (int i = 0; i < 512; ++i) {
 			if (!(i&0xf)) {
 				printf("\n%08X  ", i);
 			}
 			printf("%02X ", buf[i]);
 		}
 	}
+#endif
 
 	return s;
 }
