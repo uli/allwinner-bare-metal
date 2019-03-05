@@ -58,6 +58,7 @@
 // Flags for SUNXI_SD_STATUS(n) registers
 #define SUNXI_MMC_STATUS_FIFO_EMPTY	(1 << 2)
 #define SUNXI_MMC_STATUS_FIFO_FULL	(1 << 3)
+#define SUNXI_MMC_STATUS_CARD_DATA_BUSY	(1 << 9)
 
 // Flags for SUNXI_SD_RINTSTS(n) registers
 #define SUNXI_MMC_RINT_COMMAND_DONE		(1 << 2)
