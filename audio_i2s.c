@@ -1,5 +1,17 @@
 #include "audio.h"
 #include "ccu.h"
+#include "system.h"
+#include <stdio.h>
+
+void audio_queue_samples(void)
+{
+	static int count = 0;
+	while (((I2S_FSTA(2) >> 16) & 0xff) > 2) {
+		I2S_TXFIFO(2) = (count / 100) * 0xffff;
+		I2S_TXFIFO(2) = (count / 100) * 0xffff;
+		count++;
+	}
+}
 
 void audio_i2s2_init(void)
 {

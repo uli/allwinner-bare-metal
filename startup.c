@@ -69,6 +69,7 @@ void startup() {
       fs_deinit();
       sd_detect = 0;
     }
+    audio_queue_samples();
   }
 }
 

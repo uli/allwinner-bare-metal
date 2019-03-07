@@ -35,6 +35,10 @@ void audio_i2s2_on(void);
 #define I2S_FCTL_FRX		(1 << 24)
 #define I2S_FCTL_FTX		(1 << 25)
 
+#define I2S_FSTA(n)		I2S_REG(n, 0x18)
+#define I2S_FSTA_TXE		(1 << 28)
+
+#define I2S_TXFIFO(n)		I2S_REG(n, 0x20)
 #define I2S_INT(n)		I2S_REG(n, 0x1c)
 
 #define I2S_CLKD(n)		I2S_REG(n, 0x24)
