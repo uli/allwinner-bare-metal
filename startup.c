@@ -3,6 +3,7 @@
 #include "mmu.h"
 #include "system.h"
 #include "display.h"
+#include "audio.h"
 #include "interrupts.h"
 #include "ccu.h"
 #include "usb.h"
@@ -44,6 +45,7 @@ void startup() {
   // Configure display
   display_init((volatile uint32_t*)(0x60000000-VIDEO_RAM_BYTES));
   audio_hdmi_init();
+  audio_i2s2_init();
 
   // USB
   usb_init();

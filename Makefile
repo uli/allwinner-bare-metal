@@ -6,7 +6,7 @@ CFLAGS=-MMD -T linker.ld -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -fpic -ffre
 	-I tinyusb/src -I Baselibc/include -I Baselibc/src/templates
 
 OBJS = boot.o startup.o uart.o ports.o mmu.o system.o display.o interrupts.o \
-       spritelayers.o usb.o demo.o fs.o audio_hdmi.o
+       spritelayers.o usb.o demo.o fs.o audio_hdmi.o audio_i2s.o
 
 USB_OBJS = tinyusb/src/host/ohci/ohci.o tinyusb/src/host/usbh.o tinyusb/src/host/hub.o \
 	tinyusb/src/class/hid/hid_host.o tinyusb/src/common/tusb_fifo.o \
