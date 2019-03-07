@@ -1,4 +1,5 @@
 #include "audio.h"
+#include "system.h"
 
 void audio_hdmi_init(void)
 {
@@ -30,6 +31,8 @@ void audio_hdmi_init(void)
 	HDMI_REG8(0x0250) = 0x00;
 	HDMI_REG8(0x0081) = 0x08;
 	HDMI_REG8(0x8080) = 0xF7;
+	udelay(100);
 	HDMI_REG8(0x0250) = 0xAF;
+	udelay(100);
 	HDMI_REG8(0x0081) = 0x00;
 }
