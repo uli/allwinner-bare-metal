@@ -24,7 +24,10 @@ void audio_i2s2_on(void)
 {
 	I2S_TX0CHSEL_H3(2) = I2S_TXnCHSEL_OFFSET_1 | I2S_TXnCHSEL_CHSEL_2 |
 			     I2S_TXnCHSEL_CHEN_0 | I2S_TXnCHSEL_CHEN_1; // 0x00001031
-	I2S_TX0CHMAP_H3(2) = I2S_TXnCHMAP_CH0_SAMPLE(0) | I2S_TXnCHMAP_CH1_SAMPLE(1); // 0x00000010
+
+	// XXX: This is the value used by Linux, but shouldn't it be more like
+	// "I2S_TXnCHMAP_CH0_SAMPLE(0) | I2S_TXnCHMAP_CH1_SAMPLE(1)"?
+	I2S_TX0CHMAP_H3(2) = I2S_TXnCHMAP_CH0_SAMPLE(0) | I2S_TXnCHMAP_CH1_SAMPLE(0);
 
 	// Set clock dividers.
 	// BCLK/8 is good for both 44.1 and 48 kHz, must set input
