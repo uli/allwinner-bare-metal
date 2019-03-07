@@ -1,8 +1,13 @@
+#include <stdint.h>
+
 #define VIDEO_RAM_BYTES 0x180000
 
 // The HDMI registers base address.
 #define HDMI_BASE 0x01EE0000
 #define HDMI_PHY_BASE (HDMI_BASE + 0x10000)
+
+#define HDMI_REG8(off)	      *(volatile uint8_t *)(HDMI_BASE + (off))
+#define HDMI_REG32(off)	      *(volatile uint32_t *)(HDMI_BASE + (off))
 
 // HDMI register helpers.
 #define HDMI_PHY_POL          *(volatile uint32_t*)(HDMI_BASE + 0x10000)

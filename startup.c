@@ -43,6 +43,7 @@ void startup() {
 
   // Configure display
   display_init((volatile uint32_t*)(0x60000000-VIDEO_RAM_BYTES));
+  audio_hdmi_init();
 
   // USB
   usb_init();
