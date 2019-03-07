@@ -2,6 +2,7 @@
 
 void audio_hdmi_init(void);
 void audio_i2s2_init(void);
+void audio_i2s2_on(void);
 
 #define I2S_BASE_BASE	0x01c22000
 #define I2S_BASE(n)	(I2S_BASE_BASE + (n) * 0x400)
