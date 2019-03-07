@@ -4,11 +4,19 @@
 void audio_i2s2_init(void)
 {
 	// enable audio PLL, default value (24.571 MHz)
-	PLL_AUDIO_CTRL = 0x80035514;
+	PLL_AUDIO_CTRL = 0x810d0d00;
+	while (!(PLL_AUDIO_CTRL & (1 << 28))) {
+		// wait
+	}
 
 	// enable clock, source PLL_AUDIO (no multiplier)
 	// XXX: correct?
-	I2S_PCM2_CLK = 0x80000003;
+	I2S_PCM2_CLK = 0x80030000;
+	BUS_SOFT_RST3 &= ~(1 << 14);
+	udelay(100);
+	BUS_SOFT_RST3 |= 1 << 14;
+	udelay(100);
+	BUS_CLK_GATING2 |= (1 << 14);
 	udelay(100);
 }
 
