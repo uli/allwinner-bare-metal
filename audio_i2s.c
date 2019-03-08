@@ -1,16 +1,18 @@
 #include "audio.h"
 #include "ccu.h"
 #include "system.h"
+#include "interrupts.h"
 #include <stdio.h>
 
+int sample_count;
 void audio_queue_samples(void)
 {
-	static int count = 0;
 	while (((I2S_FSTA(2) >> 16) & 0xff) > 2) {
-		I2S_TXFIFO(2) = (count / 100) * 0xffff;
-		I2S_TXFIFO(2) = (count / 100) * 0xffff;
-		count++;
+		I2S_TXFIFO(2) = (sample_count / 100) * 0xffff;
+		I2S_TXFIFO(2) = (sample_count / 100) * 0xffff;
+		sample_count++;
 	}
+	// TXEI clears itself when the FIFO is full again
 }
 
 void audio_i2s2_init(void)
@@ -71,7 +73,8 @@ void audio_i2s2_on(void)
 
 	I2S_RXCNT(2) = 0;	// clear RX counter
 	I2S_TXCNT(2) = 0;	// clear TX counter
-	I2S_INT(2) = 0;		// disable all DMA and interrupt requests
+	I2S_INT(2) = I2S_INT_TXEI_EN;		// enable TX FIFO empty IRQ
+	irq_enable(47);
 
 	// BCLK_OUT | LRCK_OUT: "codec clk & frm slave,ap is master"
 	// MODE_SEL(1): "Left mode (offset 0: LJ mode; offset 1: I2S mode"
@@ -81,6 +84,8 @@ void audio_i2s2_on(void)
 
 void audio_i2s2_off(void)
 {
+	irq_disable(47);
+
 	// disable RX
 	I2S_FCTL(2) |= I2S_FCTL_FRX;	// flush RX FIFO
 	I2S_RXCNT(2) = 0;		// clear RX count

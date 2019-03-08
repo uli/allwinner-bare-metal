@@ -2,6 +2,7 @@
 #include "uart.h"
 #include "interrupts.h"
 #include "display.h"
+#include "audio.h"
 
 extern uint32_t _ivt;
 void game_tick_next();
@@ -18,6 +19,9 @@ int irq_pending(uint32_t irq)
 // Called when an interrupt is triggered
 // Currently this is always triggered by at new frame at 60Hz
 void __attribute__((interrupt("FIQ"))) interrupt(void) {
+  if (irq_pending(47)) {
+    audio_queue_samples();
+  }
   if (irq_pending(107))
     hal_hcd_isr(0);
   if (irq_pending(118)) {

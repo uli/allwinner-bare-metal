@@ -4,6 +4,8 @@ void audio_hdmi_init(void);
 void audio_i2s2_init(void);
 void audio_i2s2_on(void);
 
+void audio_queue_samples(void);
+
 #define I2S_BASE_BASE	0x01c22000
 #define I2S_BASE(n)	(I2S_BASE_BASE + (n) * 0x400)
 
@@ -39,7 +41,9 @@ void audio_i2s2_on(void);
 #define I2S_FSTA_TXE		(1 << 28)
 
 #define I2S_TXFIFO(n)		I2S_REG(n, 0x20)
+
 #define I2S_INT(n)		I2S_REG(n, 0x1c)
+#define I2S_INT_TXEI_EN		(1 << 4)
 
 #define I2S_CLKD(n)		I2S_REG(n, 0x24)
 #define I2S_CLKD_MCLKDIV(n)	((n) << 0)
