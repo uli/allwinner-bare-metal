@@ -140,7 +140,6 @@ void hcd_int_disable(uint8_t rhport)
   irq_disable(107);
 }
 
-extern uint32_t tick_counter;
 uint32_t tusb_hal_millis(void)
 {
   return tick_counter * 1000 / 60;

@@ -3,9 +3,10 @@
 #include "interrupts.h"
 #include "display.h"
 #include "audio.h"
+#include "system.h"
 
 extern uint32_t _ivt;
-void game_tick_next();
+
 void hal_hcd_isr(uint8_t hostid);
 
 int irq_pending(uint32_t irq)
@@ -25,7 +26,7 @@ void __attribute__((interrupt("IRQ"))) interrupt(void) {
   if (irq_pending(107))
     hal_hcd_isr(0);
   if (irq_pending(118)) {
-    game_tick_next();
+    tick_counter++;
     LCD0_GINT0 &= ~(1<<12);
   }
 }

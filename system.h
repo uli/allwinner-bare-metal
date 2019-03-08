@@ -11,3 +11,5 @@ extern char _bend1;
 extern char _bstart2;
 extern char _bend2;
 extern char _hend;
+
+extern volatile uint32_t tick_counter;

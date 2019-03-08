@@ -11,12 +11,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-uint32_t tick_counter;
+volatile uint32_t tick_counter;
 
 void game_tick(uint32_t tick_counter);
 void game_start();
 
 int sd_detect;
+
+void game_tick_next() {
+  buffer_swap();
+  game_tick(tick_counter);
+}
 
 void startup() {
   install_ivt();
@@ -58,6 +63,7 @@ void startup() {
 
   // Go back to sleep
   while(1) {
+    static unsigned int cframe;
     asm("wfi");
     usb_task();
     if (!sd_detect && !get_pin_data(PORTF, 6)) {
@@ -69,12 +75,10 @@ void startup() {
       fs_deinit();
       sd_detect = 0;
     }
-    audio_queue_samples();
+    if (cframe != tick_counter) {
+    	game_tick_next();
+    	cframe = tick_counter;
+    }
   }
 }
 
-void game_tick_next() {
-  buffer_swap();
-  game_tick(tick_counter);
-  tick_counter++;
-}
