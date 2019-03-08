@@ -18,7 +18,7 @@ int irq_pending(uint32_t irq)
 
 // Called when an interrupt is triggered
 // Currently this is always triggered by at new frame at 60Hz
-void __attribute__((interrupt("FIQ"))) interrupt(void) {
+void __attribute__((interrupt("IRQ"))) interrupt(void) {
   if (irq_pending(47)) {
     audio_queue_samples();
   }
