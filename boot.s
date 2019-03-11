@@ -22,10 +22,10 @@ ldr pc, _unused_handler_h
 ldr pc, _interrupt_vector_h
 ldr pc, _fast_interrupt_vector_h
 _reset_h:                           .word   _reset
-_undefined_instruction_vector_h:    .word   _reset
-_software_interrupt_vector_h:       .word   _reset
-_prefetch_abort_vector_h:           .word   _reset
-_data_abort_vector_h:               .word   _reset
+_undefined_instruction_vector_h:    .word   except_undef
+_software_interrupt_vector_h:       .word   except_swi
+_prefetch_abort_vector_h:           .word   except_prefetch_abort
+_data_abort_vector_h:               .word   except_data_abort
 _unused_handler_h:                  .word   _reset
 _interrupt_vector_h:                .word   interrupt
-_fast_interrupt_vector_h:           .word   _reset
+_fast_interrupt_vector_h:           .word   except_fiq
