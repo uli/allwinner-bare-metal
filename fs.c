@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "sdgpio/diskio.h"
 #include "sdgpio/ff.h"
 
