@@ -31,8 +31,6 @@ void startup() {
 
   init_bss();
 
-  add_malloc_block((void *)0x40000000, ((uint32_t)&_hend) - 0x40000000);
-
   // Reboot in n seconds using watchdog
   reboot(2); // 0x8 == 10 second reset timer
 

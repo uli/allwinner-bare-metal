@@ -1,14 +1,30 @@
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/fcntl.h>
+#include <sys/stat.h>
 #include "uart.h"
 #include "sdgpio/ff.h"
 
-int errno;
+#define MAX_FILE_DESCRIPTORS 16
+static FIL file_descriptor[MAX_FILE_DESCRIPTORS] = { };
 
-static size_t stdio_write(FILE *instance, const char *bp, size_t n)
+static FIL *get_descr(int fd)
 {
+	fd -= 3;
+	if (fd < 0 || fd >= MAX_FILE_DESCRIPTORS) {
+		errno = EBADF;
+		return NULL;
+	}
+	return &file_descriptor[fd];
+}
+
+static int console_write(const void *buf, size_t n)
+{
+	const char *bp = buf;
 	int c = n;
-	(void)instance;	// always stdout or stderr
+
 	while(c--) {
 		if (*bp == '\n')
 			uart_putc('\r');
@@ -17,96 +33,147 @@ static size_t stdio_write(FILE *instance, const char *bp, size_t n)
 	return n;
 }
 
-static struct File_methods stdio_methods = {
-        &stdio_write, NULL
-};
-
-static struct File _stdout = {
-        &stdio_methods
-};
-
-static struct File _stderr = {
-        &stdio_methods
-};
-
-FILE* const stdout = &_stdout;
-FILE* const stderr = &_stderr;
-
-struct glue_file {
-	struct File file;
-	FIL fil;
-};
-
-static size_t glue_write(FILE *instance, const char *bp, size_t n)
+int _write(int fd, const void *buf, size_t n)
 {
-	FIL *filp = &((struct glue_file *)instance)->fil;
+	if (fd == 1 || fd == 2)
+		return console_write(buf, n);
+
+	FIL *filp = get_descr(fd);
+	if (!filp)
+		return -1;
+
 	size_t bw;
 	int rc;
 
-	if ((rc = f_write(filp, bp, n, &bw))) {
+	if ((rc = f_write(filp, buf, n, &bw))) {
 		errno = rc;
-		return 0;
+		return -1;
 	}
 	return bw;
 }
 
-static size_t glue_read(FILE *instance, char *bp, size_t n)
+int _read(int fd, void *ptr, size_t n)
 {
-	FIL *filp = &((struct glue_file *)instance)->fil;
+	if (fd == 1 || fd == 2)
+		return -1;
+
+	FIL *filp = get_descr(fd);
+	if (!filp)
+		return -1;
+
 	size_t br;
 	int rc;
 	
-	if ((rc = f_read(filp, bp, n, &br))) {
+	if ((rc = f_read(filp, ptr, n, &br))) {
 		errno = rc;
-		return 0;
+		return -1;
 	}
 	return br;
 }
 
-static struct File_methods glue_methods = {
-	&glue_write, &glue_read
-};
-
-FILE *fopen(const char *path, const char *mode)
+int _lseek(int fd, int ptr, int dir)
 {
 	int rc;
-	struct glue_file *gf;
-	int flags = 0;
-	switch (mode[0]) {
-	case 'r':	flags = FA_READ; break;
-	case 'w':	flags = FA_WRITE | FA_CREATE_ALWAYS; break;
-	case 'a':	flags = FA_WRITE | FA_OPEN_ALWAYS; break;
-	default:	return 0;
+	FIL *fil = get_descr(fd);
+	if (!fil)
+		return -1;
+	
+	switch (dir) {
+	case SEEK_SET: rc = f_lseek(fil, ptr); break;
+	case SEEK_CUR: rc = f_lseek(fil, ptr + fil->fptr); break;
+	case SEEK_END: rc = f_lseek(fil, ptr + fil->fsize); break;
+	default: errno = EINVAL; return -1;
 	}
-
-	gf = (struct glue_file *)malloc(sizeof(struct glue_file));
-	if (!gf) {
-		errno = 12; /* ENOMEM */
-		return 0;
-	}
-	gf->file.vmt = &glue_methods;
-
-	rc = f_open(&gf->fil, path, flags);
 	if (rc) {
 		errno = rc;
-		free(gf);
-		return 0;
+		return -1;
 	}
-
-	return (FILE *)gf;
+	return 0;
 }
 
-int fclose(FILE *stream)
+int _fstat (int fd, struct stat * st)
 {
-	struct glue_file *gf = (struct glue_file *)stream;
+  FIL *fil = get_descr(fd);
+  if (!fil)
+  	return -1;
 
-	int rc = f_close(&gf->fil);
+  memset (st, 0, sizeof (* st));
+  st->st_mode = S_IFREG;
+  st->st_size = fil->fsize;
+  st->st_blksize = 512;
+  st->st_blocks = fil->fsize / 512;
+
+  return 0;
+}
+
+int _open(const char *path, int c_flags)
+{
+	int rc, i;
+	FIL *fil = NULL;
+	int flags = 0;
+
+	if (c_flags & O_RDWR)
+		flags |= FA_WRITE;
+	else
+		flags |= FA_READ;
+
+	if (c_flags & O_CREAT) {
+		if (c_flags & O_TRUNC)
+			flags |= FA_CREATE_ALWAYS;
+		else
+			flags |= FA_OPEN_ALWAYS;
+	}
+
+	for (i = 0; i < MAX_FILE_DESCRIPTORS; ++i) {
+		if (!file_descriptor[i].fs) {
+			fil = &file_descriptor[i];
+			break;
+		}
+	}
+	if (!fil) {
+		errno = ENOMEM; // XXX: right?
+		return -1;
+	}
+
+	rc = f_open(fil, path, flags);
 	if (rc) {
 		errno = rc;
-		/* free? */
+		return -1;
+	}
+
+	return i + 3;
+}
+
+int _close (int fd)
+{
+	FIL *fil = get_descr(fd);
+	if (!fil)
+		return -1;
+
+	int rc = f_close(fil);
+	if (rc) {
+		errno = rc;
 		return EOF;
 	}
 
-	free(gf);
 	return 0;
+}
+
+void *current_brk = (void *)0x40000000;
+extern char _hend;	// heap end, defined by linker script
+
+void * _sbrk(ptrdiff_t incr)
+{
+	void *ret_brk = current_brk;
+	if (current_brk + incr >= (void *)&_hend) {
+		errno = ENOMEM;
+		return (void *)-1;
+	}
+	current_brk += incr;
+	return ret_brk;
+}
+
+int _isatty (int fd)
+{
+  return fd <= 2;
 }

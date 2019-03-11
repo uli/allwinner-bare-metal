@@ -13,7 +13,7 @@ USB_OBJS = tinyusb/src/host/ohci/ohci.o tinyusb/src/host/usbh.o tinyusb/src/host
 	tinyusb/src/class/hid/hid_host.o tinyusb/src/common/tusb_fifo.o \
 	tinyusb/src/tusb.o
 
-LIBC_CSRC = $(wildcard Baselibc/src/*.c) libc_io.c
+LIBC_CSRC = libc_io.c
 LIBC_OBJS = $(LIBC_CSRC:.c=.o)
 
 SD_OBJS = sdgpio/mmc_sunxi.o sdgpio/ff.o
@@ -22,8 +22,8 @@ ALL_OBJS = $(OBJS) $(USB_OBJS) $(LIBC_OBJS) $(SD_OBJS)
 
 os.bin: os.elf
 	$(OBJCOPY) -O binary --remove-section .uncached os.elf os.bin
-os.elf: $(ALL_OBJS)
-	$(CC) $(CFLAGS) -o os.elf $(ALL_OBJS)
+os.elf: $(ALL_OBJS) newlib/newlib/libc.a
+	$(CC) $(CFLAGS) -o os.elf $(ALL_OBJS) -Lnewlib/newlib -lc
 
 %.o: %.s
 	$(CC) $(CFLAGS) -o $@ -c $<
@@ -33,5 +33,12 @@ clean:
 
 install: os.bin
 	sudo sunxi-fel spl ./sunxi-spl.bin write 0x4e000000 os.bin exe 0x4e000000
+
+newlib/newlib/libc.a: newlib/newlib/Makefile
+	make -C newlib/newlib
+
+newlib/newlib/Makefile:
+	cd newlib/newlib ; CC=$(CC) CFLAGS="$(CFLAGS_BIN)" ./configure \
+	  --host=arm-none-eabi --disable-newlib-supplied-syscalls
 
 -include $(ALL_OBJS:%.o=%.d)
