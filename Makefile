@@ -2,8 +2,9 @@ PREFIX=arm-none-eabi-
 #PREFIX=arm-linux-gnueabihf-
 CC=$(PREFIX)gcc
 OBJCOPY=$(PREFIX)objcopy
-CFLAGS=-MMD -T linker.ld -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -fpic -ffreestanding -O3 -nostdlib -Wall -Wextra -std=gnu99 \
-	-I tinyusb/src -I Baselibc/include -I Baselibc/src/templates
+CFLAGS_BIN=-O3 -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -fpic -ffreestanding -std=gnu99
+CFLAGS=-MMD -T linker.ld $(CFLAGS_BIN) -nostdlib -Wall -Wextra \
+	-I tinyusb/src -I newlib/newlib/include
 
 OBJS = boot.o startup.o uart.o ports.o mmu.o system.o display.o interrupts.o \
        spritelayers.o usb.o demo.o fs.o audio_hdmi.o audio_i2s.o exceptions.o
