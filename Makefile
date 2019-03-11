@@ -25,7 +25,7 @@ os.elf: $(ALL_OBJS)
 	$(CC) $(CFLAGS) -o os.elf $(ALL_OBJS)
 
 %.o: %.s
-	$(CC) $(CFLAGS) -c $<
+	$(CC) $(CFLAGS) -o $@ -c $<
 
 clean:
 	rm -f $(ALL_OBJS) os.*
