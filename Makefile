@@ -16,18 +16,11 @@ SD_OBJS = sdgpio/mmc_sunxi.o sdgpio/ff.o
 
 ALL_OBJS = $(OBJS) $(USB_OBJS) $(LIBC_OBJS) $(SD_OBJS)
 
-libos.a: $(ALL_OBJS) newlib/newlib/libc.a
+libos.a: $(ALL_OBJS) Makefile
 	rm -f $@
 	$(AR) rc $@ $(ALL_OBJS)
 
 clean:
 	rm -f $(ALL_OBJS) libos.a
-
-newlib/newlib/libc.a: newlib/newlib/Makefile
-	make -C newlib/newlib
-
-newlib/newlib/Makefile:
-	cd newlib/newlib ; CC=$(CC) CFLAGS="$(CFLAGS_COMMON)" ./configure \
-	  --host=arm-none-eabi --disable-newlib-supplied-syscalls
 
 -include $(ALL_OBJS:%.o=%.d)
