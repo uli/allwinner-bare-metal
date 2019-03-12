@@ -3,7 +3,7 @@ SECTIONS
   . = 0x4e000000;
   _hend = . ;
   .text : {
-    boot.o(.text)
+    *boot.o(.text)
     *(.text)
     . = ALIGN(4);
     __preinit_array_start = .;

@@ -1,10 +1,8 @@
 TARGET = demo
-OBJS = spritelayers.o demo.o
+OBJS = spritelayers.o demo.o main.o
 
 OSDIR = ../..
 include $(OSDIR)/build.mk
-
-all: $(TARGET).bin
 
 clean:
 	rm -f $(OBJS) $(TARGET).elf $(TARGET).bin

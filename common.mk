@@ -1,4 +1,4 @@
-PREFIX=arm-none-eabi-
+PREFIX=~/x-tools/arm-unknown-eabihf/bin/arm-unknown-eabihf-
 #PREFIX=arm-linux-gnueabihf-
 CC=$(PREFIX)gcc
 CXX=$(PREFIX)g++
