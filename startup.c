@@ -13,20 +13,13 @@
 
 volatile uint32_t tick_counter;
 
-void game_tick(uint32_t tick_counter);
-void game_start();
-
-int sd_detect;
-
-void game_tick_next() {
-  buffer_swap();
-  game_tick(tick_counter);
-}
-
 void __libc_init_array(void);
 void _init(void)
 {
 }
+
+void _reset(void);
+void main(int argc, char **argv);
 
 void startup() {
   install_ivt();
@@ -62,28 +55,10 @@ void startup() {
   usb_init();
 
   uart_print("Ready!\r\n");
-  game_start();
 
   set_pin_mode(PORTF, 6, 0);	// SD CD pin
 
-  // Go back to sleep
-  while(1) {
-    static unsigned int cframe;
-    asm("wfi");
-    usb_task();
-    if (!sd_detect && !get_pin_data(PORTF, 6)) {
-      printf("card in\n");
-      if (!fs_init())
-        sd_detect = 1;
-    } else if (sd_detect && get_pin_data(PORTF, 6)) {
-      printf("card out\n");
-      fs_deinit();
-      sd_detect = 0;
-    }
-    if (cframe != tick_counter) {
-    	game_tick_next();
-    	cframe = tick_counter;
-    }
-  }
-}
 
+  main(0, NULL);
+  _reset();
+}

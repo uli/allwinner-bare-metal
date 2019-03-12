@@ -1,3 +1,4 @@
+.global _reset
 _reset:
 cpsid if
 
