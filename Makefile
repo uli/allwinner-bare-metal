@@ -25,7 +25,7 @@ ALL_OBJS = $(OBJS) $(USB_OBJS) $(LIBC_OBJS) $(SD_OBJS)
 
 os.bin: os.elf
 	$(OBJCOPY) -O binary --remove-section .uncached os.elf os.bin
-os.elf: $(ALL_OBJS) newlib/newlib/libc.a
+os.elf: $(ALL_OBJS) newlib/newlib/libc.a linker.ld
 	$(CC) $(CFLAGS) -o os.elf $(ALL_OBJS) -Lnewlib/newlib -lc
 
 %.o: %.s
