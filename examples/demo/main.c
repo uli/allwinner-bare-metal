@@ -1,5 +1,8 @@
+#include <display.h>
 #include <usb.h>
 #include <fs.h>
+#include <ports.h>
+#include <system.h>
 #include <stdio.h>
 
 void game_tick(uint32_t tick_counter);
@@ -14,7 +17,7 @@ void game_tick_next() {
 
 int sd_detect;
 
-int main(int argc, char **argv)
+void main(void)
 {
   game_start();
 
