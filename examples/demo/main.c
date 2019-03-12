@@ -15,8 +15,6 @@ void game_tick_next() {
   printf("%d samples\n", sample_count);
 }
 
-int sd_detect;
-
 void main(void)
 {
   game_start();
@@ -26,15 +24,7 @@ void main(void)
     static unsigned int cframe;
     asm("wfi");
     usb_task();
-    if (!sd_detect && !get_pin_data(PORTF, 6)) {
-      printf("card in\n");
-      if (!fs_init())
-        sd_detect = 1;
-    } else if (sd_detect && get_pin_data(PORTF, 6)) {
-      printf("card out\n");
-      fs_deinit();
-      sd_detect = 0;
-    }
+    sd_detect();
     if (cframe != tick_counter) {
     	game_tick_next();
     	cframe = tick_counter;

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "ports.h"
 #include "sdgpio/diskio.h"
 #include "sdgpio/ff.h"
 
@@ -29,4 +30,21 @@ DWORD get_fattime(void)
 	       ((DWORD)0 << 11) |
 	       ((DWORD)0 << 5)  |
 	       ((DWORD)0 >> 1);
+}
+
+int sd_detect(void)
+{
+	static int detected = 0;
+
+	if (!detected && !get_pin_data(PORTF, 6)) {
+		printf("card in\n");
+		if (!fs_init())
+			detected = 1;
+	} else if (detected && get_pin_data(PORTF, 6)) {
+		printf("card out\n");
+		fs_deinit();
+		detected = 0;
+	}
+
+	return detected;
 }
