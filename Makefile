@@ -1,10 +1,13 @@
 PREFIX=arm-none-eabi-
 #PREFIX=arm-linux-gnueabihf-
 CC=$(PREFIX)gcc
+CXX=$(PREFIX)g++
 OBJCOPY=$(PREFIX)objcopy
-CFLAGS_BIN=-O3 -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -fpic -ffreestanding -std=gnu99
-CFLAGS=-MMD -T linker.ld $(CFLAGS_BIN) -nostdlib -Wall -Wextra \
+CFLAGS_BIN=-O3 -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -fpic -ffreestanding
+CFLAGS_COMMON=$(CFLAGS_BIN) -std=gnu99
+CFLAGS=-MMD -T linker.ld $(CFLAGS_COMMON) -nostdlib -Wall -Wextra \
 	-I tinyusb/src -I newlib/newlib/include
+CXXFLAGS=$(CFLAGS_BIN) -nostdlib -Wall -Wextra -I tinyusb/src -I newlib/newlib/include
 
 OBJS = boot.o startup.o uart.o ports.o mmu.o system.o display.o interrupts.o \
        spritelayers.o usb.o demo.o fs.o audio_hdmi.o audio_i2s.o exceptions.o
@@ -38,7 +41,7 @@ newlib/newlib/libc.a: newlib/newlib/Makefile
 	make -C newlib/newlib
 
 newlib/newlib/Makefile:
-	cd newlib/newlib ; CC=$(CC) CFLAGS="$(CFLAGS_BIN)" ./configure \
+	cd newlib/newlib ; CC=$(CC) CFLAGS="$(CFLAGS_COMMON)" ./configure \
 	  --host=arm-none-eabi --disable-newlib-supplied-syscalls
 
 -include $(ALL_OBJS:%.o=%.d)
