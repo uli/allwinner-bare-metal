@@ -23,6 +23,11 @@ void game_tick_next() {
   game_tick(tick_counter);
 }
 
+void __libc_init_array(void);
+void _init(void)
+{
+}
+
 void startup() {
   install_ivt();
 
@@ -40,6 +45,8 @@ void startup() {
   // Configure the UART for debugging
   uart_init();
   uart_print("Booting!\r\n");
+
+  __libc_init_array();
 
   // Illuminate the power LED
   set_pin_mode(PORTL, 10, 1); // PORT L10 output
