@@ -59,3 +59,5 @@ void startup() {
   main(0, NULL);
   _reset();
 }
+
+unsigned long __dso_handle;
