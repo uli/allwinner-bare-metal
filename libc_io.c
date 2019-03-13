@@ -187,3 +187,24 @@ int _isatty (int fd)
 {
   return fd <= 2;
 }
+
+void halt(void);
+
+void _exit(int status)
+{
+  uart_print("exit "); uart_print_uint32(status);
+  halt();
+}
+
+int _kill(int pid, int sig)
+{
+  printf("kill %d, %d\n", pid, sig);
+  halt();
+  return -1;
+}
+
+int _getpid(int n)
+{
+  (void)n;
+  return 1;
+}
