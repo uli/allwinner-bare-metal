@@ -36,8 +36,6 @@ void startup() {
   uart_init();
   uart_print("Booting!\r\n");
 
-  __libc_init_array();
-
   // Illuminate the power LED
   set_pin_mode(PORTL, 10, 1); // PORT L10 output
   set_pin_data(PORTL, 10, 1); // PORT L10 high
@@ -57,6 +55,7 @@ void startup() {
 
   set_pin_mode(PORTF, 6, 0);	// SD CD pin
 
+  __libc_init_array();
 
   main(0, NULL);
   _reset();
