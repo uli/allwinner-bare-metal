@@ -16,6 +16,10 @@ SECTIONS
     KEEP (*(.init_array))
     __init_array_end = .;
   }
+  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) }
+   PROVIDE_HIDDEN (__exidx_start = .);
+  .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) }
+   PROVIDE_HIDDEN (__exidx_end = .);
   .data :  {
     *(.data)
   }
