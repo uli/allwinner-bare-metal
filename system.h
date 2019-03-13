@@ -17,6 +17,10 @@ extern char _hend;
 
 extern volatile uint32_t tick_counter;
 
+void sys_init_timer(void);
+uint64_t sys_get_tick(void);
+uint64_t sys_get_usec(void);
+
 #ifdef __cplusplus
 }
 #endif

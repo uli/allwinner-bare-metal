@@ -48,6 +48,8 @@ void startup() {
   audio_i2s2_init();
   audio_i2s2_on();
 
+  sys_init_timer();
+
   // USB
   usb_init();
 
