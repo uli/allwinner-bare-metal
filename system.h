@@ -21,6 +21,8 @@ void sys_init_timer(void);
 uint64_t sys_get_tick(void);
 uint64_t sys_get_usec(void);
 
+uint32_t sys_mem_free(void);
+
 #ifdef __cplusplus
 }
 #endif

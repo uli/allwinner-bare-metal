@@ -50,3 +50,12 @@ void sys_init_timer(void)
   sys_per_usec = sys_freq / 1000000;
   printf("freq %lu per usec %lu\n", sys_freq, sys_per_usec);
 }
+
+#include <malloc.h>
+
+extern void *current_brk;
+uint32_t sys_mem_free(void)
+{
+  struct mallinfo mi = mallinfo();
+  return mi.fordblks + ((void *)&_hend - current_brk);
+}
