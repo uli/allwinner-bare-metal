@@ -4,8 +4,8 @@ CC=$(PREFIX)gcc
 CXX=$(PREFIX)g++
 OBJCOPY=$(PREFIX)objcopy
 AR=$(PREFIX)ar
-CFLAGS_BIN=-O3 -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -fpic -ffreestanding
-CFLAGS_COMMON=$(CFLAGS_BIN) -std=gnu99 -MMD
+CFLAGS_BIN=-MMD -O3 -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -fpic -ffreestanding
+CFLAGS_COMMON=$(CFLAGS_BIN) -std=gnu99
 CFLAGS=-T $(OSDIR)/linker.ld $(CFLAGS_COMMON) -nostdlib -Wall -Wextra \
 	-I $(OSDIR) -I $(OSDIR)/tinyusb/src
 CXXFLAGS=$(CFLAGS_BIN) -nostdlib -Wall -Wextra -I $(OSDIR) -I $(OSDIR)/tinyusb/src
