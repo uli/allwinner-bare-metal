@@ -29,9 +29,6 @@ void startup() {
 
   init_bss();
 
-  // Reboot in n seconds using watchdog
-  reboot(2); // 0x8 == 10 second reset timer
-
   // Enble all GPIO
   gpio_init();
 
