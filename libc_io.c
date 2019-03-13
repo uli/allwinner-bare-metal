@@ -159,6 +159,16 @@ int _close (int fd)
 	return 0;
 }
 
+int _unlink(const char *path)
+{
+  FRESULT rc = f_unlink(path);
+  if (rc) {
+    errno = rc;
+    return -1;
+  }
+  return 0;
+}
+
 void *current_brk = (void *)0x40000000;
 extern char _hend;	// heap end, defined by linker script
 
