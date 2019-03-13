@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 #define VIDEO_RAM_BYTES 0x180000
@@ -200,3 +204,7 @@ void display_init();
 void buffer_swap();
 
 volatile uint32_t* active_buffer;
+
+#ifdef __cplusplus
+}
+#endif

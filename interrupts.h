@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define GICD_BASE 0x01C81000
 
 struct gicd_reg {
@@ -51,3 +55,7 @@ void install_ivt();
 void irq_enable(uint32_t irq);
 void irq_disable(uint32_t irq);
 int irq_pending(uint32_t irq);
+
+#ifdef __cplusplus
+}
+#endif

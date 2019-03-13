@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "display.h"
 
 void audio_hdmi_init(void);
@@ -73,3 +77,7 @@ void audio_queue_samples(void);
 
 #define I2S_RXCHMAP(n)		I2S_REG(n, 0x58)
 #define I2S_RXCHMAP_CH_SAMPLE(ch, n)	((n) << ((ch) * 4))
+
+#ifdef __cplusplus
+}
+#endif

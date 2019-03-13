@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // The CCU registers base address.
 #define CCU_BASE 0x01C20000
 
@@ -81,3 +85,7 @@
 
 #define R_PRCM_BASE 0x01F01400
 #define APB0_CLK_GATING       *(volatile uint32_t *)(R_PRCM_BASE + 0x28)
+
+#ifdef __cplusplus
+}
+#endif

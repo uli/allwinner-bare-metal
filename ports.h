@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 // Port access struct
@@ -34,3 +38,7 @@ void set_pin_drive(uint32_t port_addr, uint32_t pin, uint32_t strength);
 void set_pin_pull(uint32_t port_addr, uint32_t pin, uint32_t pull);
 
 void gpio_init();
+
+#ifdef __cplusplus
+}
+#endif

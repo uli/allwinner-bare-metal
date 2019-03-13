@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 #define TIMER_BASE        0x01C20C00
@@ -13,3 +17,7 @@ extern char _bend2;
 extern char _hend;
 
 extern volatile uint32_t tick_counter;
+
+#ifdef __cplusplus
+}
+#endif

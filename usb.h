@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 #define USB1_BASE 0x01C1B000
@@ -74,3 +78,7 @@ struct hcca {
 
 void usb_init();
 void usb_task();
+
+#ifdef __cplusplus
+}
+#endif
