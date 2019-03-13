@@ -4,6 +4,8 @@ extern "C" {
 
 #include <stdint.h>
 
+#include <tusb.h>
+
 #define USB1_BASE 0x01C1B000
 
 #define USB1_E_CAPLENGTH           *(volatile uint8_t  *)(USB1_BASE + 0x000)
@@ -78,6 +80,8 @@ struct hcca {
 
 void usb_init();
 void usb_task();
+
+void hook_usb_keyboard_report(hid_keyboard_report_t *);
 
 #ifdef __cplusplus
 }

@@ -160,18 +160,23 @@ void tuh_hid_keyboard_unmounted_cb(uint8_t dev_addr)
   printf("\na Keyboard device (address %d) is unmounted\n", dev_addr);
 }
 
+void __attribute__((weak)) hook_usb_keyboard_report(hid_keyboard_report_t *r)
+{
+  printf("kbdrep %02X %02X %02X %02X\n",
+	 r->keycode[0],
+	 r->keycode[1],
+	 r->keycode[2],
+	 r->keycode[3]
+  );
+}
+
 // invoked ISR context
 void tuh_hid_keyboard_isr(uint8_t dev_addr, xfer_result_t event)
 {
   switch(event)
   {
     case XFER_RESULT_SUCCESS:
-      printf("kbdrep %02X %02X %02X %02X\n",
-        usb_keyboard_report.keycode[0],
-        usb_keyboard_report.keycode[1],
-        usb_keyboard_report.keycode[2],
-        usb_keyboard_report.keycode[3]
-      );
+      hook_usb_keyboard_report(&usb_keyboard_report);
       tuh_hid_keyboard_get_report(dev_addr, (uint8_t*) &usb_keyboard_report);
       break;
 
