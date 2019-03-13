@@ -7,8 +7,8 @@ AR=$(PREFIX)ar
 CFLAGS_BIN=-O3 -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -fpic -ffreestanding
 CFLAGS_COMMON=$(CFLAGS_BIN) -std=gnu99
 CFLAGS=-MMD -T $(OSDIR)/linker.ld $(CFLAGS_COMMON) -nostdlib -Wall -Wextra \
-	-I$(OSDIR) -I$(OSDIR)/tinyusb/src
-CXXFLAGS=$(CFLAGS_BIN) -nostdlib -Wall -Wextra -I$(OSDIR) -I$(OSDIR)/tinyusb/src
+	-I $(OSDIR) -I $(OSDIR)/tinyusb/src
+CXXFLAGS=$(CFLAGS_BIN) -nostdlib -Wall -Wextra -I $(OSDIR) -I $(OSDIR)/tinyusb/src
 
 %.o: %.s
 	$(CC) $(CFLAGS) -o $@ -c $<
