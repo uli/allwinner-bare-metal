@@ -8,8 +8,8 @@ int sample_count;
 void audio_queue_samples(void)
 {
 	while (((I2S_FSTA(2) >> 16) & 0xff) > 2) {
-		I2S_TXFIFO(2) = ((sample_count / 50) & 1) * 0x17ff;
-		I2S_TXFIFO(2) = ((sample_count / 50) & 1) * 0x17ff;
+		I2S_TXFIFO(2) = ((sample_count / 50) & 1) * 0x00ff;
+		I2S_TXFIFO(2) = ((sample_count / 50) & 1) * 0x00ff;
 		sample_count++;
 	}
 	// TXEI clears itself when the FIFO is full again
