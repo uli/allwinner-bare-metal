@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include "uart.h"
 #include "fatfs/ff.h"
+#include <dirent.h>
 
 #define MAX_FILE_DESCRIPTORS 16
 static FIL file_descriptor[MAX_FILE_DESCRIPTORS] = { };
@@ -208,4 +209,57 @@ int _getpid(int n)
 {
 	(void)n;
 	return 1;
+}
+
+DIR *opendir(const char *name)
+{
+	DIR* dir = (DIR *)malloc(sizeof(DIR));
+	if (!dir) {
+		errno = ENOMEM;
+		return NULL;
+	}
+
+	int rc = f_opendir(dir, name);
+	if (rc) {
+		free(dir);
+		errno = rc;
+		return NULL;
+	}
+	return dir;
+}
+
+int closedir(DIR *dir)
+{
+	int rc = f_closedir(dir);
+	if (rc) {
+		// XXX: free?
+		errno = rc;
+		return -1;
+	}
+	free(dir);
+	return 0;
+}
+
+struct dirent *readdir(DIR *dir)
+{
+	FILINFO fi;
+	static struct dirent de;
+	int rc = f_readdir(dir, &fi);
+	if (rc) {
+		// error
+		errno = rc;
+		return NULL;
+	}
+	if (!fi.fname[0]) {
+		// end of directory
+		return NULL;
+	}
+	memset(de.d_name, 0, sizeof(de.d_name));
+	strncpy(de.d_name, fi.fname, sizeof(de.d_name) - 1);
+	if (fi.fattrib & AM_DIR)
+		de.d_type = DT_DIR;
+	else
+		de.d_type = DT_REG;
+
+	return &de;
 }
