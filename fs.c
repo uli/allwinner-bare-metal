@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "ports.h"
-#include "sdgpio/diskio.h"
 #include "sdgpio/ff.h"
+#include "sdgpio/diskio.h"
 
 FATFS Fatfs;
 
@@ -11,13 +11,13 @@ int fs_init(void)
 	if (st != 0)
 		return st;
 	printf("SD initialized\n");
-	f_mount(0, &Fatfs);
+	f_mount(&Fatfs, "", 0);
 	return 0;
 }
 
 int fs_deinit(void)
 {
-	f_mount(0, 0);
+	f_unmount(0);
 	return 0;
 }
 

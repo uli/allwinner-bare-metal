@@ -81,7 +81,7 @@ int _lseek(int fd, int ptr, int dir)
 	switch (dir) {
 	case SEEK_SET: rc = f_lseek(fil, ptr); break;
 	case SEEK_CUR: rc = f_lseek(fil, ptr + fil->fptr); break;
-	case SEEK_END: rc = f_lseek(fil, ptr + fil->fsize); break;
+	case SEEK_END: rc = f_lseek(fil, ptr + fil->obj.objsize); break;
 	default: errno = EINVAL; return -1;
 	}
 	if (rc) {
@@ -99,9 +99,9 @@ int _fstat (int fd, struct stat * st)
 
   memset (st, 0, sizeof (* st));
   st->st_mode = S_IFREG;
-  st->st_size = fil->fsize;
+  st->st_size = fil->obj.objsize;
   st->st_blksize = 512;
-  st->st_blocks = fil->fsize / 512;
+  st->st_blocks = fil->obj.objsize / 512;
 
   return 0;
 }
@@ -125,7 +125,7 @@ int _open(const char *path, int c_flags)
 	}
 
 	for (i = 0; i < MAX_FILE_DESCRIPTORS; ++i) {
-		if (!file_descriptor[i].fs) {
+		if (!file_descriptor[i].obj.fs) {
 			fil = &file_descriptor[i];
 			break;
 		}
