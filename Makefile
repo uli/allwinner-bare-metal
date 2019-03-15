@@ -21,6 +21,6 @@ libos.a: $(ALL_OBJS) Makefile
 	$(AR) rc $@ $(ALL_OBJS)
 
 clean:
-	rm -f $(ALL_OBJS) libos.a
+	rm -f $(ALL_OBJS) $(ALL_OBJS:%.o=%.d) libos.a
 
 -include $(ALL_OBJS:%.o=%.d)
