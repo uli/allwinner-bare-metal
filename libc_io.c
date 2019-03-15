@@ -271,3 +271,23 @@ struct dirent *readdir(DIR *dir)
 
 	return &de;
 }
+
+int chdir(const char *path)
+{
+	int rc = f_chdir(path);
+	if (rc) {
+		errno = rc;
+		return -1;
+	}
+	return 0;
+}
+
+char *getcwd(char *buf, size_t size)
+{
+	int rc = f_getcwd(buf, size);
+	if (rc) {
+		errno = rc;
+		return NULL;
+	}
+	return buf;
+}
