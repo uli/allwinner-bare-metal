@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "ports.h"
-#include "sdgpio/ff.h"
-#include "sdgpio/diskio.h"
+#include "fatfs/ff.h"
+#include "fatfs/diskio.h"
 
 FATFS Fatfs;
 

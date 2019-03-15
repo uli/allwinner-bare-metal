@@ -5,7 +5,7 @@
 #include <sys/fcntl.h>
 #include <sys/stat.h>
 #include "uart.h"
-#include "sdgpio/ff.h"
+#include "fatfs/ff.h"
 
 #define MAX_FILE_DESCRIPTORS 16
 static FIL file_descriptor[MAX_FILE_DESCRIPTORS] = { };

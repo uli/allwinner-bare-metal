@@ -12,7 +12,7 @@ USB_OBJS = tinyusb/src/host/ohci/ohci.o tinyusb/src/host/usbh.o tinyusb/src/host
 LIBC_CSRC = libc_io.c
 LIBC_OBJS = $(LIBC_CSRC:.c=.o)
 
-SD_OBJS = sdgpio/mmc_sunxi.o sdgpio/ff.o
+SD_OBJS = fatfs/mmc_sunxi.o fatfs/ff.o
 
 ALL_OBJS = $(OBJS) $(USB_OBJS) $(LIBC_OBJS) $(SD_OBJS)
 
