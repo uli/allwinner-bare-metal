@@ -291,3 +291,19 @@ char *getcwd(char *buf, size_t size)
 	}
 	return buf;
 }
+
+int _stat(const char *pathname, struct stat *buf)
+{
+	FILINFO fi;
+	int rc = f_stat(pathname, &fi);
+	if (rc) {
+		errno = rc;
+		return -1;
+	}
+	memset(buf, 0, sizeof(struct stat));
+	buf->st_size = fi.fsize;
+	buf->st_mtime = fi.ftime; // XXX: unit?
+	buf->st_mode = fi.fattrib & 0x10 ? S_IFDIR : S_IFREG;
+
+	return 0;
+}
