@@ -307,3 +307,14 @@ int _stat(const char *pathname, struct stat *buf)
 
 	return 0;
 }
+
+int mkdir(const char *pathname, mode_t mode)
+{
+	(void)mode;
+	int rc = f_mkdir(pathname);
+	if (rc) {
+		errno = rc;
+		return -1;
+	}
+	return 0;
+}
