@@ -318,3 +318,13 @@ int mkdir(const char *pathname, mode_t mode)
 	}
 	return 0;
 }
+
+int rmdir(const char *pathname)
+{
+	int rc = f_rmdir(pathname);
+	if (rc) {
+		errno = rc;
+		return -1;
+	}
+	return 0;
+}
