@@ -211,6 +211,14 @@ int _getpid(int n)
 	return 1;
 }
 
+int _link(const char *oldpath, const char *newpath)
+{
+	(void)oldpath;
+	(void)newpath;
+	errno = EPERM;
+	return -1;
+}
+
 DIR *opendir(const char *name)
 {
 	DIR* dir = (DIR *)malloc(sizeof(DIR));
