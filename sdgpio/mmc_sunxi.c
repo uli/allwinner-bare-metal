@@ -14,8 +14,15 @@
 //#define DEBUG_SDMMC
 #define DEBUG_READ_FIRST_BLOCK
 
+#include "ff.h"
 #include "diskio.h"		/* Common include file for FatFs and disk I/O layer */
 
+/* MMC card type flags (MMC_GET_TYPE) */
+#define CT_MMC         0x01            /* MMC ver 3 */
+#define CT_SD1         0x02            /* SD ver 1 */
+#define CT_SD2         0x04            /* SD ver 2 */
+#define CT_SDC         (CT_SD1|CT_SD2) /* SD */
+#define CT_BLOCK       0x08            /* Block addressing */
 
 /*-------------------------------------------------------------------------*/
 /* Platform dependent macros and functions needed to be modified           */
@@ -389,7 +396,7 @@ DRESULT disk_read (
 	BYTE pdrv,			/* Physical drive nmuber (0) */
 	BYTE *buff,			/* Pointer to the data buffer to store read data */
 	DWORD sector,		/* Start sector number (LBA) */
-	BYTE count			/* Sector count (1..128) */
+	UINT count			/* Sector count (1..128) */
 )
 {
 	if (disk_status(pdrv) & STA_NOINIT) return RES_NOTRDY;
@@ -419,7 +426,7 @@ DRESULT disk_write (
 	BYTE pdrv,			/* Physical drive nmuber (0) */
 	const BYTE *buff,	/* Pointer to the data to be written */
 	DWORD sector,		/* Start sector number (LBA) */
-	BYTE count			/* Sector count (1..128) */
+	UINT count			/* Sector count (1..128) */
 )
 {
 	if (disk_status(pdrv) & STA_NOINIT) return RES_NOTRDY;
