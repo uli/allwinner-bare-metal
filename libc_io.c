@@ -93,17 +93,18 @@ int _lseek(int fd, int ptr, int dir)
 
 int _fstat (int fd, struct stat * st)
 {
-  FIL *fil = get_descr(fd);
-  if (!fil)
-  	return -1;
+uart_print(__FUNCTION__);
+	FIL *fil = get_descr(fd);
+	if (!fil)
+		return -1;
 
-  memset (st, 0, sizeof (* st));
-  st->st_mode = S_IFREG;
-  st->st_size = fil->obj.objsize;
-  st->st_blksize = 512;
-  st->st_blocks = fil->obj.objsize / 512;
+	memset (st, 0, sizeof (* st));
+	st->st_mode = S_IFREG;
+	st->st_size = fil->obj.objsize;
+	st->st_blksize = 512;
+	st->st_blocks = fil->obj.objsize / 512;
 
-  return 0;
+	return 0;
 }
 
 int _open(const char *path, int c_flags)
@@ -161,12 +162,12 @@ int _close (int fd)
 
 int _unlink(const char *path)
 {
-  FRESULT rc = f_unlink(path);
-  if (rc) {
-    errno = rc;
-    return -1;
-  }
-  return 0;
+	FRESULT rc = f_unlink(path);
+	if (rc) {
+		errno = rc;
+		return -1;
+	}
+	return 0;
 }
 
 void *current_brk = (void *)0x40000000;
@@ -185,26 +186,26 @@ void * _sbrk(ptrdiff_t incr)
 
 int _isatty (int fd)
 {
-  return fd <= 2;
+	return fd <= 2;
 }
 
 void halt(void);
 
 void _exit(int status)
 {
-  uart_print("exit "); uart_print_uint32(status);
-  halt();
+	uart_print("exit "); uart_print_uint32(status);
+	halt();
 }
 
 int _kill(int pid, int sig)
 {
-  printf("kill %d, %d\n", pid, sig);
-  halt();
-  return -1;
+	printf("kill %d, %d\n", pid, sig);
+	halt();
+	return -1;
 }
 
 int _getpid(int n)
 {
-  (void)n;
-  return 1;
+	(void)n;
+	return 1;
 }
