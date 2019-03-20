@@ -6,7 +6,7 @@ void mmu_init() {
   asm("ldr r8, =0x0;    mcr p15, 0, r8, c1, c0, 0;" : : : "r8");
 
   // Populate the pagetable
-  volatile uint32_t* pagetable = (volatile uint32_t *)0x4000;
+  volatile uint32_t* pagetable = (volatile uint32_t *)0xc000;
   for(int n=0;n<0x1000;n++) {
     if(n==0) {
       // SRAM.  Write back.
@@ -24,7 +24,7 @@ void mmu_init() {
   }
 
   // Set up the pagetable
-  asm("ldr r8, =0x4000; mcr p15, 0, r8, c2, c0, 0" : : : "r8");
+  asm("ldr r8, =0xc000; mcr p15, 0, r8, c2, c0, 0" : : : "r8");
   asm("ldr r8, =0x0;    mcr p15, 0, r8, c2, c0, 2" : : : "r8");
   asm("ldr r8, =0x3;    mcr p15, 0, r8, c3, c0, 0" : : : "r8");
 

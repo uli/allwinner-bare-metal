@@ -9,7 +9,7 @@ ISB
 MOV r0,#0x40000000      // Switch on the VFP and NEON hardware
 VMSR FPEXC,r0            // Set EN bit in FPEXC
 
-mov sp, #0x4000
+mov sp, #0xc000
 b startup
 
 .globl _ivt
