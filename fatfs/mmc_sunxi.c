@@ -249,7 +249,7 @@ BYTE send_cmd_data (		/* Returns command response (bit7==1:Send failed)*/
 			waitflag = SUNXI_MMC_RINT_AUTO_COMMAND_DONE;
 		else
 			waitflag = SUNXI_MMC_RINT_DATA_OVER;
-		while (!((n = SUNXI_SD_RINTSTS(0)) & waitflag)) {
+		while (!(SUNXI_SD_RINTSTS(0) & waitflag)) {
 			// wait
 			// XXX: timeout
 		}
