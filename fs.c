@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "ports.h"
 #include "fatfs/ff.h"
 #include "fatfs/diskio.h"
@@ -11,7 +12,7 @@ int fs_init(void)
 	if (st != 0)
 		return st;
 	printf("SD initialized\n");
-	f_mount(&Fatfs, "", 0);
+	f_mount(&Fatfs, "sd", 0);
 	return 0;
 }
 
@@ -30,6 +31,16 @@ DWORD get_fattime(void)
 	       ((DWORD)0 << 11) |
 	       ((DWORD)0 << 5)  |
 	       ((DWORD)0 >> 1);
+}
+
+void* ff_memalloc (UINT msize)
+{
+	return malloc(msize);
+}
+
+void ff_memfree (void* mblock)
+{
+	return free(mblock);
 }
 
 int sd_detect(void)
