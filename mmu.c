@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include "mmu.h"
 
 void mmu_init() {
 
@@ -15,7 +16,7 @@ void mmu_init() {
       // First half of DRAM. Write back.
       pagetable[n] = (n<<20) | (1<<12) | (3<<10) | (3<<2) | 2;
     } else if(n>=0x500 && n<0x600) {
-      // Video DRAM. Normal uncached.
+      // DMA buffers and such. Normal uncached.
       pagetable[n] = (n<<20) | (1<<12) | (3<<10) | (0<<2) | 2;
     } else {
       // Other stuff. Strictly ordered for safety.
