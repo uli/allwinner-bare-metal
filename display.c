@@ -3,10 +3,11 @@
 #include "system.h"
 #include "display.h"
 #include "uart.h"
+#include "mmu.h"
 
-volatile uint32_t framebuffer1[512*512] __attribute__ ((section ("UNCACHED")));
-volatile uint32_t framebuffer2[512*512] __attribute__ ((section ("UNCACHED")));
-volatile uint32_t framebuffer3[512*512] __attribute__ ((section ("UNCACHED")));
+volatile uint32_t framebuffer1[512*512];
+volatile uint32_t framebuffer2[512*512];
+volatile uint32_t framebuffer3[512*512];
 
 void display_clocks_init() {
   // Set up shared and dedicated clocks for HDMI, LCD/TCON and DE2
@@ -174,6 +175,9 @@ void display_init() {
 }
 
 void buffer_swap() {
+  // Make sure whatever is in the active buffer is committed to memory.
+  mmu_flush_dcache();
+
   DE_MIXER0_OVL_V_TOP_LADD0(0) = (uint32_t)(active_buffer + 512*16+16);
   if(active_buffer == framebuffer1) {
       active_buffer = framebuffer2;
