@@ -223,7 +223,10 @@ void buffer_swap() {
   } else {
       active_buffer = framebuffer1;
   }
-  // Blank visible area
-  memset((void *)active_buffer, 0, dsp.fb_bytes);
   DE_MIXER0_GLB_DBUFFER = 1;
+}
+
+void display_clear_active_buffer(void)
+{
+  memset((void *)active_buffer, 0, dsp.fb_bytes);
 }

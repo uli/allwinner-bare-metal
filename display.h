@@ -203,6 +203,7 @@ extern "C" {
 void display_init(void);
 void display_set_mode(int x, int y, int ovx, int ovy);
 void buffer_swap();
+void display_clear_active_buffer(void);
 
 volatile uint32_t* active_buffer;
 
