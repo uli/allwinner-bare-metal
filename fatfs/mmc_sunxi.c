@@ -79,6 +79,12 @@
 #define MMC_VDD_32_33	0x00100000
 #define MMC_VDD_33_34	0x00200000
 
+// Clock register bits
+#define CCU_MMC_CLK_ENABLE		(1 << 31)
+#define CCU_MMC_CLK_SRC(n)		((n) << 24)
+#define CCU_MMC_CLK_DIV_N(n)		((n) << 16)
+#define CCU_MMC_CLK_DIV_M(n)		((n) << 0)
+
 static void sd_change_clock(DWORD div)
 {
 	debug("%s\n", __FUNCTION__);
@@ -95,8 +101,11 @@ static void sd_change_clock(DWORD div)
 	debug("off\n");
 
 	// Set clock source and dividers
-	SDMMC0_CLK = 0x8002000e;
-	//SDMMC0_CLK = 0x8140030B;	// u-boot after initialization
+	// 24 MHz ought to be enough for everyone.
+	SDMMC0_CLK = CCU_MMC_CLK_ENABLE |
+		     CCU_MMC_CLK_SRC(0) |	// OSC24M
+		     CCU_MMC_CLK_DIV_N(0) |
+		     CCU_MMC_CLK_DIV_M(0);	// dividers 1/1
 
 	// Turn clock back on
 	SUNXI_SD_CLKDIV(0) = 0x10000 | div;
