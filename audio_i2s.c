@@ -5,12 +5,22 @@
 #include <stdio.h>
 
 int sample_count;
+
+void __attribute__((weak)) hook_audio_get_sample(int16_t *l, int16_t *r)
+{
+	// Create a pilot tone.
+	*l = ((sample_count / 50) & 1) * 0x007f;
+	*r = ((sample_count / 50) & 1) * 0x007f;
+	sample_count++;
+}
+
 void audio_queue_samples(void)
 {
 	while (((I2S_FSTA(2) >> 16) & 0xff) > 2) {
-		I2S_TXFIFO(2) = ((sample_count / 50) & 1) * 0x00ff;
-		I2S_TXFIFO(2) = ((sample_count / 50) & 1) * 0x00ff;
-		sample_count++;
+		int16_t l, r;
+		hook_audio_get_sample(&l, &r);
+		I2S_TXFIFO(2) = l;
+		I2S_TXFIFO(2) = r;
 	}
 	// TXEI clears itself when the FIFO is full again
 }
