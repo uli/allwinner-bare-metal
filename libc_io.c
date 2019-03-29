@@ -72,24 +72,28 @@ int _read(int fd, void *ptr, size_t n)
 	return br;
 }
 
-int _lseek(int fd, int ptr, int dir)
+off_t _lseek(int fd, off_t ptr, int dir)
 {
 	int rc;
 	FIL *fil = get_descr(fd);
-	if (!fil)
+	if (!fil) {
+		errno = EBADF;
 		return -1;
+	}
 	
+	off_t dest = ptr;
 	switch (dir) {
-	case SEEK_SET: rc = f_lseek(fil, ptr); break;
-	case SEEK_CUR: rc = f_lseek(fil, ptr + fil->fptr); break;
-	case SEEK_END: rc = f_lseek(fil, ptr + fil->obj.objsize); break;
+	case SEEK_SET: break;
+	case SEEK_CUR: dest += fil->fptr; break;
+	case SEEK_END: dest += fil->obj.objsize; break;
 	default: errno = EINVAL; return -1;
 	}
+	rc = f_lseek(fil, dest);
 	if (rc) {
 		errno = rc;
 		return -1;
 	}
-	return 0;
+	return dest;
 }
 
 int _fstat (int fd, struct stat * st)
