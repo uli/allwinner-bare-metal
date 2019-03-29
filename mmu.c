@@ -12,10 +12,10 @@ void mmu_init() {
     if(n==0) {
       // SRAM.  Write back.
       pagetable[n] = (n<<20) | (1<<12) | (3<<10) | (3<<2) | 2;
-    } else if(n>=0x400 && n<0x500) {
+    } else if(n>=0x400 && n<0x5e0) {
       // First half of DRAM. Write back.
       pagetable[n] = (n<<20) | (1<<12) | (3<<10) | (3<<2) | 2;
-    } else if(n>=0x500 && n<0x600) {
+    } else if(n>=0x5e0 && n<0x600) {
       // DMA buffers and such. Normal uncached.
       pagetable[n] = (n<<20) | (1<<12) | (3<<10) | (0<<2) | 2;
     } else {
