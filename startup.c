@@ -41,7 +41,8 @@ void startup() {
   set_pin_data(PORTL, 10, 1); // PORT L10 high
 
   // Configure display
-  display_init((volatile uint32_t*)(0x60000000-VIDEO_RAM_BYTES));
+  display_init();
+  display_set_mode(480, 270, 16, 16);
   audio_hdmi_init();
   audio_i2s2_init();
   audio_i2s2_on();

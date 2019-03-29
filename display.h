@@ -200,7 +200,8 @@ extern "C" {
 #define DE_MIXER0_VS_C_HCOEF1(x)      *(volatile uint32_t*)(DE_MIXER0_VS_BASE + 0x700 + x * 4)
 #define DE_MIXER0_VS_C_VCOEF(x)       *(volatile uint32_t*)(DE_MIXER0_VS_BASE + 0x800 + x * 4)
 
-void display_init();
+void display_init(void);
+void display_set_mode(int x, int y, int ovx, int ovy);
 void buffer_swap();
 
 volatile uint32_t* active_buffer;
