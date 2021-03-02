@@ -16,6 +16,12 @@ struct ed controlED __attribute__ ((section ("UNCACHED")));
 struct td setup_td[3] __attribute__ ((section ("UNCACHED")));
 
 void usb_init() {
+  // Disable clocks and wait a moment. This helps with devices not connecting on boot.
+  BUS_CLK_GATING0 &= ~((1<<29)|(1<<25));
+  BUS_SOFT_RST0   &= ~((1<<29)|(1<<25));
+  USBPHY_CFG      &= ~((1<<17) | (1<<9) | (1<<1));
+  udelay(10000);
+
   // Enable clocks
   BUS_CLK_GATING0 |= (1<<29)|(1<<25);
   BUS_SOFT_RST0   |= (1<<29)|(1<<25);
