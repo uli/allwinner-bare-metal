@@ -17,6 +17,10 @@ int irq_pending(uint32_t irq)
   return 0;
 }
 
+void __attribute__((weak)) hook_display_vblank(void)
+{
+}
+
 // Called when an interrupt is triggered
 // Currently this is always triggered by at new frame at 60Hz
 void __attribute__((interrupt("IRQ"))) interrupt(void) {
@@ -28,6 +32,7 @@ void __attribute__((interrupt("IRQ"))) interrupt(void) {
   if (irq_pending(118)) {
     tick_counter++;
     LCD0_GINT0 &= ~(1<<12);
+    hook_display_vblank();
   }
 }
 
