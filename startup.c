@@ -19,9 +19,11 @@ void _init(void)
 }
 
 void _reset(void);
+void init_sp_irq(void);
 void main(int argc, char **argv);
 
 void startup() {
+  init_sp_irq();
   install_ivt();
 
   // Set up MMU and paging configuration

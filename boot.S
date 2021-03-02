@@ -30,3 +30,15 @@ _data_abort_vector_h:               .word   except_data_abort
 _unused_handler_h:                  .word   _reset
 _interrupt_vector_h:                .word   interrupt
 _fast_interrupt_vector_h:           .word   except_fiq
+
+// initialize IRQ stack pointer
+.globl init_sp_irq
+init_sp_irq:
+	mov	   r2, #0x2000
+	mrs        r0, CPSR
+	bic        r1, r0, #31
+	orr        r1, r1, #18
+	msr        CPSR_c, r1
+	mov	   sp, r2
+	msr        CPSR_c, r0
+	bx         lr
