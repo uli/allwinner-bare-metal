@@ -3,7 +3,7 @@ OSDIR = .
 include common.mk
 
 OBJS = boot.o startup.o uart.o ports.o mmu.o system.o display.o interrupts.o \
-       usb.o fs.o audio_hdmi.o audio_i2s.o exceptions.o test.o cache.o
+       usb.o fs.o audio_hdmi.o audio_i2s.o exceptions.o cache.o
 
 USB_OBJS = tinyusb/src/host/ohci/ohci.o tinyusb/src/host/usbh.o tinyusb/src/host/hub.o \
 	tinyusb/src/class/hid/hid_host.o tinyusb/src/common/tusb_fifo.o \
