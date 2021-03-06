@@ -123,6 +123,31 @@ bool tuh_hid_keyboard_is_busy(uint8_t dev_addr)
 
 #endif
 
+static hidh_interface_info_t generich_data[CFG_TUSB_HOST_DEVICE_MAX]; // does not have addr0, index = dev_address-1
+
+//------------- generic PUBLIC API (parameter validation required) -------------//
+bool  tuh_hid_generic_is_mounted(uint8_t dev_addr)
+{
+  return tuh_device_is_configured(dev_addr) && pipehandle_is_valid(generich_data[dev_addr-1].pipe_hdl);
+}
+
+tusb_error_t tuh_hid_generic_get_report(uint8_t dev_addr, void* p_report)
+{
+  return hidh_interface_get_report(dev_addr, p_report, &generich_data[dev_addr-1]);
+}
+
+bool tuh_hid_generic_is_busy(uint8_t dev_addr)
+{
+  return  tuh_hid_generic_is_mounted(dev_addr) &&
+          hcd_pipe_is_busy( generich_data[dev_addr-1].pipe_hdl );
+}
+
+int tuh_hid_generic_get_report_size(uint8_t dev_addr)
+{
+  return generich_data[dev_addr-1].report_size;
+}
+
+
 //--------------------------------------------------------------------+
 // MOUSE
 //--------------------------------------------------------------------+
@@ -168,6 +193,7 @@ void hidh_init(void)
 #if CFG_TUH_HID_KEYBOARD
   tu_memclr(&keyboardh_data, sizeof(hidh_interface_info_t)*CFG_TUSB_HOST_DEVICE_MAX);
 #endif
+  tu_memclr(&generich_data, sizeof(hidh_interface_info_t)*CFG_TUSB_HOST_DEVICE_MAX);
 
 #if CFG_TUH_HID_MOUSE
   tu_memclr(&mouseh_data, sizeof(hidh_interface_info_t)*CFG_TUSB_HOST_DEVICE_MAX);
@@ -245,7 +271,8 @@ bool hidh_open_subtask(uint8_t dev_addr, tusb_desc_interface_t const *p_interfac
   }else
   {
     // TUSB_ERROR_HIDH_NOT_SUPPORTED_SUBCLASS
-    return false;
+    TU_ASSERT ( hidh_interface_open(dev_addr, p_interface_desc->bInterfaceNumber, p_endpoint_desc, &generich_data[dev_addr-1]) );
+    tuh_hid_generic_mounted_cb(dev_addr);
   }
 
   *p_length = sizeof(tusb_desc_interface_t) + sizeof(tusb_hid_descriptor_hid_t) + sizeof(tusb_desc_endpoint_t);
@@ -264,6 +291,11 @@ void hidh_isr(pipe_handle_t pipe_hdl, xfer_result_t event, uint32_t xferred_byte
     return;
   }
 #endif
+  if ( pipehandle_is_equal(pipe_hdl, generich_data[pipe_hdl.dev_addr-1].pipe_hdl) )
+  {
+    tuh_hid_generic_isr(pipe_hdl.dev_addr, event);
+    return;
+  }
 
 #if CFG_TUH_HID_MOUSE
   if ( pipehandle_is_equal(pipe_hdl, mouseh_data[pipe_hdl.dev_addr-1].pipe_hdl) )
@@ -287,6 +319,14 @@ void hidh_close(uint8_t dev_addr)
     tuh_hid_keyboard_unmounted_cb(dev_addr);
   }
 #endif
+
+//#if CFG_TUH_HID_generic
+  if ( pipehandle_is_valid( generich_data[dev_addr-1].pipe_hdl ) )
+  {
+    hidh_interface_close(&generich_data[dev_addr-1]);
+    tuh_hid_generic_unmounted_cb(dev_addr);
+  }
+//#endif
 
 #if CFG_TUH_HID_MOUSE
   if( pipehandle_is_valid( mouseh_data[dev_addr-1].pipe_hdl ) )

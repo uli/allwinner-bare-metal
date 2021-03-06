@@ -196,6 +196,11 @@ typedef struct ATTR_PACKED
   uint8_t keycode[6]; /**< Key codes of the currently pressed keys. */
 } hid_keyboard_report_t;
 
+typedef struct ATTR_PACKED
+{
+  uint8_t data[256];	// XXX: how big can those get?
+} hid_generic_report_t;
+
 /// Keyboard modifier codes bitmap
 typedef enum
 {

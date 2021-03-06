@@ -193,7 +193,11 @@ void tuh_hid_mouse_unmounted_cb(uint8_t dev_addr);
  *  @{ */
 
 bool          tuh_hid_generic_is_mounted(uint8_t dev_addr) ATTR_PURE ATTR_WARN_UNUSED_RESULT;
-tusb_error_t  tuh_hid_generic_get_report(uint8_t dev_addr, void* p_report, bool int_on_complete) ATTR_WARN_UNUSED_RESULT;
+void          tuh_hid_generic_isr(uint8_t dev_addr, xfer_result_t event);
+bool          tuh_hid_generic_is_busy(uint8_t dev_addr) ATTR_PURE ATTR_WARN_UNUSED_RESULT;
+void          tuh_hid_generic_mounted_cb(uint8_t dev_addr);
+void          tuh_hid_generic_unmounted_cb(uint8_t dev_addr);
+tusb_error_t  tuh_hid_generic_get_report(uint8_t dev_addr, void* p_report) ATTR_WARN_UNUSED_RESULT;
 tusb_error_t  tuh_hid_generic_set_report(uint8_t dev_addr, void* p_report, bool int_on_complete) ATTR_WARN_UNUSED_RESULT;
 tusb_interface_status_t tuh_hid_generic_get_status(uint8_t dev_addr) ATTR_WARN_UNUSED_RESULT;
 tusb_interface_status_t tuh_hid_generic_set_status(uint8_t dev_addr) ATTR_WARN_UNUSED_RESULT;
