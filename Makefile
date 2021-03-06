@@ -5,9 +5,12 @@ include common.mk
 OBJS = boot.o startup.o uart.o ports.o mmu.o system.o display.o interrupts.o \
        usb.o fs.o audio_hdmi.o audio_i2s.o exceptions.o cache.o
 
-USB_OBJS = tinyusb/src/host/ohci/ohci.o tinyusb/src/host/usbh.o tinyusb/src/host/hub.o \
-	tinyusb/src/class/hid/hid_host.o tinyusb/src/common/tusb_fifo.o \
-	tinyusb/src/tusb.o
+USB_OBJS = tinyusb/src/host/ohci/ohci1.o tinyusb/src/host/ohci/ohci2.o \
+	   tinyusb/src/host/usbh1.o tinyusb/src/host/usbh2.o \
+	   tinyusb/src/host/hub1.o tinyusb/src/host/hub2.o \
+	   tinyusb/src/class/hid/hid_host1.o tinyusb/src/class/hid/hid_host2.o \
+	   tinyusb/src/common/tusb_fifo.o \
+	   tinyusb/src/tusb1.o tinyusb/src/tusb2.o
 
 LIBC_CSRC = libc_io.c
 LIBC_OBJS = $(LIBC_CSRC:.c=.o)

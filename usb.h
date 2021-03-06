@@ -9,6 +9,8 @@ extern "C" {
 
 #include <tusb.h>
 
+#define USB0_BASE 0x01C1A000
+
 #define USB1_BASE 0x01C1B000
 
 #define USB1_E_CAPLENGTH           *(volatile uint8_t  *)(USB1_BASE + 0x000)
