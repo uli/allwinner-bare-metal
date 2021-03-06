@@ -24,6 +24,10 @@ bool usb2_tusb_init(void);
 
 tusb_error_t usb1_tuh_hid_keyboard_get_report(uint8_t dev_addr, void * p_report);
 tusb_error_t usb2_tuh_hid_keyboard_get_report(uint8_t dev_addr, void * p_report);
+tusb_error_t usb1_tuh_hid_generic_get_report(uint8_t dev_addr, void * p_report);
+tusb_error_t usb2_tuh_hid_generic_get_report(uint8_t dev_addr, void * p_report);
+int usb1_tuh_hid_generic_get_report_size(uint8_t dev_addr);
+int usb2_tuh_hid_generic_get_report_size(uint8_t dev_addr);
 
 void usb1_tusb_task(void);
 void usb2_tusb_task(void);
@@ -187,3 +191,73 @@ void usb_task(void)
   usb1_tusb_task();
   usb2_tusb_task();
 }
+
+static hid_generic_report_t usb_generic_report __attribute__ ((section ("UNCACHED")));
+static bool usb_generic_mounted __attribute__ ((section ("UNCACHED")));
+
+static void generic_get_report(int hcd, uint8_t dev_addr, uint8_t *report) {
+  switch (hcd) {
+  case 1: usb1_tuh_hid_generic_get_report(dev_addr, report); break;
+  case 2: usb2_tuh_hid_generic_get_report(dev_addr, report); break;
+  default: break;
+  }
+}
+
+static int generic_report_size(uint8_t hcd, uint8_t dev_addr)
+{
+  switch (hcd) {
+  case 1: return usb1_tuh_hid_generic_get_report_size(dev_addr); break;
+  case 2: return usb2_tuh_hid_generic_get_report_size(dev_addr); break;
+  default: return -1;
+  }
+}
+
+static void generic_mounted(uint8_t hcd, uint8_t dev_addr)
+{
+  // application set-up
+  printf("\na generic device (hcd %d, address %d) is mounted\n", hcd, dev_addr);
+  generic_get_report(hcd, dev_addr, (uint8_t*) &usb_generic_report); // first report
+}
+
+void usb1_tuh_hid_generic_mounted_cb(uint8_t dev_addr) { generic_mounted(1, dev_addr); }
+void usb2_tuh_hid_generic_mounted_cb(uint8_t dev_addr) { generic_mounted(2, dev_addr); }
+
+static void generic_unmounted(uint8_t hcd, uint8_t dev_addr)
+{
+  // application tear-down
+  printf("\na generic device (hcd %d, address %d) is unmounted\n", hcd, dev_addr);
+}
+
+void usb1_tuh_hid_generic_unmounted_cb(uint8_t dev_addr) { generic_unmounted(1, dev_addr); }
+void usb2_tuh_hid_generic_unmounted_cb(uint8_t dev_addr) { generic_unmounted(2, dev_addr); }
+
+void __attribute__((weak)) hook_usb_generic_report(int hcd, uint8_t dev_addr, hid_generic_report_t *r)
+{
+  printf("genrep %d/%d sz %d %02X %02X %02X %02X\n", hcd, dev_addr, generic_report_size(hcd, dev_addr),
+	 r->data[0],
+	 r->data[1],
+	 r->data[2],
+	 r->data[3]
+  );
+}
+
+// invoked ISR context
+static void generic_isr(int hcd, uint8_t dev_addr, xfer_result_t event)
+{
+  switch(event)
+  {
+    case XFER_RESULT_SUCCESS:
+      hook_usb_generic_report(hcd, dev_addr, &usb_generic_report);
+      generic_get_report(hcd, dev_addr, (uint8_t*) &usb_generic_report);
+      break;
+
+    case XFER_RESULT_FAILED:
+      generic_get_report(hcd, dev_addr, (uint8_t*) &usb_generic_report); // ignore & continue
+      break;
+
+    default :
+    break;
+  }
+}
+void usb1_tuh_hid_generic_isr(uint8_t dev_addr, xfer_result_t event) { generic_isr(1, dev_addr, event); }
+void usb2_tuh_hid_generic_isr(uint8_t dev_addr, xfer_result_t event) { generic_isr(2, dev_addr, event); }
