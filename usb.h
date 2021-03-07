@@ -92,6 +92,8 @@ void usb_init();
 void usb_task();
 
 void hook_usb_keyboard_report(hid_keyboard_report_t *);
+void hook_usb_generic_report(int hcd, uint8_t dev_addr, hid_generic_report_t *data);
+void hook_usb_generic_mounted(int hcd, uint8_t dev_addr, uint8_t *report_desc, int report_desc_len);
 
 #ifdef __cplusplus
 }

@@ -204,9 +204,7 @@ void hidh_init(void)
 #endif
 }
 
-#if 0
-CFG_TUSB_MEM_SECTION uint8_t report_descriptor[256];
-#endif
+static CFG_TUSB_MEM_SECTION uint8_t report_descriptor[256];
 
 bool hidh_open_subtask(uint8_t dev_addr, tusb_desc_interface_t const *p_interface_desc, uint16_t *p_length)
 {
@@ -232,19 +230,19 @@ bool hidh_open_subtask(uint8_t dev_addr, tusb_desc_interface_t const *p_interfac
   };
   TU_ASSERT( usbh_control_xfer( dev_addr, &request, NULL ) );
 
-#if 0
-  //------------- Get Report Descriptor TODO HID parser -------------//
-  if ( p_desc_hid->bNumDescriptors )
-  {
-    STASK_INVOKE(
-        usbh_control_xfer_subtask( dev_addr, bm_request_type(TUSB_DIR_IN, TUSB_REQ_TYPE_STANDARD, TUSB_REQ_RCPT_INTERFACE),
-                                   TUSB_REQ_GET_DESCRIPTOR, (p_desc_hid->bReportType << 8), 0,
-                                   p_desc_hid->wReportLength, report_descriptor ),
-        error
-    );
-    (void) error; // if error in getting report descriptor --> treating like there is none
+  //------------- Get Report Descriptor -------------//
+  tusb_control_request_t request2 = {
+        .bmRequestType_bit = { .recipient = TUSB_REQ_RCPT_INTERFACE, .type = TUSB_REQ_TYPE_STANDARD, .direction = TUSB_DIR_IN },
+        .bRequest = TUSB_REQ_GET_DESCRIPTOR,
+        .wValue = p_desc_hid->bReportType << 8,
+        .wIndex = 0,
+        .wLength = p_desc_hid->wReportLength,
+  };
+  TU_ASSERT( usbh_control_xfer( dev_addr, &request2, report_descriptor ) );
+  for (int i = 0; i < p_desc_hid->wReportLength; i += 4) {
+    printf("%02X %02X    %02X %02X\n", report_descriptor[i], report_descriptor[i+1], report_descriptor[i+2], report_descriptor[i+3]);
   }
-#endif
+  printf("\n");
 
   if ( HID_SUBCLASS_BOOT == p_interface_desc->bInterfaceSubClass )
   {
@@ -272,7 +270,7 @@ bool hidh_open_subtask(uint8_t dev_addr, tusb_desc_interface_t const *p_interfac
   {
     // TUSB_ERROR_HIDH_NOT_SUPPORTED_SUBCLASS
     TU_ASSERT ( hidh_interface_open(dev_addr, p_interface_desc->bInterfaceNumber, p_endpoint_desc, &generich_data[dev_addr-1]) );
-    tuh_hid_generic_mounted_cb(dev_addr);
+    tuh_hid_generic_mounted_cb(dev_addr, report_descriptor, p_desc_hid->wReportLength);
   }
 
   *p_length = sizeof(tusb_desc_interface_t) + sizeof(tusb_hid_descriptor_hid_t) + sizeof(tusb_desc_endpoint_t);

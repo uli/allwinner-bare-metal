@@ -193,7 +193,6 @@ void usb_task(void)
 }
 
 static hid_generic_report_t usb_generic_report __attribute__ ((section ("UNCACHED")));
-static bool usb_generic_mounted __attribute__ ((section ("UNCACHED")));
 
 static void generic_get_report(int hcd, uint8_t dev_addr, uint8_t *report) {
   switch (hcd) {
@@ -212,15 +211,21 @@ static int generic_report_size(uint8_t hcd, uint8_t dev_addr)
   }
 }
 
-static void generic_mounted(uint8_t hcd, uint8_t dev_addr)
+void __attribute__((weak)) hook_usb_generic_mounted(int hcd, uint8_t dev_addr, uint8_t *report_desc, int report_desc_len)
+{
+  (void)hcd; (void)dev_addr; (void)report_desc; (void)report_desc_len;
+}
+
+static void generic_mounted(uint8_t hcd, uint8_t dev_addr, uint8_t *report_desc, int report_desc_len)
 {
   // application set-up
   printf("\na generic device (hcd %d, address %d) is mounted\n", hcd, dev_addr);
+  hook_usb_generic_mounted(hcd, dev_addr, report_desc, report_desc_len);
   generic_get_report(hcd, dev_addr, (uint8_t*) &usb_generic_report); // first report
 }
 
-void usb1_tuh_hid_generic_mounted_cb(uint8_t dev_addr) { generic_mounted(1, dev_addr); }
-void usb2_tuh_hid_generic_mounted_cb(uint8_t dev_addr) { generic_mounted(2, dev_addr); }
+void usb1_tuh_hid_generic_mounted_cb(uint8_t dev_addr, uint8_t *report_desc, int report_desc_len) { generic_mounted(1, dev_addr, report_desc, report_desc_len); }
+void usb2_tuh_hid_generic_mounted_cb(uint8_t dev_addr, uint8_t *report_desc, int report_desc_len) { generic_mounted(2, dev_addr, report_desc, report_desc_len); }
 
 static void generic_unmounted(uint8_t hcd, uint8_t dev_addr)
 {
