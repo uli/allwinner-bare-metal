@@ -17,6 +17,8 @@ uint32_t *framebuffer1 = 0;
 uint32_t *framebuffer2 = 0;
 uint32_t *framebuffer3 = 0;
 
+volatile uint32_t *active_buffer;
+
 static struct {
 	int fb_width, fb_height, fb_bytes;
 	int x, y, ovx, ovy;
