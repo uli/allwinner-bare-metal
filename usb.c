@@ -227,10 +227,16 @@ static void generic_mounted(uint8_t hcd, uint8_t dev_addr, uint8_t *report_desc,
 void usb1_tuh_hid_generic_mounted_cb(uint8_t dev_addr, uint8_t *report_desc, int report_desc_len) { generic_mounted(1, dev_addr, report_desc, report_desc_len); }
 void usb2_tuh_hid_generic_mounted_cb(uint8_t dev_addr, uint8_t *report_desc, int report_desc_len) { generic_mounted(2, dev_addr, report_desc, report_desc_len); }
 
+void __attribute__((weak)) hook_usb_generic_unmounted(int hcd, uint8_t dev_addr)
+{
+  (void)hcd; (void)dev_addr;
+}
+
 static void generic_unmounted(uint8_t hcd, uint8_t dev_addr)
 {
   // application tear-down
   printf("\na generic device (hcd %d, address %d) is unmounted\n", hcd, dev_addr);
+  hook_usb_generic_unmounted(hcd, dev_addr);
 }
 
 void usb1_tuh_hid_generic_unmounted_cb(uint8_t dev_addr) { generic_unmounted(1, dev_addr); }
