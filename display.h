@@ -204,10 +204,14 @@ void display_init(void);
 void display_set_mode(int x, int y, int ovx, int ovy);
 void buffer_swap();
 void display_clear_active_buffer(void);
+void display_enable_filter(int onoff);
 
 extern int display_single_buffer;
 
 extern volatile uint32_t *active_buffer;
+
+void display_scaler_set_coeff(uint32_t hstep, int sub);
+void display_scaler_nearest_neighbour(void);
 
 #ifdef __cplusplus
 }

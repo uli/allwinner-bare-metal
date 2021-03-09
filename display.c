@@ -128,6 +128,24 @@ void lcd_init() {
   LCD0_GINT0 = (1<<28);
 }
 
+static int filter_enabled = 0;
+
+static void de2_update_filter(int sub)
+{
+  if (!filter_enabled)
+    display_scaler_nearest_neighbour();
+  else
+    display_scaler_set_coeff(DE_MIXER0_VS_C_HSTEP, sub);
+
+  DE_MIXER0_VS_CTRL = 1 | (1<<4);
+}
+
+void display_enable_filter(int onoff)
+{
+  filter_enabled = !!onoff;
+  de2_update_filter(onoff - 1);
+}
+
 // This function configured DE2 as follows:
 // MIXER0 -> WB -> MIXER1 -> HDMI
 static void de2_init() {
@@ -168,15 +186,9 @@ static void de2_init() {
   DE_MIXER0_VS_C_SIZE = ((dsp.y - 1) << 16) | (dsp.x - 1);
   DE_MIXER0_VS_C_HSTEP = (uint32_t)scale_x;
   DE_MIXER0_VS_C_VSTEP = (uint32_t)scale_y;
-  for(int n=0;n<32;n++) {
-    DE_MIXER0_VS_Y_HCOEF0(n) = 0x40000000;
-    DE_MIXER0_VS_Y_HCOEF1(n) = 0;
-    DE_MIXER0_VS_Y_VCOEF(n)  = 0x00004000;
-    DE_MIXER0_VS_C_HCOEF0(n) = 0x40000000;
-    DE_MIXER0_VS_C_HCOEF1(n) = 0;
-    DE_MIXER0_VS_C_VCOEF(n)  = 0x00004000;
-  }
-  DE_MIXER0_VS_CTRL = 1 | (1<<4);
+
+  de2_update_filter(0);
+
   DE_MIXER0_GLB_DBUFFER = 1;
 }
 
