@@ -205,6 +205,8 @@ void display_set_mode(int x, int y, int ovx, int ovy);
 void buffer_swap();
 void display_clear_active_buffer(void);
 
+extern int display_single_buffer;
+
 extern volatile uint32_t *active_buffer;
 
 #ifdef __cplusplus

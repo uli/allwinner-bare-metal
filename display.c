@@ -204,13 +204,20 @@ void display_set_mode(int x, int y, int ovx, int ovy)
   dsp.fb_bytes = (x + ovx * 2) * (y + ovy) * 4;
 
   framebuffer1 = (uint32_t *)malloc(dsp.fb_bytes);
-  framebuffer2 = (uint32_t *)malloc(dsp.fb_bytes);
-  framebuffer3 = (uint32_t *)malloc(dsp.fb_bytes);
+  if (!display_single_buffer) {
+    framebuffer2 = (uint32_t *)malloc(dsp.fb_bytes);
+    framebuffer3 = (uint32_t *)malloc(dsp.fb_bytes);
+  } else {
+    framebuffer2 = NULL;
+    framebuffer3 = NULL;
+  }
 
   active_buffer = framebuffer1;
 
   de2_init();
 }
+
+int display_single_buffer = 0;
 
 void buffer_swap() {
   // Make sure whatever is in the active buffer is committed to memory.
@@ -218,12 +225,15 @@ void buffer_swap() {
 
   DE_MIXER0_OVL_V_TOP_LADD0(0) = (uint32_t)
   	(active_buffer + dsp.fb_width * dsp.ovy + dsp.ovx);
-  if(active_buffer == framebuffer1) {
-      active_buffer = framebuffer2;
-  } else if(active_buffer == framebuffer2) {
-      active_buffer = framebuffer3;
-  } else {
-      active_buffer = framebuffer1;
+
+  if (!display_single_buffer) {
+    if(active_buffer == framebuffer1) {
+        active_buffer = framebuffer2;
+    } else if(active_buffer == framebuffer2) {
+        active_buffer = framebuffer3;
+    } else {
+        active_buffer = framebuffer1;
+    }
   }
   DE_MIXER0_GLB_DBUFFER = 1;
 }
