@@ -66,6 +66,7 @@
 #define SUNXI_MMC_STATUS_FIFO_EMPTY	(1 << 2)
 #define SUNXI_MMC_STATUS_FIFO_FULL	(1 << 3)
 #define SUNXI_MMC_STATUS_CARD_DATA_BUSY	(1 << 9)
+#define SUNXI_MMC_STATUS_FSM_BUSY	(1 << 10)
 
 // Flags for SUNXI_SD_RINTSTS(n) registers
 #define SUNXI_MMC_RINT_COMMAND_DONE		(1 << 2)
@@ -198,6 +199,11 @@ BYTE send_cmd_data (		/* Returns command response (bit7==1:Send failed)*/
 {
 	BYTE n;
 	debug("%s cmd %d arg %08X buf 0x%08x bytes %d\n", __FUNCTION__, cmd, arg, buf, bytes);
+
+	while (SUNXI_SD_STATUS(0) &
+	       (SUNXI_MMC_STATUS_CARD_DATA_BUSY | SUNXI_MMC_STATUS_FSM_BUSY)) {
+	}
+
 	int is_write = cmd == CMD24 || cmd == CMD25;
 
 	if (cmd == CMD12)
