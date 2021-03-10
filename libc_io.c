@@ -8,6 +8,14 @@
 #include "fatfs/ff.h"
 #include <dirent.h>
 
+//#define DEBUG_LIBC
+
+#ifdef DEBUG_LIBC
+#define dbg_libc(x...) printf(x)
+#else
+#define dbg_libc(x...) do {} while (0)
+#endif
+
 #define MAX_FILE_DESCRIPTORS 16
 static FIL file_descriptor[MAX_FILE_DESCRIPTORS] = { };
 
@@ -39,7 +47,11 @@ int _write(int fd, const void *buf, size_t n)
 	if (fd == 1 || fd == 2)
 		return console_write(buf, n);
 
+	if (fd > 2)
+		dbg_libc("write %d %p %d\n", fd, buf, n);
+
 	FIL *filp = get_descr(fd);
+	dbg_libc("write filp %p\n", filp);
 	if (!filp)
 		return -1;
 
@@ -47,6 +59,7 @@ int _write(int fd, const void *buf, size_t n)
 	int rc;
 
 	if ((rc = f_write(filp, buf, n, &bw))) {
+		dbg_libc("write err %d\n", rc);
 		errno = rc;
 		return -1;
 	}
@@ -142,6 +155,7 @@ int _open(const char *path, int c_flags)
 	}
 
 	rc = f_open(fil, path, flags);
+	dbg_libc("open %s %d rc %d\n", path, flags, rc);
 	if (rc) {
 		errno = rc;
 		return -1;
@@ -153,14 +167,18 @@ int _open(const char *path, int c_flags)
 int _close (int fd)
 {
 	FIL *fil = get_descr(fd);
+	if (fd > 2)
+		dbg_libc("close filp %p\n", fil);
 	if (!fil)
 		return -1;
 
 	int rc = f_close(fil);
 	if (rc) {
+		dbg_libc("close err %d\n", rc);
 		errno = rc;
 		return EOF;
 	}
+	dbg_libc("close ok\n");
 
 	return 0;
 }
