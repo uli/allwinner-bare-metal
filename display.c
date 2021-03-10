@@ -7,12 +7,6 @@
 #include "uart.h"
 #include "mmu.h"
 
-// HDMI controller output resolution
-// NB: Any change in resolution requires additional changes in the HDMI
-// controller register settings below.
-#define HDMI_RES_X	1920
-#define HDMI_RES_Y	1080
-
 uint32_t *framebuffer1 = 0;
 uint32_t *framebuffer2 = 0;
 uint32_t *framebuffer3 = 0;
@@ -86,13 +80,13 @@ void hdmi_init() {
   // HDMI Config, based on the documentation at:
   // https://people.freebsd.org/~gonzo/arm/iMX6-HDMI.pdf
   HDMI_FC_INVIDCONF = (1<<6) | (1<<5) | (1<<4) | (1<<3); // Polarity etc
-  HDMI_FC_INHACTIV0 = (HDMI_RES_X & 0xff);    // Horizontal pixels
-  HDMI_FC_INHACTIV1 = (HDMI_RES_X >> 8);      // Horizontal pixels
+  HDMI_FC_INHACTIV0 = (DISPLAY_HDMI_RES_X & 0xff);    // Horizontal pixels
+  HDMI_FC_INHACTIV1 = (DISPLAY_HDMI_RES_X >> 8);      // Horizontal pixels
   HDMI_FC_INHBLANK0 = (280 & 0xff);     // Horizontal blanking
   HDMI_FC_INHBLANK1 = (280 >> 8);       // Horizontal blanking
 
-  HDMI_FC_INVACTIV0 = (HDMI_RES_Y & 0xff);    // Vertical pixels
-  HDMI_FC_INVACTIV1 = (HDMI_RES_Y >> 8);      // Vertical pixels
+  HDMI_FC_INVACTIV0 = (DISPLAY_HDMI_RES_Y & 0xff);    // Vertical pixels
+  HDMI_FC_INVACTIV1 = (DISPLAY_HDMI_RES_Y >> 8);      // Vertical pixels
   HDMI_FC_INVBLANK  = 45;               // Vertical blanking
 
   HDMI_FC_HSYNCINDELAY0 = (88 & 0xff);  // Horizontal Front porch
@@ -117,9 +111,9 @@ void lcd_init() {
   LCD0_GCTL         = (1<<31);
   LCD0_GINT0        = 0;
   LCD0_TCON1_CTL    = (1<<31) | (30<<4);
-  LCD0_TCON1_BASIC0 = ((HDMI_RES_X - 1)<<16) | (HDMI_RES_Y - 1);
-  LCD0_TCON1_BASIC1 = ((HDMI_RES_X - 1)<<16) | (HDMI_RES_Y - 1);
-  LCD0_TCON1_BASIC2 = ((HDMI_RES_X - 1)<<16) | (HDMI_RES_Y - 1);
+  LCD0_TCON1_BASIC0 = ((DISPLAY_HDMI_RES_X - 1)<<16) | (DISPLAY_HDMI_RES_Y - 1);
+  LCD0_TCON1_BASIC1 = ((DISPLAY_HDMI_RES_X - 1)<<16) | (DISPLAY_HDMI_RES_Y - 1);
+  LCD0_TCON1_BASIC2 = ((DISPLAY_HDMI_RES_X - 1)<<16) | (DISPLAY_HDMI_RES_Y - 1);
   LCD0_TCON1_BASIC3 = (2199<<16) | 191;
   LCD0_TCON1_BASIC4 = (2250<<16) | 40;
   LCD0_TCON1_BASIC5 = (43<<16) | 4;
@@ -159,12 +153,12 @@ static void de2_init() {
    *(volatile uint32_t*)(addr) = 0;
 
   DE_MIXER0_GLB_CTL = 1;
-  DE_MIXER0_GLB_SIZE = ((HDMI_RES_Y - 1) << 16) | (HDMI_RES_X - 1);
+  DE_MIXER0_GLB_SIZE = ((DISPLAY_HDMI_RES_Y - 1) << 16) | (DISPLAY_HDMI_RES_X - 1);
 
   DE_MIXER0_BLD_FILL_COLOR_CTL = 0x100;
   DE_MIXER0_BLD_CH_RTCTL = 0;
-  DE_MIXER0_BLD_SIZE = ((HDMI_RES_Y - 1) << 16) | (HDMI_RES_X - 1);
-  DE_MIXER0_BLD_CH_ISIZE(0) = ((HDMI_RES_Y - 1) << 16) | (HDMI_RES_X - 1);
+  DE_MIXER0_BLD_SIZE = ((DISPLAY_HDMI_RES_Y - 1) << 16) | (DISPLAY_HDMI_RES_X - 1);
+  DE_MIXER0_BLD_CH_ISIZE(0) = ((DISPLAY_HDMI_RES_Y - 1) << 16) | (DISPLAY_HDMI_RES_X - 1);
 
   // The output takes a dsp.x*dsp.y area from a total (dsp.x+dsp.ovx)*(dsp.y+dsp.ovy) buffer
   DE_MIXER0_OVL_V_ATTCTL(0) = (1<<15) | (1<<0);
@@ -177,11 +171,11 @@ static void de2_init() {
   DE_MIXER0_OVL_V_SIZE = ((dsp.y - 1) << 16) | (dsp.x - 1);
 
   DE_MIXER0_VS_CTRL = 1;
-  DE_MIXER0_VS_OUT_SIZE = ((HDMI_RES_Y - 1) << 16) | (HDMI_RES_X - 1);
+  DE_MIXER0_VS_OUT_SIZE = ((DISPLAY_HDMI_RES_Y - 1) << 16) | (DISPLAY_HDMI_RES_X - 1);
   DE_MIXER0_VS_Y_SIZE = ((dsp.y - 1) << 16) | (dsp.x - 1);
-  double scale_x = (double)dsp.x * (double)0x100000 / (double)HDMI_RES_X;
+  double scale_x = (double)dsp.x * (double)0x100000 / (double)DISPLAY_HDMI_RES_X;
   DE_MIXER0_VS_Y_HSTEP = (uint32_t)scale_x;
-  double scale_y = (double)dsp.y * (double)0x100000 / (double)HDMI_RES_Y;
+  double scale_y = (double)dsp.y * (double)0x100000 / (double)DISPLAY_HDMI_RES_Y;
   DE_MIXER0_VS_Y_VSTEP = (uint32_t)scale_y;
   DE_MIXER0_VS_C_SIZE = ((dsp.y - 1) << 16) | (dsp.x - 1);
   DE_MIXER0_VS_C_HSTEP = (uint32_t)scale_x;

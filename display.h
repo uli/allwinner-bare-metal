@@ -4,6 +4,12 @@ extern "C" {
 
 #include <stdint.h>
 
+// HDMI controller output resolution
+// NB: Any change in resolution requires additional changes in the HDMI
+// controller register settings below.
+#define DISPLAY_HDMI_RES_X	1920
+#define DISPLAY_HDMI_RES_Y	1080
+
 #define VIDEO_RAM_BYTES 0x180000
 
 // The HDMI registers base address.
