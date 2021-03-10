@@ -231,7 +231,7 @@ void display_set_mode(int x, int y, int ovx, int ovy)
 
 int display_single_buffer = 0;
 
-void buffer_swap() {
+void display_swap_buffers() {
   // Make sure whatever is in the active buffer is committed to memory.
   mmu_flush_dcache();
 

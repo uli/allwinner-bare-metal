@@ -10,7 +10,7 @@ void game_start();
 
 extern int sample_count;
 void game_tick_next() {
-  buffer_swap();
+  display_swap_buffers();
   display_clear_active_buffer();
   game_tick(tick_counter);
   printf("%d samples\n", sample_count);
