@@ -131,7 +131,9 @@ int _open(const char *path, int c_flags)
 	FIL *fil = NULL;
 	int flags = 0;
 
-	if (c_flags & O_RDWR)
+	dbg_libc("open inflags %d\n", c_flags);
+
+	if (c_flags & (O_RDWR | O_WRONLY))
 		flags |= FA_WRITE;
 	else
 		flags |= FA_READ;
@@ -142,6 +144,9 @@ int _open(const char *path, int c_flags)
 		else
 			flags |= FA_OPEN_ALWAYS;
 	}
+
+	if (c_flags & O_APPEND)
+		flags |= FA_OPEN_APPEND;
 
 	for (i = 0; i < MAX_FILE_DESCRIPTORS; ++i) {
 		if (!file_descriptor[i].obj.fs) {
