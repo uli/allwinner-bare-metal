@@ -7,9 +7,8 @@
 #include "uart.h"
 #include "mmu.h"
 
-uint32_t *framebuffer1 = 0;
-uint32_t *framebuffer2 = 0;
-uint32_t *framebuffer3 = 0;
+static uint32_t *framebuffer1 = 0;
+static uint32_t *framebuffer2 = 0;
 
 volatile uint32_t *active_buffer;
 
@@ -201,7 +200,6 @@ void display_set_mode(int x, int y, int ovx, int ovy)
 {
   free(framebuffer1);
   free(framebuffer2);
-  free(framebuffer3);
 
   dsp.ovx = ovx; dsp.ovy = ovy;
   dsp.x = x; dsp.y = y;
@@ -209,14 +207,8 @@ void display_set_mode(int x, int y, int ovx, int ovy)
   dsp.fb_height = y + ovy;
   dsp.fb_bytes = (x + ovx * 2) * (y + ovy) * 4;
 
-  framebuffer1 = (uint32_t *)malloc(dsp.fb_bytes);
-  if (!display_single_buffer) {
-    framebuffer2 = (uint32_t *)malloc(dsp.fb_bytes);
-    framebuffer3 = (uint32_t *)malloc(dsp.fb_bytes);
-  } else {
-    framebuffer2 = NULL;
-    framebuffer3 = NULL;
-  }
+  framebuffer1 = (uint32_t *)calloc(1, dsp.fb_bytes);
+  framebuffer2 = (uint32_t *)calloc(1, dsp.fb_bytes);
 
   active_buffer = framebuffer1;
 
@@ -229,18 +221,20 @@ void display_swap_buffers() {
   // Make sure whatever is in the active buffer is committed to memory.
   mmu_flush_dcache();
 
+  if (display_single_buffer)
+    display_active_buffer = framebuffer1;
+
   DE_MIXER0_OVL_V_TOP_LADD0(0) = (uint32_t)
   	(active_buffer + dsp.fb_width * dsp.ovy + dsp.ovx);
 
   if (!display_single_buffer) {
-    if(active_buffer == framebuffer1) {
-        active_buffer = framebuffer2;
-    } else if(active_buffer == framebuffer2) {
-        active_buffer = framebuffer3;
-    } else {
-        active_buffer = framebuffer1;
+    if(display_active_buffer == framebuffer1) {
+        display_active_buffer = framebuffer2;
+    } else if(display_active_buffer == framebuffer2) {
+        display_active_buffer = framebuffer1;
     }
   }
+
   DE_MIXER0_GLB_DBUFFER = 1;
 }
 
