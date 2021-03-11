@@ -10,7 +10,7 @@
 static uint32_t *framebuffer1 = 0;
 static uint32_t *framebuffer2 = 0;
 
-volatile uint32_t *active_buffer;
+volatile uint32_t *display_active_buffer;
 
 static struct {
 	int fb_width, fb_height, fb_bytes;
@@ -210,7 +210,7 @@ void display_set_mode(int x, int y, int ovx, int ovy)
   framebuffer1 = (uint32_t *)calloc(1, dsp.fb_bytes);
   framebuffer2 = (uint32_t *)calloc(1, dsp.fb_bytes);
 
-  active_buffer = framebuffer1;
+  display_active_buffer = framebuffer1;
 
   de2_init();
 }
@@ -225,7 +225,7 @@ void display_swap_buffers() {
     display_active_buffer = framebuffer1;
 
   DE_MIXER0_OVL_V_TOP_LADD0(0) = (uint32_t)
-  	(active_buffer + dsp.fb_width * dsp.ovy + dsp.ovx);
+  	(display_active_buffer + dsp.fb_width * dsp.ovy + dsp.ovx);
 
   if (!display_single_buffer) {
     if(display_active_buffer == framebuffer1) {
@@ -240,5 +240,5 @@ void display_swap_buffers() {
 
 void display_clear_active_buffer(void)
 {
-  memset((void *)active_buffer, 0, dsp.fb_bytes);
+  memset((void *)display_active_buffer, 0, dsp.fb_bytes);
 }

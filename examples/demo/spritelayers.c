@@ -17,7 +17,7 @@ void render_layer(struct sprite_layer* layer) {
       if(*pattern &&
          x_position > 0 && x_position < 496 &&
          y_position > 0 && y_position < 286)
-        render_raw(*pattern, active_buffer + y_position * 512 + x_position);
+        render_raw(*pattern, display_active_buffer + y_position * 512 + x_position);
       // }
       pattern++;
     }
@@ -26,7 +26,7 @@ void render_layer(struct sprite_layer* layer) {
 
 void render_sprite(uint32_t* pattern, int32_t x_offset, int32_t y_offset){
   // Add 16 to the offset such that 0,0 is the upper-left of the visible display
-  volatile uint32_t* destination = active_buffer + (y_offset + 16) * 512 + (x_offset + 16);
+  volatile uint32_t* destination = display_active_buffer + (y_offset + 16) * 512 + (x_offset + 16);
   render_raw(pattern, destination);
 }
 
