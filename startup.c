@@ -8,6 +8,7 @@
 #include "ccu.h"
 #include "usb.h"
 #include "fs.h"
+#include "dma.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -57,6 +58,8 @@ void startup() {
   uart_print("Ready!\r\n");
 
   set_pin_mode(PORTF, 6, 0);	// SD CD pin
+
+  dma_init();
 
   __libc_init_array();
 
