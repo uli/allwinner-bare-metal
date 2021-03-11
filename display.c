@@ -138,6 +138,7 @@ void display_enable_filter(int onoff)
 {
   filter_enabled = !!onoff;
   de2_update_filter(onoff - 1);
+  DE_MIXER0_GLB_DBUFFER = 1;
 }
 
 // This function configured DE2 as follows:
