@@ -12,7 +12,7 @@
 /-------------------------------------------------------------------------*/
 
 //#define DEBUG_SDMMC
-#define DEBUG_READ_FIRST_BLOCK
+//#define DEBUG_READ_FIRST_BLOCK
 
 #include "ff.h"
 #include "diskio.h"		/* Common include file for FatFs and disk I/O layer */
