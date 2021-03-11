@@ -11,6 +11,7 @@ static uint32_t *framebuffer1 = 0;
 static uint32_t *framebuffer2 = 0;
 
 volatile uint32_t *display_active_buffer;
+volatile uint32_t *display_visible_buffer;
 
 static struct {
 	int fb_width, fb_height, fb_bytes;
@@ -224,6 +225,7 @@ void display_swap_buffers() {
   if (display_single_buffer)
     display_active_buffer = framebuffer1;
 
+  display_visible_buffer = display_active_buffer;
   DE_MIXER0_OVL_V_TOP_LADD0(0) = (uint32_t)
   	(display_active_buffer + dsp.fb_width * dsp.ovy + dsp.ovx);
 

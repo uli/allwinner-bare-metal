@@ -215,6 +215,7 @@ void display_enable_filter(int onoff);
 extern int display_single_buffer;
 
 extern volatile uint32_t *display_active_buffer;
+extern volatile uint32_t *display_visible_buffer;
 
 void display_scaler_set_coeff(uint32_t hstep, int sub);
 void display_scaler_nearest_neighbour(void);
