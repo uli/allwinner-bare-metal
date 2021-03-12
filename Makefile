@@ -4,7 +4,7 @@ include common.mk
 
 OBJS = boot.o startup.o uart.o ports.o mmu.o system.o display.o interrupts.o \
        usb.o fs.o audio_hdmi.o audio_i2s.o exceptions.o cache.o display_filter.o \
-       dma.o
+       dma.o rtc.o
 
 USB_OBJS = tinyusb/src/host/ohci/ohci1.o tinyusb/src/host/ohci/ohci2.o \
 	   tinyusb/src/host/usbh1.o tinyusb/src/host/usbh2.o \
