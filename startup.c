@@ -24,7 +24,7 @@ void _reset(void);
 void init_sp_irq(uint32_t addr);
 void main(int argc, char **argv);
 
-void startup(int cpuid) {
+void startup() {
   init_sp_irq(0x2000);
   install_ivt();
 
