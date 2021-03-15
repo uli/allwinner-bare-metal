@@ -20,12 +20,17 @@ static char dbg_buf[256];
 #define dbg_libc(x...) do {} while (0)
 #endif
 
+// _REENT_INIT is what you're supposed to use to initialize the reent
+// context, but it doesn't initialize _h_errno and __sf :/
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 struct _reent re[4] = {
 	_REENT_INIT(re[0]),
 	_REENT_INIT(re[1]),
 	_REENT_INIT(re[2]),
 	_REENT_INIT(re[3]),
 };
+#pragma GCC diagnostic pop
 
 struct _reent *__getreent(void)
 {
