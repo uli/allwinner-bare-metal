@@ -7,6 +7,7 @@
 #include "uart.h"
 #include "fatfs/ff.h"
 #include <dirent.h>
+#include "smp.h"
 
 //#define DEBUG_LIBC
 
@@ -16,14 +17,26 @@
 #define dbg_libc(x...) do {} while (0)
 #endif
 
+struct _reent re[4] = {
+	_REENT_INIT(re[0]),
+	_REENT_INIT(re[1]),
+	_REENT_INIT(re[2]),
+	_REENT_INIT(re[3]),
+};
+
+struct _reent *__getreent(void)
+{
+	return &re[smp_get_core_id()];
+}
+
 #define MAX_FILE_DESCRIPTORS 16
 static FIL file_descriptor[MAX_FILE_DESCRIPTORS] = { };
 
-static FIL *get_descr(int fd)
+static FIL *get_descr(struct _reent *r, int fd)
 {
 	fd -= 3;
 	if (fd < 0 || fd >= MAX_FILE_DESCRIPTORS) {
-		errno = EBADF;
+		r->_errno = EBADF;
 		return NULL;
 	}
 	return &file_descriptor[fd];
@@ -42,7 +55,7 @@ static int console_write(const void *buf, size_t n)
 	return n;
 }
 
-int _write(int fd, const void *buf, size_t n)
+int _write_r(struct _reent *r, int fd, const void *buf, size_t n)
 {
 	if (fd == 1 || fd == 2)
 		return console_write(buf, n);
@@ -50,7 +63,7 @@ int _write(int fd, const void *buf, size_t n)
 	if (fd > 2)
 		dbg_libc("write %d %p %d\n", fd, buf, n);
 
-	FIL *filp = get_descr(fd);
+	FIL *filp = get_descr(r, fd);
 	dbg_libc("write filp %p\n", filp);
 	if (!filp)
 		return -1;
@@ -60,61 +73,63 @@ int _write(int fd, const void *buf, size_t n)
 
 	if ((rc = f_write(filp, buf, n, &bw))) {
 		dbg_libc("write err %d\n", rc);
-		errno = rc;
+		r->_errno = rc;
 		return -1;
 	}
 	return bw;
 }
 
-int _read(int fd, void *ptr, size_t n)
+int _read_r(struct _reent *r, int fd, void *ptr, size_t n)
 {
 	if (fd == 1 || fd == 2)
 		return -1;
 
-	FIL *filp = get_descr(fd);
+	FIL *filp = get_descr(r, fd);
 	if (!filp)
 		return -1;
 
 	size_t br;
 	int rc;
-	
+
 	if ((rc = f_read(filp, ptr, n, &br))) {
-		errno = rc;
+		r->_errno = rc;
 		return -1;
 	}
 	return br;
 }
 
-off_t _lseek(int fd, off_t ptr, int dir)
+off_t _lseek_r(struct _reent *r, int fd, off_t ptr, int dir)
 {
 	int rc;
-	FIL *fil = get_descr(fd);
+	FIL *fil = get_descr(r, fd);
 	if (!fil) {
-		errno = EBADF;
+		r->_errno = EBADF;
 		return -1;
 	}
-	
+
 	off_t dest = ptr;
 	switch (dir) {
 	case SEEK_SET: break;
 	case SEEK_CUR: dest += fil->fptr; break;
 	case SEEK_END: dest += fil->obj.objsize; break;
-	default: errno = EINVAL; return -1;
+	default: r->_errno = EINVAL; return -1;
 	}
 	rc = f_lseek(fil, dest);
 	if (rc) {
-		errno = rc;
+		r->_errno = rc;
 		return -1;
 	}
 	return dest;
 }
 
-int _fstat (int fd, struct stat * st)
+int _fstat_r(struct _reent *r, int fd, struct stat * st)
 {
 uart_print(__FUNCTION__);
-	FIL *fil = get_descr(fd);
-	if (!fil)
+	FIL *fil = get_descr(r, fd);
+	if (!fil) {
+		r->_errno = EBADF;
 		return -1;
+	}
 
 	memset (st, 0, sizeof (* st));
 	st->st_mode = S_IFREG;
@@ -125,7 +140,7 @@ uart_print(__FUNCTION__);
 	return 0;
 }
 
-int _open(const char *path, int c_flags)
+int _open_r(struct _reent *r, const char *path, int c_flags)
 {
 	int rc, i;
 	FIL *fil = NULL;
@@ -155,23 +170,23 @@ int _open(const char *path, int c_flags)
 		}
 	}
 	if (!fil) {
-		errno = ENOMEM; // XXX: right?
+		r->_errno = ENOMEM; // XXX: right?
 		return -1;
 	}
 
 	rc = f_open(fil, path, flags);
 	dbg_libc("open %s %d rc %d\n", path, flags, rc);
 	if (rc) {
-		errno = rc;
+		r->_errno = rc;
 		return -1;
 	}
 
 	return i + 3;
 }
 
-int _close (int fd)
+int _close_r(struct _reent *r, int fd)
 {
-	FIL *fil = get_descr(fd);
+	FIL *fil = get_descr(r, fd);
 	if (fd > 2)
 		dbg_libc("close filp %p\n", fil);
 	if (!fil)
@@ -180,7 +195,7 @@ int _close (int fd)
 	int rc = f_close(fil);
 	if (rc) {
 		dbg_libc("close err %d\n", rc);
-		errno = rc;
+		r->_errno = rc;
 		return EOF;
 	}
 	dbg_libc("close ok\n");
@@ -188,11 +203,11 @@ int _close (int fd)
 	return 0;
 }
 
-int _unlink(const char *path)
+int _unlink_r(struct _reent *r, const char *path)
 {
 	FRESULT rc = f_unlink(path);
 	if (rc) {
-		errno = rc;
+		r->_errno = rc;
 		return -1;
 	}
 	return 0;
@@ -201,19 +216,20 @@ int _unlink(const char *path)
 void *current_brk = (void *)0x40000000;
 extern char _hend;	// heap end, defined by linker script
 
-void * _sbrk(ptrdiff_t incr)
+void * _sbrk_r(struct _reent *r, ptrdiff_t incr)
 {
 	void *ret_brk = current_brk;
 	if (current_brk + incr >= (void *)&_hend) {
-		errno = ENOMEM;
+		r->_errno = ENOMEM;
 		return (void *)-1;
 	}
 	current_brk += incr;
 	return ret_brk;
 }
 
-int _isatty (int fd)
+int _isatty_r(struct _reent *r, int fd)
 {
+	(void)r;
 	return fd <= 2;
 }
 
@@ -225,16 +241,17 @@ void _exit(int status)
 	halt();
 }
 
-int _kill(int pid, int sig)
+int _kill_r(struct _reent *r, int pid, int sig)
 {
+	(void)r;
 	printf("kill %d, %d\n", pid, sig);
 	halt();
 	return -1;
 }
 
-int _getpid(int n)
+int _getpid_r(struct _reent *r, int n)
 {
-	(void)n;
+	(void)n; (void)r;
 	return 1;
 }
 
@@ -319,12 +336,12 @@ char *getcwd(char *buf, size_t size)
 	return buf;
 }
 
-int _stat(const char *pathname, struct stat *buf)
+int _stat_r(struct _reent *r, const char *pathname, struct stat *buf)
 {
 	FILINFO fi;
 	int rc = f_stat(pathname, &fi);
 	if (rc) {
-		errno = rc;
+		r->_errno = rc;
 		return -1;
 	}
 	memset(buf, 0, sizeof(struct stat));
@@ -333,6 +350,13 @@ int _stat(const char *pathname, struct stat *buf)
 	buf->st_mode = fi.fattrib & 0x10 ? S_IFDIR : S_IFREG;
 
 	return 0;
+}
+
+int _rename_r(struct _reent *r, const char *oldpath, const char *newpath)
+{
+	(void)oldpath; (void)newpath;
+	r->_errno = EINVAL;
+	return 1;
 }
 
 int mkdir(const char *pathname, mode_t mode)
