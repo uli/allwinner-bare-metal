@@ -9,6 +9,11 @@ ISB
 MOV r0,#0x40000000      // Switch on the VFP and NEON hardware
 VMSR FPEXC,r0            // Set EN bit in FPEXC
 
+MRC p15, 0, r0, c0, c0, 5
+and r0, r0, #3
+CMP r0, #0
+BNE start_secondary
+
 mov sp, #0xc000
 b startup
 
@@ -34,7 +39,7 @@ _fast_interrupt_vector_h:           .word   except_fiq
 // initialize IRQ stack pointer
 .globl init_sp_irq
 init_sp_irq:
-	mov	   r2, #0x2000
+	mov	   r2, r0
 	mrs        r0, CPSR
 	bic        r1, r0, #31
 	orr        r1, r1, #18
@@ -42,3 +47,17 @@ init_sp_irq:
 	mov	   sp, r2
 	msr        CPSR_c, r0
 	bx         lr
+
+.globl _smp_secondary_sp
+_smp_secondary_sp: .word 0
+
+start_secondary:
+	ldr sp, _smp_secondary_sp
+	b _smp_startup_secondary
+
+.globl smp_get_core_id
+smp_get_core_id:
+	MRC p15, 0, r0, c0, c0, 5
+	and r0, r0, #3
+	bx lr
+

@@ -9,6 +9,7 @@
 #include "usb.h"
 #include "fs.h"
 #include "dma.h"
+#include "smp.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -20,11 +21,11 @@ void _init(void)
 }
 
 void _reset(void);
-void init_sp_irq(void);
+void init_sp_irq(uint32_t addr);
 void main(int argc, char **argv);
 
-void startup() {
-  init_sp_irq();
+void startup(int cpuid) {
+  init_sp_irq(0x2000);
   install_ivt();
 
   // Set up MMU and paging configuration

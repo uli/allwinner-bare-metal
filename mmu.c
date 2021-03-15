@@ -6,6 +6,11 @@ void mmu_init() {
   // Disable MMU
   asm("ldr r8, =0x0;    mcr p15, 0, r8, c1, c0, 0;" : : : "r8");
 
+  // Enable cache coherency
+  asm("mrc p15, 0, r8, c1, c0, 1;"
+      "orr r8, r8, #0x40;"
+      "mcr p15, 0, r8, c1, c0, 1;" ::: "r8");
+
   // Populate the pagetable
   volatile uint32_t* pagetable = (volatile uint32_t *)0xc000;
   for(int n=0;n<0x1000;n++) {
