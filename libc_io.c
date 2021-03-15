@@ -14,7 +14,8 @@
 //#define DEBUG_LOCK
 
 #ifdef DEBUG_LIBC
-#define dbg_libc(x...) printf(x)
+static char dbg_buf[256];
+#define dbg_libc(x...) do { sprintf(dbg_buf, x); uart_print(dbg_buf); uart_putc('\r'); } while (0)
 #else
 #define dbg_libc(x...) do {} while (0)
 #endif
