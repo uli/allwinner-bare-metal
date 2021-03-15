@@ -17,6 +17,9 @@ void smp_startup_secondary(int cpuid);
 
 int smp_get_core_id(void);
 
+#define smp_send_event() do { asm volatile("sev"); } while (0)
+#define smp_wait_for_event() do { asm volatile("wfe"); } while (0)
+
 #ifdef __cplusplus
 }
 #endif
