@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2021 Ulrich Hecht
+
 #include <stdint.h>
 #include "mmu.h"
 #include "smp.h"
