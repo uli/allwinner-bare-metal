@@ -37,6 +37,18 @@ struct _reent *__getreent(void)
 	return &re[smp_get_core_id()];
 }
 
+static spinlock_t fs_lock_v = 0;
+
+#ifdef DEBUG_LOCK
+#define fs_lock() do { uart_print(__FUNCTION__); uart_print(" lock\r\n"); spin_lock(&fs_lock_v); } while (0)
+#define fs_unlock() do { uart_print(__FUNCTION__); uart_print(" unlock\r\n"); spin_unlock(&fs_lock_v); } while (0)
+#else
+#define fs_lock() spin_lock(&fs_lock_v)
+#define fs_unlock() spin_unlock(&fs_lock_v)
+#endif
+
+#define fs_unlock_ret(n) do { fs_unlock(); return (n); } while (0);
+
 #define MAX_FILE_DESCRIPTORS 16
 static FIL file_descriptor[MAX_FILE_DESCRIPTORS] = { };
 
@@ -71,10 +83,12 @@ int _write_r(struct _reent *r, int fd, const void *buf, size_t n)
 	if (fd > 2)
 		dbg_libc("write %d %p %d\n", fd, buf, n);
 
+	fs_lock();
 	FIL *filp = get_descr(r, fd);
 	dbg_libc("write filp %p\n", filp);
-	if (!filp)
-		return -1;
+	if (!filp) {
+		fs_unlock_ret(-1);
+	}
 
 	size_t bw;
 	int rc;
@@ -82,9 +96,9 @@ int _write_r(struct _reent *r, int fd, const void *buf, size_t n)
 	if ((rc = f_write(filp, buf, n, &bw))) {
 		dbg_libc("write err %d\n", rc);
 		r->_errno = rc;
-		return -1;
+		fs_unlock_ret(-1);
 	}
-	return bw;
+	fs_unlock_ret(bw);
 }
 
 int _read_r(struct _reent *r, int fd, void *ptr, size_t n)
@@ -92,27 +106,30 @@ int _read_r(struct _reent *r, int fd, void *ptr, size_t n)
 	if (fd == 1 || fd == 2)
 		return -1;
 
+	fs_lock();
 	FIL *filp = get_descr(r, fd);
 	if (!filp)
-		return -1;
+		fs_unlock_ret(-1);
 
 	size_t br;
 	int rc;
 
 	if ((rc = f_read(filp, ptr, n, &br))) {
 		r->_errno = rc;
-		return -1;
+		fs_unlock_ret(-1);
 	}
-	return br;
+	fs_unlock_ret(br);
 }
 
 off_t _lseek_r(struct _reent *r, int fd, off_t ptr, int dir)
 {
 	int rc;
+
+	fs_lock();
 	FIL *fil = get_descr(r, fd);
 	if (!fil) {
 		r->_errno = EBADF;
-		return -1;
+		fs_unlock_ret(-1);
 	}
 
 	off_t dest = ptr;
@@ -120,23 +137,23 @@ off_t _lseek_r(struct _reent *r, int fd, off_t ptr, int dir)
 	case SEEK_SET: break;
 	case SEEK_CUR: dest += fil->fptr; break;
 	case SEEK_END: dest += fil->obj.objsize; break;
-	default: r->_errno = EINVAL; return -1;
+	default: r->_errno = EINVAL; fs_unlock_ret(-1);
 	}
 	rc = f_lseek(fil, dest);
 	if (rc) {
 		r->_errno = rc;
-		return -1;
+		fs_unlock_ret(-1);
 	}
-	return dest;
+	fs_unlock_ret(dest);
 }
 
 int _fstat_r(struct _reent *r, int fd, struct stat * st)
 {
-uart_print(__FUNCTION__);
+	fs_lock();
 	FIL *fil = get_descr(r, fd);
 	if (!fil) {
 		r->_errno = EBADF;
-		return -1;
+		fs_unlock_ret(-1);
 	}
 
 	memset (st, 0, sizeof (* st));
@@ -145,7 +162,7 @@ uart_print(__FUNCTION__);
 	st->st_blksize = 512;
 	st->st_blocks = fil->obj.objsize / 512;
 
-	return 0;
+	fs_unlock_ret(0);
 }
 
 int _open_r(struct _reent *r, const char *path, int c_flags)
@@ -171,6 +188,7 @@ int _open_r(struct _reent *r, const char *path, int c_flags)
 	if (c_flags & O_APPEND)
 		flags |= FA_OPEN_APPEND;
 
+	fs_lock();
 	for (i = 0; i < MAX_FILE_DESCRIPTORS; ++i) {
 		if (!file_descriptor[i].obj.fs) {
 			fil = &file_descriptor[i];
@@ -179,41 +197,45 @@ int _open_r(struct _reent *r, const char *path, int c_flags)
 	}
 	if (!fil) {
 		r->_errno = ENOMEM; // XXX: right?
-		return -1;
+		fs_unlock_ret(-1);
 	}
 
 	rc = f_open(fil, path, flags);
 	dbg_libc("open %s %d rc %d\n", path, flags, rc);
 	if (rc) {
 		r->_errno = rc;
-		return -1;
+		fs_unlock_ret(-1);
 	}
 
-	return i + 3;
+	fs_unlock_ret(i + 3);
 }
 
 int _close_r(struct _reent *r, int fd)
 {
+	fs_lock();
 	FIL *fil = get_descr(r, fd);
 	if (fd > 2)
 		dbg_libc("close filp %p\n", fil);
 	if (!fil)
-		return -1;
+		fs_unlock_ret(-1);
 
 	int rc = f_close(fil);
 	if (rc) {
 		dbg_libc("close err %d\n", rc);
 		r->_errno = rc;
-		return EOF;
+		fs_unlock_ret(EOF);
 	}
 	dbg_libc("close ok\n");
 
-	return 0;
+	fs_unlock_ret(0);
 }
 
 int _unlink_r(struct _reent *r, const char *path)
 {
+	fs_lock();
 	FRESULT rc = f_unlink(path);
+	fs_unlock();
+
 	if (rc) {
 		r->_errno = rc;
 		return -1;
@@ -224,14 +246,19 @@ int _unlink_r(struct _reent *r, const char *path)
 void *current_brk = (void *)0x40000000;
 extern char _hend;	// heap end, defined by linker script
 
+static spinlock_t sbrk_lock;
+
 void * _sbrk_r(struct _reent *r, ptrdiff_t incr)
 {
+	spin_lock(&sbrk_lock);
 	void *ret_brk = current_brk;
 	if (current_brk + incr >= (void *)&_hend) {
 		r->_errno = ENOMEM;
+		spin_unlock(&sbrk_lock);
 		return (void *)-1;
 	}
 	current_brk += incr;
+	spin_unlock(&sbrk_lock);
 	return ret_brk;
 }
 
@@ -279,7 +306,10 @@ DIR *opendir(const char *name)
 		return NULL;
 	}
 
+	fs_lock();
 	int rc = f_opendir(dir, name);
+	fs_unlock();
+
 	if (rc) {
 		free(dir);
 		errno = rc;
@@ -290,7 +320,10 @@ DIR *opendir(const char *name)
 
 int closedir(DIR *dir)
 {
+	fs_lock();
 	int rc = f_closedir(dir);
+	fs_unlock();
+
 	if (rc) {
 		// XXX: free?
 		errno = rc;
@@ -304,7 +337,11 @@ struct dirent *readdir(DIR *dir)
 {
 	FILINFO fi;
 	static struct dirent de;
+
+	fs_lock();
 	int rc = f_readdir(dir, &fi);
+	fs_unlock();
+
 	if (rc) {
 		// error
 		errno = rc;
@@ -326,7 +363,10 @@ struct dirent *readdir(DIR *dir)
 
 int chdir(const char *path)
 {
+	fs_lock();
 	int rc = f_chdir(path);
+	fs_unlock();
+
 	if (rc) {
 		errno = rc;
 		return -1;
@@ -336,7 +376,10 @@ int chdir(const char *path)
 
 char *getcwd(char *buf, size_t size)
 {
+	fs_lock();
 	int rc = f_getcwd(buf, size);
+	fs_unlock();
+
 	if (rc) {
 		errno = rc;
 		return NULL;
@@ -347,11 +390,16 @@ char *getcwd(char *buf, size_t size)
 int _stat_r(struct _reent *r, const char *pathname, struct stat *buf)
 {
 	FILINFO fi;
+
+	fs_lock();
 	int rc = f_stat(pathname, &fi);
+	fs_unlock();
+
 	if (rc) {
 		r->_errno = rc;
 		return -1;
 	}
+
 	memset(buf, 0, sizeof(struct stat));
 	buf->st_size = fi.fsize;
 	buf->st_mtime = fi.ftime; // XXX: unit?
@@ -370,7 +418,11 @@ int _rename_r(struct _reent *r, const char *oldpath, const char *newpath)
 int mkdir(const char *pathname, mode_t mode)
 {
 	(void)mode;
+
+	fs_lock();
 	int rc = f_mkdir(pathname);
+	fs_unlock();
+
 	if (rc) {
 		errno = rc;
 		return -1;
@@ -380,7 +432,10 @@ int mkdir(const char *pathname, mode_t mode)
 
 int rmdir(const char *pathname)
 {
+	fs_lock();
 	int rc = f_rmdir(pathname);
+	fs_unlock();
+
 	if (rc) {
 		errno = rc;
 		return -1;
