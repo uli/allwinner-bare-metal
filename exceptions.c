@@ -12,11 +12,11 @@ void halt(void)
 static inline void stack_dump(uint32_t *stack)
 {
 	uart_print("Dump from "); uart_print_uint32((uint32_t)stack);
-	for(;;);
-	for (int i = 0; i < 32; ++i) {
-		uart_print("\r\nSP-");uart_print_uint8(i);
-		uart_print("  ");
-		uart_print_uint32(stack[-i]);
+	for (int i = 0; i < 16; ++i) {
+		uart_print("\r\nSP+");uart_print_uint8(i);
+		uart_print(" [");uart_print_uint32((uint32_t)&stack[i]);
+		uart_print("]  ");
+		uart_print_uint32(stack[i]);
 	}
 	uart_print("\r\n");
 }
