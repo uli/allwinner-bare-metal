@@ -31,8 +31,6 @@ void startup() {
   // Set up MMU and paging configuration
   mmu_init();
 
-  init_bss();
-
   // Enble all GPIO
   gpio_init();
 

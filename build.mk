@@ -3,7 +3,7 @@ include $(OSDIR)/common.mk
 all: $(TARGET).bin
 
 $(TARGET).elf: $(OBJS) $(OSDIR)/libos.a $(OSDIR)/linker.ld
-	$(CC) $(CFLAGS) -o $(TARGET).elf $(OBJS) -Wl,-wrap,__malloc_lock -Wl,-wrap,__malloc_unlock -lc -L $(OSDIR) $(LIBS) -los -lc -lm -lgcc
+	$(CC) $(CFLAGS) -o $(TARGET).elf $(OBJS) -Wl,--wrap,__stack_chk_fail -Wl,-wrap,__malloc_lock -Wl,-wrap,__malloc_unlock -lc -L $(OSDIR) $(LIBS) -los -lc -lm -lgcc
 
 install: $(TARGET).bin
 	sudo sunxi-fel -v -p spl $(OSDIR)/sunxi-spl.bin write 0x5c000000 $(TARGET).bin exe 0x5c000000

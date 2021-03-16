@@ -4,7 +4,8 @@
 static uint32_t sys_freq;
 static uint32_t sys_per_usec;
 
-void init_bss() {
+// used before the stack guard is set up
+void __attribute__((optimize("-fno-stack-protector"))) init_bss() {
   for (char* dst = &_bstart1; dst < &_bend1; dst++)
     *dst = 0;
   for (char* dst = &_bstart2; dst < &_bend2; dst++)
@@ -33,7 +34,7 @@ void sys_init_timer(void)
 {
   uint32_t t;
   uint64_t t1, t2;
-  
+
   // arch timer doesn't seem to need initialization
 
   t = tick_counter;

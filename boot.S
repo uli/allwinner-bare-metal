@@ -15,7 +15,16 @@ CMP r0, #0
 BNE start_secondary
 
 mov sp, #0xc000
+
+bl init_bss
+movw r0, #0x4541
+movt r0, #0xc0de
+ldr r1, 1f
+str r0, [r1]
+
 b startup
+
+1: .word __stack_chk_guard
 
 .globl _ivt
 _ivt:

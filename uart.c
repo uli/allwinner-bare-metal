@@ -23,6 +23,11 @@ void uart_init()
   UART0_FCR = 0x00000001;
 }
 
+// These functions are used when the stack protector has been triggered
+// already.
+#pragma GCC push_options
+#pragma GCC optimize "-fno-stack-protector"
+
 // UART is ready to receive data to transmit?
 unsigned char uart_tx_ready()
 {
@@ -73,3 +78,5 @@ void uart_print_uint32(uint32_t number)
   uart_putc(chars[(number >> 4) & 0xF]);
   uart_putc(chars[(number >> 0) & 0xF]);
 }
+
+#pragma GCC pop_options
