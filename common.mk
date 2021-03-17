@@ -7,7 +7,9 @@ OBJCOPY=$(PREFIX)objcopy
 AR=$(PREFIX)ar
 
 CFLAGS_COMMON = -MMD -O3 -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -ffreestanding -DREENTRANT_SYSCALLS_PROVIDED -D__DYNAMIC_REENT__
-#CFLAGS_COMMON += -fstack-protector-all
+
+# debugging: detect stack smashing
+#CFLAGS_COMMON += -fstack-protector-strong
 # debugging: sanitize important stuff
 #CFLAGS_COMMON += -fsanitize=object-size -fsanitize=null -fsanitize=bounds -fsanitize=alignment -fsanitize-address-use-after-scope
 # debugging: sanitize everything that is supported
