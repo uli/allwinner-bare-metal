@@ -13,7 +13,7 @@ void mmu_init() {
 
   // Populate the pagetable
   volatile uint32_t* pagetable = (volatile uint32_t *)0xc000;
-  for(int n=0;n<0x1000;n++) {
+  for (uint32_t n = 0; n < 0x1000; n++) {
     if(n==0) {
       // SRAM.  Write back.
       pagetable[n] = (n<<20) | (1<<12) | (3<<10) | (3<<2) | 2;
