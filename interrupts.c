@@ -58,7 +58,7 @@ void irq_disable(uint32_t irq)
 }
 
 // Copy the interrupt table from _ivt to 0x0
-void install_ivt() {
+void __attribute__((no_sanitize("all"))) install_ivt() {
   uint32_t* source = &_ivt;
   uint32_t* destination = (uint32_t*)(0);
   for(int n=0; n<2*8; n++)
