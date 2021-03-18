@@ -12,7 +12,7 @@ void usb2_hal_hcd_isr(uint8_t hostid);
 
 int irq_pending(uint32_t irq)
 {
-  struct gicd_reg* gicd = (struct gicd_reg*) GICD_BASE;
+  volatile struct gicd_reg* gicd = (volatile struct gicd_reg*) GICD_BASE;
   if (gicd->ispendr[irq / 32] & (1 << (irq % 32)))
     return 1;
   return 0;
@@ -43,7 +43,7 @@ void __attribute__((interrupt("IRQ"))) interrupt(void) {
 
 void irq_enable(uint32_t irq)
 {
-  struct gicd_reg* gicd = (struct gicd_reg*) GICD_BASE;
+  volatile struct gicd_reg* gicd = (volatile struct gicd_reg*) GICD_BASE;
   gicd->ctlr = 1;
   gicd->isenabler[irq/32] = 1<<(irq%32);
   gicd->itargetsr[irq] = 1;
@@ -53,7 +53,7 @@ void irq_enable(uint32_t irq)
 
 void irq_disable(uint32_t irq)
 {
-  struct gicd_reg* gicd = (struct gicd_reg*) GICD_BASE;
+  volatile struct gicd_reg* gicd = (volatile struct gicd_reg*) GICD_BASE;
   gicd->icenabler[irq/32] = 1 << (irq % 32);
 }
 
@@ -66,7 +66,7 @@ void __attribute__((no_sanitize("all"))) install_ivt() {
 
   irq_enable(118);	// LCD0
 
-  struct gicc_reg* gicc = (struct gicc_reg*) GICC_BASE;
+  volatile struct gicc_reg* gicc = (volatile struct gicc_reg*) GICC_BASE;
   gicc->ctlr = 1;
   gicc->pmr = 10;
   asm("cpsie if;"); // Enable interrupts
