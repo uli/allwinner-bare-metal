@@ -48,6 +48,12 @@ void uart_putc(unsigned char byte)
   UART0_THR = byte;
 }
 
+unsigned char uart_getc(void)
+{
+  while ( ! uart_rx_ready() );
+  return UART0_RBR;
+}
+
 // Write a zero terminated string to the UART
 void uart_print(const char* str)
 {
