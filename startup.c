@@ -26,7 +26,9 @@ void main(int argc, char **argv);
 
 void startup() {
   init_sp_irq(0x2000);
+
   install_ivt();
+  uart_init();
 
   // Set up MMU and paging configuration
   mmu_init();
@@ -35,7 +37,6 @@ void startup() {
   gpio_init();
 
   // Configure the UART for debugging
-  uart_init();
   uart_print("Booting!\r\n");
 
   // Illuminate the power LED
