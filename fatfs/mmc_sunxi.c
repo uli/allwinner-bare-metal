@@ -31,6 +31,7 @@
 #include "../ports.h"
 #include "../system.h"
 #include "../ccu.h"
+#include "../util.h"
 #include <stdio.h>
 
 #ifdef DEBUG_SDMMC
@@ -57,21 +58,21 @@
 #define SUNXI_SD_FIFO(n)	*(volatile uint32_t *)(SUNXI_SD_BASE(n) + 0x200)
 
 // Flags for SUNXI_SD_CMD(n) registers
-#define SUNXI_MMC_CMD_DATA_EXPIRE	(1 << 9)
-#define SUNXI_MMC_CMD_WRITE		(1 << 10)
-#define SUNXI_MMC_CMD_AUTO_STOP		(1 << 12)
-#define SUNXI_MMC_CMD_WAIT_PRE_OVER	(1 << 13)
+#define SUNXI_MMC_CMD_DATA_EXPIRE	BIT(9)
+#define SUNXI_MMC_CMD_WRITE		BIT(10)
+#define SUNXI_MMC_CMD_AUTO_STOP		BIT(12)
+#define SUNXI_MMC_CMD_WAIT_PRE_OVER	BIT(13)
 
 // Flags for SUNXI_SD_STATUS(n) registers
-#define SUNXI_MMC_STATUS_FIFO_EMPTY	(1 << 2)
-#define SUNXI_MMC_STATUS_FIFO_FULL	(1 << 3)
-#define SUNXI_MMC_STATUS_CARD_DATA_BUSY	(1 << 9)
-#define SUNXI_MMC_STATUS_FSM_BUSY	(1 << 10)
+#define SUNXI_MMC_STATUS_FIFO_EMPTY	BIT(2)
+#define SUNXI_MMC_STATUS_FIFO_FULL	BIT(3)
+#define SUNXI_MMC_STATUS_CARD_DATA_BUSY	BIT(9)
+#define SUNXI_MMC_STATUS_FSM_BUSY	BIT(10)
 
 // Flags for SUNXI_SD_RINTSTS(n) registers
-#define SUNXI_MMC_RINT_COMMAND_DONE		(1 << 2)
-#define SUNXI_MMC_RINT_DATA_OVER		(1 << 3)
-#define SUNXI_MMC_RINT_AUTO_COMMAND_DONE	(1 << 14)
+#define SUNXI_MMC_RINT_COMMAND_DONE		BIT(2)
+#define SUNXI_MMC_RINT_DATA_OVER		BIT(3)
+#define SUNXI_MMC_RINT_AUTO_COMMAND_DONE	BIT(14)
 
 #define OCR_HCS		0x40000000
 #define OCR_BUSY	0x80000000
@@ -81,7 +82,7 @@
 #define MMC_VDD_33_34	0x00200000
 
 // Clock register bits
-#define CCU_MMC_CLK_ENABLE		(1 << 31)
+#define CCU_MMC_CLK_ENABLE		BIT(31)
 #define CCU_MMC_CLK_SRC(n)		((n) << 24)
 #define CCU_MMC_CLK_DIV_N(n)		((n) << 16)
 #define CCU_MMC_CLK_DIV_M(n)		((n) << 0)
@@ -121,10 +122,10 @@ static void sd_change_clock(DWORD div)
 
 void init_port(void) {
 	debug("%s\n", __FUNCTION__);
-	BUS_CLK_GATING0 |= (1 << 8);	// pass clock
-	BUS_SOFT_RST0 &= ~(1 << 8);
+	BUS_CLK_GATING0 |= BIT(8);	// pass clock
+	BUS_SOFT_RST0 &= ~BIT(8);
 	udelay(200);
-	BUS_SOFT_RST0 |= (1 << 8);	// de-assert reset
+	BUS_SOFT_RST0 |= BIT(8);	// de-assert reset
 	for (int i = 0; i <= 5; ++i) {
 		set_pin_mode(PORTF, i, 2);
 		set_pin_pull(PORTF, i, PIO_PULL_UP);
@@ -225,11 +226,11 @@ BYTE send_cmd_data (		/* Returns command response (bit7==1:Send failed)*/
 			cmdreg |= SUNXI_MMC_CMD_AUTO_STOP;
 
 		cmdreg |= SUNXI_MMC_CMD_DATA_EXPIRE|SUNXI_MMC_CMD_WAIT_PRE_OVER;
-		
+
 		SUNXI_SD_BLKSIZ(0) = bytes < 512 ? bytes : 512;
 		SUNXI_SD_BYTCNT(0) = bytes;
 	}
-	
+
 	SUNXI_SD_CMDARG(0) = arg;
 
 	debug("cmd reg %08X\n", cmdreg);
@@ -257,7 +258,7 @@ BYTE send_cmd_data (		/* Returns command response (bit7==1:Send failed)*/
 		// wait
 		// XXX: timeout!
 	}
-	
+
 	if (buf) {
 		DWORD waitflag;
 		if (bytes > 512)
@@ -275,7 +276,7 @@ BYTE send_cmd_data (		/* Returns command response (bit7==1:Send failed)*/
 	SUNXI_SD_RINTSTS(0) = 0xffffffff;
 	SUNXI_SD_CTRL(0) |= 2;	// reset FIFO
 	debug("resp0 %08X\n", SUNXI_SD_RESP0(0));
-	
+
 	return 0;			/* Return with the response value */
 }
 
