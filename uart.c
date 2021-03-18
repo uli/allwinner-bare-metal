@@ -3,6 +3,8 @@
 #include "uart.h"
 #include "ports.h"
 #include "ccu.h"
+#include "interrupts.h"
+#include "util.h"
 
 // Set up the UART (serial port)
 void uart_init()
@@ -21,6 +23,12 @@ void uart_init()
 
   // Enable FIFO
   UART0_FCR = 0x00000001;
+
+#ifdef GDBSTUB
+  // signal UART0 interrupt as FIQ for the GDB stub
+  irq_enable_fiq(32);
+  UART0_IER |= BIT(0);
+#endif
 }
 
 // These functions are used when the stack protector has been triggered
