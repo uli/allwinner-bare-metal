@@ -62,10 +62,15 @@ static FIL *get_descr(struct _reent *r, int fd)
 	return &file_descriptor[fd];
 }
 
+int _libc_disable_stdout = 0;
+
 static int console_write(const void *buf, size_t n)
 {
 	const char *bp = buf;
 	int c = n;
+
+	if (_libc_disable_stdout)
+		return n;
 
 	while(c--) {
 		if (*bp == '\n')

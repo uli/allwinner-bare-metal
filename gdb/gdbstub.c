@@ -694,8 +694,11 @@ static int gdbstub_handle(struct arm_regs *regs)
 		unsupported_op(cmd_buf);
 }
 
+extern int _libc_disable_stdout;
+
 void gdbstub_io_handler(struct arm_regs *regs)
 {
+	_libc_disable_stdout = 1;
 	do {
 		int c = uart_getc();
 
