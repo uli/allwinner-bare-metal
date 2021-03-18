@@ -16,6 +16,7 @@
 #include "string.h"
 #include "types.h"
 #include "uart.h"
+#include "mmu.h"
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
@@ -73,8 +74,15 @@ static inline void icache_sync(unsigned long addr, size_t len)
 
 	prefetch_flush();
 	btc_flush();
-	dcache_flush_range(start, end);
-	icache_inval_range(start, end);
+
+	// v6 cache management hangs the system
+	//dcache_flush_range(start, end);
+	//icache_inval_range(start, end);
+
+	// This works ok on v7.
+	mmu_flush_dcache();
+	asm volatile ("mcr p15, 0, %0, c7, c5, 0" : : "r" (0)); // iciallu
+	asm volatile ("isb");
 }
 
 void gdbstub_io_handler(struct arm_regs *regs);
