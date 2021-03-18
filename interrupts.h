@@ -53,6 +53,7 @@ struct gicc_reg {
 void install_ivt();
 
 void irq_enable(uint32_t irq);
+void irq_enable_fiq(uint32_t irq);
 void irq_disable(uint32_t irq);
 int irq_pending(uint32_t irq);
 
