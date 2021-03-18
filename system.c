@@ -58,5 +58,5 @@ extern void *current_brk;
 uint32_t sys_mem_free(void)
 {
   struct mallinfo mi = mallinfo();
-  return mi.fordblks + ((void *)&_hend - current_brk);
+  return mi.fordblks + ((void *)/*&_hend*/0x60000000 - current_brk);
 }
