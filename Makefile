@@ -13,12 +13,16 @@ USB_OBJS = tinyusb/src/host/ohci/ohci1.o tinyusb/src/host/ohci/ohci2.o \
 	   tinyusb/src/common/tusb_fifo.o \
 	   tinyusb/src/tusb1.o tinyusb/src/tusb2.o
 
+ifneq ($(GDB),)
+GDB_OBJS = gdb/tzvecs.o gdb/gdbstub.o gdb/string.o gdb/printk.o
+endif
+
 LIBC_CSRC = libc_io.c
 LIBC_OBJS = $(LIBC_CSRC:.c=.o)
 
 SD_OBJS = fatfs/mmc_sunxi.o fatfs/ff.o fatfs/ffunicode.o
 
-ALL_OBJS = $(OBJS) $(USB_OBJS) $(LIBC_OBJS) $(SD_OBJS)
+ALL_OBJS = $(OBJS) $(GDB_OBJS) $(USB_OBJS) $(LIBC_OBJS) $(SD_OBJS)
 
 libos.a: $(ALL_OBJS) Makefile
 	rm -f $@

@@ -12,6 +12,9 @@
 #include "smp.h"
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef GDBSTUB
+#include "gdb/gdbstub.h"
+#endif
 
 volatile uint32_t tick_counter;
 
@@ -29,6 +32,9 @@ void startup() {
 
   install_ivt();
   uart_init();
+#ifdef GDBSTUB
+  gdbstub_init();
+#endif
 
   // Set up MMU and paging configuration
   mmu_init();
