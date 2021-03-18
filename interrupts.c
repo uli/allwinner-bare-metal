@@ -42,6 +42,12 @@ void __attribute__((interrupt("IRQ"))) interrupt(void) {
   }
 }
 
+// XXX: Something is really wrong here.
+// Enabling _any_ interrupt enables all of them, and disabling them does not
+// seem to have any effect. This is not much of a problem in practice
+// because the device drivers silence the interrupts at the source, but
+// something needs fixing here.
+
 void irq_enable(uint32_t irq)
 {
   volatile struct gicd_reg* gicd = (volatile struct gicd_reg*) GICD_BASE;
