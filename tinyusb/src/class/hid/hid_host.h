@@ -202,6 +202,8 @@ tusb_error_t  tuh_hid_generic_set_report(uint8_t dev_addr, void* p_report, bool 
 tusb_interface_status_t tuh_hid_generic_get_status(uint8_t dev_addr) ATTR_WARN_UNUSED_RESULT;
 tusb_interface_status_t tuh_hid_generic_set_status(uint8_t dev_addr) ATTR_WARN_UNUSED_RESULT;
 
+bool tuh_hidh_interface_set_report(uint8_t dev_addr, uint8_t data);
+
 //------------- Application Callback -------------//
 void tuh_hid_generic_isr(uint8_t dev_addr, xfer_result_t event);
 

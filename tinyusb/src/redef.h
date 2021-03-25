@@ -64,6 +64,7 @@
 #define tuh_hid_mouse_isr USBP(tuh_hid_mouse_isr)
 #define tuh_hid_mouse_mounted_cb USBP(tuh_hid_mouse_mounted_cb)
 #define tuh_hid_mouse_unmounted_cb USBP(tuh_hid_mouse_unmounted_cb)
+#define tuh_hidh_interface_set_report USBP(tuh_hidh_interface_set_report)
 #define tusb_init USBP(tusb_init)
 #define tusb_strerr USBP(tusb_strerr)
 #define tusb_task USBP(tusb_task)

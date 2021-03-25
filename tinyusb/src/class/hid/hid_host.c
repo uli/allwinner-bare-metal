@@ -204,6 +204,21 @@ void hidh_init(void)
 #endif
 }
 
+bool tuh_hidh_interface_set_report(uint8_t dev_addr, uint8_t data)
+{
+  static CFG_TUSB_MEM_SECTION uint8_t leds;
+  tusb_control_request_t setrep_request = {
+    .bmRequestType = 0x21,
+    .bRequest = 9,
+    .wValue = 0x0200,
+    .wIndex = 0, // XXX: ??
+    .wLength = 1,
+  };
+  //printf("dat 0x%x\n", data);
+  leds = data;
+  return usbh_control_xfer(dev_addr, &setrep_request, &leds);
+}
+
 static CFG_TUSB_MEM_SECTION uint8_t report_descriptor[256];
 
 bool hidh_open_subtask(uint8_t dev_addr, tusb_desc_interface_t const *p_interface_desc, uint16_t *p_length)
