@@ -1,5 +1,39 @@
 #include <stdint.h>
 #include "mmu.h"
+#include "uart.h"
+
+#define DRAM_START 0x40000000
+#define DRAM_MAX   0xc0000000
+#define DRAM_STEP  0x02000000
+
+void *mmu_detect_dram_end(void)
+{
+  volatile uint32_t *dram_start = (uint32_t *)DRAM_START;
+  volatile uint32_t *dram_end = dram_start + DRAM_STEP / sizeof(uint32_t);
+
+  uint32_t saved_dram_start = *dram_start;
+  uint32_t saved_dram_end;
+
+  *dram_start = 0xdeadbeef;
+
+  while (dram_end < (volatile uint32_t *)DRAM_MAX) {
+    // Check for wraparound by writing a value to DRAM, then checking
+    // if it overwrote the value at the beginning.
+    saved_dram_end = *dram_end;
+
+    *dram_end = 0xcafebabe;
+    asm volatile("dsb");
+    if (*dram_start == 0xcafebabe)
+      break;
+
+    *dram_end = saved_dram_end;
+    dram_end += DRAM_STEP / sizeof(uint32_t);
+  }
+  *dram_start = saved_dram_start;
+
+  uart_print_uint32((uint32_t)dram_end); uart_print(" RAM limit\r\n");
+  return (void *)dram_end;
+}
 
 void mmu_init() {
 
