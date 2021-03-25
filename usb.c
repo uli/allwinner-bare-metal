@@ -28,6 +28,8 @@ tusb_error_t usb1_tuh_hid_generic_get_report(uint8_t dev_addr, void * p_report);
 tusb_error_t usb2_tuh_hid_generic_get_report(uint8_t dev_addr, void * p_report);
 int usb1_tuh_hid_generic_get_report_size(uint8_t dev_addr);
 int usb2_tuh_hid_generic_get_report_size(uint8_t dev_addr);
+bool usb1_tuh_hidh_interface_set_report(uint8_t dev_addr, uint8_t data);
+bool usb2_tuh_hidh_interface_set_report(uint8_t dev_addr, uint8_t data);
 
 void usb1_tusb_task(void);
 void usb2_tusb_task(void);
@@ -131,6 +133,15 @@ static void keyboard_unmounted(uint8_t hcd, uint8_t dev_addr)
 
 void usb1_tuh_hid_keyboard_unmounted_cb(uint8_t dev_addr) { keyboard_unmounted(1, dev_addr); }
 void usb2_tuh_hid_keyboard_unmounted_cb(uint8_t dev_addr) { keyboard_unmounted(2, dev_addr); }
+
+bool usb_keyboard_set_leds(int hcd, uint8_t dev_addr, uint8_t leds)
+{
+  switch (hcd) {
+    case 1: return usb1_tuh_hidh_interface_set_report(dev_addr, leds);
+    case 2: return usb2_tuh_hidh_interface_set_report(dev_addr, leds);
+    default: return false;;
+  }
+}
 
 void __attribute__((weak)) hook_usb_keyboard_report(int hcd, uint8_t dev_addr, hid_keyboard_report_t *r)
 {

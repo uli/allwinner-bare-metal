@@ -75,9 +75,9 @@ struct td {
 
 struct ed {
   uint32_t info;
-  struct td* tailp; 
-  struct td* headp; 
-  struct ed* nexted; 
+  struct td* tailp;
+  struct td* headp;
+  struct ed* nexted;
 } __attribute__ ((aligned (16)));
 
 struct hcca {
@@ -90,6 +90,8 @@ struct hcca {
 
 void usb_init();
 void usb_task();
+
+bool usb_keyboard_set_leds(int hcd, uint8_t dev_addr, uint8_t leds);
 
 void hook_usb_keyboard_report(int hcd, uint8_t dev_addr, hid_keyboard_report_t *);
 void hook_usb_generic_report(int hcd, uint8_t dev_addr, hid_generic_report_t *data);
