@@ -57,7 +57,7 @@ void mmu_init() {
     } else if(n>=0x410 && n<0x420) {
       // DMA buffers and such. Normal uncached.
       pagetable[n] = (n<<20) | (1<<12) | (3<<10) | (0<<2) | 2;
-    } else if(n>=0x420 && n<0x600) {
+    } else if(n>=0x420 && n<0xc00) {
       // Second half of DRAM. Write back.
       pagetable[n] = (n<<20) | (1<<12) | (3<<10) | (3<<2) | 2;
     } else {
