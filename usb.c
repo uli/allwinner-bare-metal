@@ -132,9 +132,10 @@ static void keyboard_unmounted(uint8_t hcd, uint8_t dev_addr)
 void usb1_tuh_hid_keyboard_unmounted_cb(uint8_t dev_addr) { keyboard_unmounted(1, dev_addr); }
 void usb2_tuh_hid_keyboard_unmounted_cb(uint8_t dev_addr) { keyboard_unmounted(2, dev_addr); }
 
-void __attribute__((weak)) hook_usb_keyboard_report(hid_keyboard_report_t *r)
+void __attribute__((weak)) hook_usb_keyboard_report(int hcd, uint8_t dev_addr, hid_keyboard_report_t *r)
 {
-  printf("kbdrep %02X %02X %02X %02X\n",
+  printf("kbdrep %d/%d %02X %02X %02X %02X\n",
+         hcd, dev_addr,
 	 r->keycode[0],
 	 r->keycode[1],
 	 r->keycode[2],
@@ -148,7 +149,7 @@ static void keyboard_isr(int hcd, uint8_t dev_addr, xfer_result_t event)
   switch(event)
   {
     case XFER_RESULT_SUCCESS:
-      hook_usb_keyboard_report(&usb_keyboard_report);
+      hook_usb_keyboard_report(hcd, dev_addr, &usb_keyboard_report);
       keyboard_get_report(hcd, dev_addr, (uint8_t*) &usb_keyboard_report);
       break;
 
