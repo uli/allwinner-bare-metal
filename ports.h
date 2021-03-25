@@ -26,6 +26,7 @@ struct port_registers {
 #define PORTF             PIO_BASE + 5 * 0x24
 #define PORTG             PIO_BASE + 6 * 0x24
 #define PORTL             0x01F02C00
+#define PIO_PORT(n)	  ((n) == 7 ? PORTL : PIO_BASE + (n) * 0x24)
 
 #define PIO_PULL_OFF	0
 #define PIO_PULL_UP	1
