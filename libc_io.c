@@ -248,16 +248,22 @@ int _unlink_r(struct _reent *r, const char *path)
 	return 0;
 }
 
-void *current_brk = (void *)0x42000000;
-extern char _hend;	// heap end, defined by linker script
+void *current_brk;
+void *max_brk;
 
 static spinlock_t sbrk_lock;
+
+void libc_set_heap(void *start, void *end)
+{
+	current_brk = start;
+	max_brk = end;
+}
 
 void * _sbrk_r(struct _reent *r, ptrdiff_t incr)
 {
 	spin_lock(&sbrk_lock);
 	void *ret_brk = current_brk;
-	if (current_brk + incr >= (void *)/*&_hend*/0x60000000) {
+	if (current_brk + incr >= max_brk) {
 		r->_errno = ENOMEM;
 		spin_unlock(&sbrk_lock);
 		return (void *)-1;

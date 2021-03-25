@@ -55,8 +55,10 @@ void sys_init_timer(void)
 #include <malloc.h>
 
 extern void *current_brk;
+extern void *max_brk;
+
 uint32_t sys_mem_free(void)
 {
   struct mallinfo mi = mallinfo();
-  return mi.fordblks + ((void *)/*&_hend*/0x60000000 - current_brk);
+  return mi.fordblks + (max_brk - current_brk);
 }
