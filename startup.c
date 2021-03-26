@@ -33,7 +33,12 @@ void startup() {
   init_sp_irq(0x2000);
 
   // detect memory size
+#ifdef GDBSTUB
+  libc_set_heap((void *)0x42000000, (void *)0x60000000);
+#else
+  // XXX: check why this doesn't work with the stub enabled
   libc_set_heap((void *)0x42000000, mmu_detect_dram_end());
+#endif
 
   install_ivt();
 
