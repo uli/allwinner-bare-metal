@@ -130,15 +130,15 @@ void display_init(const struct display_phys_mode_t *mode) {
     memset(&default_timing, 0, sizeof(struct display_timing));
 
     default_timing.hdmi_monitor = true;
-    default_timing.pixelclock.typ = 32000000;
+    default_timing.pixelclock.typ = 40000000;
     default_timing.hactive.typ = 800;
-    default_timing.hback_porch.typ = 40;
+    default_timing.hback_porch.typ = 88;
     default_timing.hfront_porch.typ = 40;
-    default_timing.hsync_len.typ = 48;
-    default_timing.vactive.typ = 480;
-    default_timing.vback_porch.typ = 29;
-    default_timing.vfront_porch.typ = 13;
-    default_timing.vsync_len.typ = 3;
+    default_timing.hsync_len.typ = 128;
+    default_timing.vactive.typ = 600;
+    default_timing.vback_porch.typ = 23;
+    default_timing.vfront_porch.typ = 1;
+    default_timing.vsync_len.typ = 4;
     default_timing.flags = (DISPLAY_FLAGS_HSYNC_LOW | DISPLAY_FLAGS_VSYNC_LOW);
   };
 
