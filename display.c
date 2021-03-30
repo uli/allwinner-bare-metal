@@ -124,8 +124,12 @@ void display_init(const struct display_phys_mode_t *mode) {
     default_timing.flags = 0;
     if (mode->hsync_pol)
       default_timing.flags |= DISPLAY_FLAGS_HSYNC_HIGH;
+    else
+      default_timing.flags |= DISPLAY_FLAGS_HSYNC_LOW;
     if (mode->vsync_pol)
       default_timing.flags |= DISPLAY_FLAGS_VSYNC_HIGH;
+    else
+      default_timing.flags |= DISPLAY_FLAGS_VSYNC_LOW;
   } else {
     memset(&default_timing, 0, sizeof(struct display_timing));
 
