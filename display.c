@@ -35,94 +35,6 @@ void display_clocks_init() {
   TCON0_CLK        = 0x80000001;
 }
 
-void hdmi_init() {
-  // HDMI PHY init, the following black magic is based on the procedure documented at:
-  // http://linux-sunxi.org/images/3/38/AW_HDMI_TX_PHY_S40_Spec_V0.1.pdf
-  HDMI_PHY_CFG1 = 0;
-  HDMI_PHY_CFG1 = 1;
-  udelay(5);
-  HDMI_PHY_CFG1 |= BIT(16);
-  HDMI_PHY_CFG1 |= BIT(1);
-  udelay(10);
-  HDMI_PHY_CFG1 |= BIT(2);
-  udelay(5);
-  HDMI_PHY_CFG1 |= BIT(3);
-  udelay(40);
-  HDMI_PHY_CFG1 |= BIT(19);
-  udelay(100);
-  HDMI_PHY_CFG1 |= BIT(18);
-  HDMI_PHY_CFG1 |= (7<<4);
-  while((HDMI_PHY_STS & 0x80) == 0);
-  HDMI_PHY_CFG1 |= (0xf<<4);
-  HDMI_PHY_CFG1 |= (0xf<<8);
-  HDMI_PHY_CFG3 |= BIT(0) | BIT(2);
-
-  HDMI_PHY_PLL1 &= ~BIT(26);
-  HDMI_PHY_CEC = 0;
-
-  HDMI_PHY_PLL1 = 0x39dc5040;
-  HDMI_PHY_PLL2 = 0x80084381;
-  udelay(10000);
-  HDMI_PHY_PLL3 = 1;
-  HDMI_PHY_PLL1 |= BIT(25);
-  udelay(10000);
-  uint32_t tmp = (HDMI_PHY_STS & 0x1f800) >> 11;
-  HDMI_PHY_PLL1 |= BIT(31) | BIT(30) | tmp;
-
-  HDMI_PHY_CFG1 = 0x01FFFF7F;
-  HDMI_PHY_CFG2 = 0x8063A800;
-  HDMI_PHY_CFG3 = 0x0F81C485;
-
-  /* enable read access to HDMI controller */
-  HDMI_PHY_READ_EN = 0x54524545;
-  /* descramble register offsets */
-  HDMI_PHY_UNSCRAMBLE = 0x42494E47;
-
-  // HDMI Config, based on the documentation at:
-  // https://people.freebsd.org/~gonzo/arm/iMX6-HDMI.pdf
-  HDMI_FC_INVIDCONF = BIT(6) | BIT(5) | BIT(4) | BIT(3); // Polarity etc
-  HDMI_FC_INHACTIV0 = (DISPLAY_HDMI_RES_X & 0xff);    // Horizontal pixels
-  HDMI_FC_INHACTIV1 = (DISPLAY_HDMI_RES_X >> 8);      // Horizontal pixels
-  HDMI_FC_INHBLANK0 = (280 & 0xff);     // Horizontal blanking
-  HDMI_FC_INHBLANK1 = (280 >> 8);       // Horizontal blanking
-
-  HDMI_FC_INVACTIV0 = (DISPLAY_HDMI_RES_Y & 0xff);    // Vertical pixels
-  HDMI_FC_INVACTIV1 = (DISPLAY_HDMI_RES_Y >> 8);      // Vertical pixels
-  HDMI_FC_INVBLANK  = 45;               // Vertical blanking
-
-  HDMI_FC_HSYNCINDELAY0 = (88 & 0xff);  // Horizontal Front porch
-  HDMI_FC_HSYNCINDELAY1 = (88 >> 8);    // Horizontal Front porch
-  HDMI_FC_VSYNCINDELAY  = 4;            // Vertical front porch
-  HDMI_FC_HSYNCINWIDTH0 = (44 & 0xff);  // Horizontal sync pulse
-  HDMI_FC_HSYNCINWIDTH1 = (44 >> 8);    // Horizontal sync pulse
-  HDMI_FC_VSYNCINWIDTH  = 5;            // Vertical sync pulse
-
-  HDMI_FC_CTRLDUR    = 12;   // Frame Composer Control Period Duration
-  HDMI_FC_EXCTRLDUR  = 32;   // Frame Composer Extended Control Period Duration
-  HDMI_FC_EXCTRLSPAC = 1;    // Frame Composer Extended Control Period Maximum Spacing
-  HDMI_FC_CH0PREAM   = 0x0b; // Frame Composer Channel 0 Non-Preamble Data
-  HDMI_FC_CH1PREAM   = 0x16; // Frame Composer Channel 1 Non-Preamble Data
-  HDMI_FC_CH2PREAM   = 0x21; // Frame Composer Channel 2 Non-Preamble Data
-  HDMI_MC_FLOWCTRL   = 0;    // Main Controller Feed Through Control
-  HDMI_MC_CLKDIS     = 0x74; // Main Controller Synchronous Clock Domain Disable
-}
-
-void lcd_init() {
-  // LCD0 feeds mixer0 to HDMI
-  LCD0_GCTL         = BIT(31);
-  LCD0_GINT0        = 0;
-  LCD0_TCON1_CTL    = BIT(31) | (30<<4);
-  LCD0_TCON1_BASIC0 = ((DISPLAY_HDMI_RES_X - 1)<<16) | (DISPLAY_HDMI_RES_Y - 1);
-  LCD0_TCON1_BASIC1 = ((DISPLAY_HDMI_RES_X - 1)<<16) | (DISPLAY_HDMI_RES_Y - 1);
-  LCD0_TCON1_BASIC2 = ((DISPLAY_HDMI_RES_X - 1)<<16) | (DISPLAY_HDMI_RES_Y - 1);
-  LCD0_TCON1_BASIC3 = (2199<<16) | 191;
-  LCD0_TCON1_BASIC4 = (2250<<16) | 40;
-  LCD0_TCON1_BASIC5 = (43<<16) | 4;
-
-  LCD0_GINT1 = 1;
-  LCD0_GINT0 = BIT(28);
-}
-
 static int filter_enabled = 0;
 
 static void de2_update_filter(int sub)
@@ -188,14 +100,54 @@ static void de2_init() {
   DE_MIXER0_GLB_DBUFFER = 1;
 }
 
+#include <../device/fb/display_timing.h>
+
+void h3_de2_init(struct display_timing *timing, uint32_t fbbase);
+
+struct display_timing default_timing;
+
 // This function initializes the HDMI port and TCON.
 // Almost everything here is resolution specific and
 // currently hardcoded to 1920x1080@60Hz.
-void display_init() {
-  display_clocks_init();
-  hdmi_init();
-  lcd_init();
+void display_init(const struct display_phys_mode_t *mode) {
+  if (mode) {
+    default_timing.hdmi_monitor = mode->hdmi;
+    default_timing.pixelclock.typ = mode->pixclk;
+    default_timing.hactive.typ = mode->hactive;
+    default_timing.hback_porch.typ = mode->hback_porch;
+    default_timing.hfront_porch.typ = mode->hfront_porch;
+    default_timing.hsync_len.typ = mode->hsync_width;
+    default_timing.vactive.typ = mode->vactive;
+    default_timing.vback_porch.typ = mode->vback_porch;
+    default_timing.vfront_porch.typ = mode->vfront_porch;
+    default_timing.vsync_len.typ = mode->vsync_width;
+    default_timing.flags = 0;
+    if (mode->hsync_pol)
+      default_timing.flags |= DISPLAY_FLAGS_HSYNC_HIGH;
+    if (mode->vsync_pol)
+      default_timing.flags |= DISPLAY_FLAGS_VSYNC_HIGH;
+  } else {
+    memset(&default_timing, 0, sizeof(struct display_timing));
+
+    default_timing.hdmi_monitor = true;
+    default_timing.pixelclock.typ = 32000000;
+    default_timing.hactive.typ = 800;
+    default_timing.hback_porch.typ = 40;
+    default_timing.hfront_porch.typ = 40;
+    default_timing.hsync_len.typ = 48;
+    default_timing.vactive.typ = 480;
+    default_timing.vback_porch.typ = 29;
+    default_timing.vfront_porch.typ = 13;
+    default_timing.vsync_len.typ = 3;
+    default_timing.flags = (DISPLAY_FLAGS_HSYNC_LOW | DISPLAY_FLAGS_VSYNC_LOW);
+  };
+
+  h3_de2_init(&default_timing, (uint32_t)0x40000000);
+
+  LCD0_GINT1 = 1;
+  LCD0_GINT0 = BIT(28);
 }
+
 
 // Allocates frame buffers and configures the display engine
 // to scale from the given resolution to the HDMI resolution.

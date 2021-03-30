@@ -1,14 +1,20 @@
+#ifndef _DISPLAY_H
+#define _DISPLAY_H
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <stdint.h>
 
+#include <../device/fb/display_timing.h>
+extern struct display_timing default_timing;
+
 // HDMI controller output resolution
 // NB: Any change in resolution requires additional changes in the HDMI
 // controller register settings below.
-#define DISPLAY_HDMI_RES_X	1920
-#define DISPLAY_HDMI_RES_Y	1080
+#define DISPLAY_HDMI_RES_X	(default_timing.hactive.typ)
+#define DISPLAY_HDMI_RES_Y	(default_timing.vactive.typ)
 
 #define VIDEO_RAM_BYTES 0x180000
 
@@ -206,7 +212,6 @@ extern "C" {
 #define DE_MIXER0_VS_C_HCOEF1(x)      *(volatile uint32_t*)(DE_MIXER0_VS_BASE + 0x700 + x * 4)
 #define DE_MIXER0_VS_C_VCOEF(x)       *(volatile uint32_t*)(DE_MIXER0_VS_BASE + 0x800 + x * 4)
 
-void display_init(void);
 void display_set_mode(int x, int y, int ovx, int ovy);
 void display_swap_buffers();
 void display_clear_active_buffer(void);
@@ -220,6 +225,27 @@ extern volatile uint32_t *display_visible_buffer;
 void display_scaler_set_coeff(uint32_t hstep, int sub);
 void display_scaler_nearest_neighbour(void);
 
+struct display_phys_mode_t {
+    int pixclk;
+
+    int hactive;
+    int hfront_porch;
+    int hsync_width;
+    int hback_porch;
+    int hsync_pol;
+
+    int vactive;
+    int vfront_porch;
+    int vsync_width;
+    int vback_porch;
+    int vsync_pol;
+
+    int hdmi;
+};
+
+void display_init(const struct display_phys_mode_t *mode);
 #ifdef __cplusplus
 }
+#endif
+
 #endif

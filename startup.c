@@ -61,9 +61,10 @@ void startup() {
   set_pin_data(PORTL, 10, 1); // PORT L10 high
 
   // Configure display
-  display_init();
-  display_set_mode(480, 270, 16, 16);
-  audio_hdmi_init();
+  // We have to init the display because the system timer initialization
+  // uses it for calibration.
+  display_init(NULL);
+
   audio_i2s2_init();
   audio_i2s2_on();
 
