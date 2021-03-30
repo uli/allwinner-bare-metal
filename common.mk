@@ -6,7 +6,9 @@ CXX=$(PREFIX)g++
 OBJCOPY=$(PREFIX)objcopy
 AR=$(PREFIX)ar
 
-CFLAGS_COMMON = -MMD -g -O2 -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -ffreestanding -DREENTRANT_SYSCALLS_PROVIDED -D__DYNAMIC_REENT__
+CFLAGS_COMMON = -MMD -g -O2 -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -ffreestanding \
+		-DREENTRANT_SYSCALLS_PROVIDED -D__DYNAMIC_REENT__ \
+		-I $(LIBH3DIR)/include -DORANGE_PI_ONE
 
 # debugging: detect stack smashing
 #CFLAGS_COMMON += -fstack-protector-strong

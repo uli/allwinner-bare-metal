@@ -1,4 +1,5 @@
 OSDIR = .
+LIBH3DIR = ../rpidmx512/lib-h3
 
 include common.mk
 
