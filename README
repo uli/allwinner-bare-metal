@@ -1,3 +1,17 @@
+This is an experimental branch targeting Orange Pi H3-based boards that adds a lot
+of functionality, mostly by including external libraries.
+
+Most libraries are included in the source tree. One external dependency is
+lib-h3 from https://github.com/vanvught/rpidmx512. You will have to check
+out that repository and change the variable LIBH3DIR in the Makefile
+accordingly.
+
+lib-h3 contains many drivers that are more full-featured than the bare-bones
+implementations here, and it is likely that those will slowly replace the existing
+drivers in this repository.
+
+Original README:
+
 This repository represents an attempt to run bare metal code on an Allwinner SoC.
 
 Current target is the H3. This code will implement drivers for all hardware used

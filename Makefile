@@ -1,4 +1,5 @@
 OSDIR = .
+# Point this to a checkout of https://github.com/vanvught/rpidmx512
 LIBH3DIR = ../rpidmx512/lib-h3
 
 include common.mk
