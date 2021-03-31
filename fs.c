@@ -68,3 +68,44 @@ int sd_detect(void)
 
 	return detected;
 }
+
+#define FFAPI1(n) \
+DSTATUS mmc_ ##n ( BYTE pdrv );	\
+DSTATUS n ( BYTE pdrv ) \
+{ \
+	switch (pdrv) {	\
+		case 0: return mmc_ ##n (pdrv);	\
+		case 1: return STA_NOINIT;	/* flash */	\
+		case 2: return STA_NOINIT;	/* USB0 */	\
+		default: return STA_NOINIT;	\
+	}	\
+}
+
+FFAPI1(disk_status)
+FFAPI1(disk_initialize)
+
+#define FFAPI2(n, t) \
+DRESULT mmc_ ##n ( BYTE pdrv, t BYTE *buff, DWORD sector, UINT count );	\
+DRESULT n ( BYTE pdrv, t BYTE *buff, DWORD sector, UINT count ) \
+{	\
+	switch (pdrv) {	\
+		case 0: return mmc_ ##n (pdrv, buff, sector, count);	\
+		case 1: return RES_NOTRDY;	\
+		case 2: return RES_NOTRDY;	\
+		default: return RES_NOTRDY;	\
+	}	\
+}
+
+FFAPI2(disk_read,)
+FFAPI2(disk_write,const)
+
+DRESULT mmc_disk_ioctl ( BYTE pdrv, BYTE cmd, void *buff );
+DRESULT disk_ioctl ( BYTE pdrv, BYTE cmd, void *buff )
+{
+	switch (pdrv) {	\
+		case 0: return mmc_disk_ioctl(pdrv, cmd, buff);	\
+		case 1: return RES_NOTRDY;	\
+		case 2: return RES_NOTRDY;	\
+		default: return RES_NOTRDY;	\
+	}	\
+}

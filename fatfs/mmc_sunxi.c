@@ -301,7 +301,7 @@ static BYTE send_cmd (
 /* Get Disk Status                                                       */
 /*-----------------------------------------------------------------------*/
 
-DSTATUS disk_status (
+DSTATUS mmc_disk_status (
 	BYTE pdrv			/* Drive number (always 0) */
 )
 {
@@ -326,7 +326,7 @@ DSTATUS disk_status (
 /* Initialize Disk Drive                                                 */
 /*-----------------------------------------------------------------------*/
 
-DSTATUS disk_initialize (
+DSTATUS mmc_disk_initialize (
 	BYTE pdrv		/* Physical drive nmuber (0) */
 )
 {
@@ -408,7 +408,7 @@ DSTATUS disk_initialize (
 /* Read Sector(s)                                                        */
 /*-----------------------------------------------------------------------*/
 
-DRESULT disk_read (
+DRESULT mmc_disk_read (
 	BYTE pdrv,			/* Physical drive nmuber (0) */
 	BYTE *buff,			/* Pointer to the data buffer to store read data */
 	DWORD sector,		/* Start sector number (LBA) */
@@ -438,7 +438,7 @@ DRESULT disk_read (
 /* Write Sector(s)                                                       */
 /*-----------------------------------------------------------------------*/
 
-DRESULT disk_write (
+DRESULT mmc_disk_write (
 	BYTE pdrv,			/* Physical drive nmuber (0) */
 	const BYTE *buff,	/* Pointer to the data to be written */
 	DWORD sector,		/* Start sector number (LBA) */
@@ -469,7 +469,7 @@ DRESULT disk_write (
 /* Miscellaneous Functions                                               */
 /*-----------------------------------------------------------------------*/
 
-DRESULT disk_ioctl (
+DRESULT mmc_disk_ioctl (
 	BYTE pdrv,		/* Physical drive nmuber (0) */
 	BYTE cmd,		/* Control code */
 	void *buff		/* Buffer to send/receive control data */
