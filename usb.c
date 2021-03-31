@@ -22,6 +22,9 @@
 bool usb1_tusb_init(void);
 bool usb2_tusb_init(void);
 
+void usb1_diskio_init(void);
+void usb2_diskio_init(void);
+
 tusb_error_t usb1_tuh_hid_keyboard_get_report(uint8_t dev_addr, void * p_report);
 tusb_error_t usb2_tuh_hid_keyboard_get_report(uint8_t dev_addr, void * p_report);
 tusb_error_t usb1_tuh_hid_generic_get_report(uint8_t dev_addr, void * p_report);
@@ -70,6 +73,9 @@ void usb_init() {
 
   usb1_tusb_init();
   usb2_tusb_init();
+
+  usb1_diskio_init();
+  usb2_diskio_init();
 }
 
 #include <common/binary.h>
@@ -284,3 +290,63 @@ static void generic_isr(int hcd, uint8_t dev_addr, xfer_result_t event)
 }
 void usb1_tuh_hid_generic_isr(uint8_t dev_addr, xfer_result_t event) { generic_isr(1, dev_addr, event); }
 void usb2_tuh_hid_generic_isr(uint8_t dev_addr, xfer_result_t event) { generic_isr(2, dev_addr, event); }
+
+static void msc_isr(int hcd, uint8_t dev_addr, xfer_result_t event, uint32_t xferred_bytes)
+{
+  (void) hcd;  (void) dev_addr;  (void) event;  (void) xferred_bytes;
+}
+
+void usb1_tuh_msc_isr(uint8_t dev_addr, xfer_result_t event, uint32_t xferred_bytes) { msc_isr(1, dev_addr, event, xferred_bytes); }
+void usb2_tuh_msc_isr(uint8_t dev_addr, xfer_result_t event, uint32_t xferred_bytes) { msc_isr(2, dev_addr, event, xferred_bytes); }
+
+#include "fatfs/ff.h"
+
+// one mount point per host controller;
+// XXX: no support for more than one mass-storage device per hub
+static FATFS fatfs[4];
+static const char *usb_volname[] = {
+ "/usb0",
+ "/usb1",
+ "/usb2",
+ "/usb3",
+};
+
+uint8_t usb1_disk_initialize(BYTE pdrv);
+uint8_t usb2_disk_initialize(BYTE pdrv);
+uint8_t usb1_disk_deinitialize(BYTE pdrv);
+uint8_t usb2_disk_deinitialize(BYTE pdrv);
+
+void msc_mounted_cb(int hcd, uint8_t dev_addr)
+{
+  printf("\na MassStorage device is mounted, hcd %d, dev_addr %d\n", hcd, dev_addr);
+  uint8_t phy_disk = dev_addr - 1;
+  switch (hcd) {
+    case 1: usb1_disk_initialize(phy_disk); break;
+    case 2: usb2_disk_initialize(phy_disk); break;
+  };
+
+  // XXX: cannot use disk_is_ready(), it's an inline function and not prefixed with usb?_
+  int res;
+  if ((res = f_mount(&fatfs[hcd], usb_volname[hcd], 1)) != FR_OK) {
+    printf("mount failed, %d\n", res);
+  }
+}
+
+void usb1_tuh_msc_mounted_cb(uint8_t dev_addr) { msc_mounted_cb(1, dev_addr); }
+void usb2_tuh_msc_mounted_cb(uint8_t dev_addr) { msc_mounted_cb(2, dev_addr); }
+
+void msc_unmounted_cb(int hcd, uint8_t dev_addr)
+{
+  printf("\na MassStorage device is unmounted, hcd %d, dev_addr %d\n", hcd, dev_addr);
+  uint8_t phy_disk = dev_addr - 1;
+
+  f_unmount(usb_volname[hcd]);
+
+  switch (hcd) {
+    case 1: usb1_disk_deinitialize(phy_disk); break;
+    case 2: usb2_disk_deinitialize(phy_disk); break;
+  };
+}
+
+void usb1_tuh_msc_unmounted_cb(uint8_t dev_addr) { msc_unmounted_cb(1, dev_addr); }
+void usb2_tuh_msc_unmounted_cb(uint8_t dev_addr) { msc_unmounted_cb(2, dev_addr); }
