@@ -24,17 +24,20 @@ SD_OBJS = fatfs/mmc_sunxi.o fatfs/ff.o fatfs/ffunicode.o
 
 ALL_OBJS = $(OBJS) $(GDB_OBJS) $(USB_OBJS) $(LIBC_OBJS) $(SD_OBJS)
 
-libos.a: $(ALL_OBJS) Makefile $(LIBH3DIR)/lib-h3/lib_h3/libh3.a $(LIBH3DIR)/lib-arm/lib_h3/libarm.a
+all:	libos.a libh3 libarm
+
+libos.a: $(ALL_OBJS) Makefile
 	rm -f $@
 	$(AR) rc $@ $(ALL_OBJS)
 
-$(LIBH3DIR)/lib-h3/lib_h3/libh3.a:
+libh3:
 	$(MAKE) -C $(LIBH3DIR)/lib-h3 -f Makefile.H3 PREFIX=$(PREFIX) PLATFORM=ORANGE_PI_ONE
-$(LIBH3DIR)/lib-arm/lib_h3/libarm.a:
+libarm:
 	$(MAKE) -C $(LIBH3DIR)/lib-arm -f Makefile.H3 PREFIX=$(PREFIX) PLATFORM=ORANGE_PI_ONE
 
 clean:
 	rm -f $(ALL_OBJS) $(ALL_OBJS:%.o=%.d) libos.a
-	$(MAKE) -C $(LIBH3DIR) -f Makefile.H3 clean
+	$(MAKE) -C $(LIBH3DIR)/lib-h3 -f Makefile.H3 clean
+	$(MAKE) -C $(LIBH3DIR)/lib-arm -f Makefile.H3 clean
 
 -include $(ALL_OBJS:%.o=%.d)
