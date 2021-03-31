@@ -110,11 +110,14 @@ static inline void msc_cbw_add_signature(msc_cbw_t *p_cbw, uint8_t lun)
   p_cbw->lun        = lun;
 }
 
+void mmu_flush_dcache(void);
+
 static tusb_error_t msch_command_xfer(msch_interface_t * p_msch, void* p_buffer) ATTR_WARN_UNUSED_RESULT;
 static tusb_error_t msch_command_xfer(msch_interface_t * p_msch, void* p_buffer)
 {
   if ( NULL != p_buffer)
   { // there is data phase
+    mmu_flush_dcache();	// commit buffer to memory
     if (p_msch->cbw.dir & TUSB_DIR_IN_MASK)
     {
       TU_ASSERT_ERR( hcd_pipe_xfer(p_msch->bulk_out, (uint8_t*) &p_msch->cbw, sizeof(msc_cbw_t), false) );
