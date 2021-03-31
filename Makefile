@@ -11,7 +11,9 @@ USB_OBJS = tinyusb/src/host/ohci/ohci1.o tinyusb/src/host/ohci/ohci2.o \
 	   tinyusb/src/host/hub1.o tinyusb/src/host/hub2.o \
 	   tinyusb/src/class/hid/hid_host1.o tinyusb/src/class/hid/hid_host2.o \
 	   tinyusb/src/common/tusb_fifo.o \
-	   tinyusb/src/tusb1.o tinyusb/src/tusb2.o
+	   tinyusb/src/tusb1.o tinyusb/src/tusb2.o \
+	   tinyusb/src/class/msc/msc_host1.o tinyusb/src/class/msc/msc_host2.o \
+	   tinyusb/lib/fatfs/diskio1.o tinyusb/lib/fatfs/diskio2.o
 
 ifneq ($(GDB),)
 GDB_OBJS = gdb/tzvecs.o gdb/gdbstub.o gdb/string.o gdb/printk.o
