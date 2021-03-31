@@ -21,7 +21,7 @@ int fs_init(void)
 	if (st != 0)
 		return st;
 	printf("SD initialized\n");
-	f_mount(&Fatfs, "sd", 0);
+	f_mount(&Fatfs, "/sd", 0);
 	return 0;
 }
 
