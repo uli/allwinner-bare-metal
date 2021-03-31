@@ -19,22 +19,6 @@ static struct {
 	int x, y, ovx, ovy;
 } dsp;
 
-void display_clocks_init() {
-  // Set up shared and dedicated clocks for HDMI, LCD/TCON and DE2
-  PLL_DE_CTRL      = BIT(31) | BIT(24) | (17<<8) | (0<<0); // 432MHz
-  PLL_VIDEO_CTRL   = BIT(31) | BIT(25) | BIT(24) | (98<<8) | (7<<0); // 297MHz
-  BUS_CLK_GATING1 |= BIT(12) | BIT(11) | BIT(3); // Enable DE, HDMI, TCON0	// check
-  BUS_SOFT_RST1   |= BIT(12) | (3<<10) | BIT(3); // De-assert reset of DE, HDMI0/1, TCON0
-  DE_CLK           = BIT(31) | BIT(24); // Enable DE clock, set source to PLL_DE
-  HDMI_CLK         = BIT(31); // Enable HDMI clk (use PLL3)
-  HDMI_SLOW_CLK    = BIT(31); // Enable HDMI slow clk	// check
-
-  // XXX: OPi seems to be running at a lower frequency.
-  //TCON0_CLK        = BIT(31) | 3; // Enable TCON0 clk, divide by 4
-  // This setting, also used by the Linux kernel, works.
-  TCON0_CLK        = 0x80000001;
-}
-
 static int filter_enabled = 0;
 
 static void de2_update_filter(int sub)
@@ -106,9 +90,6 @@ void h3_de2_init(struct display_timing *timing, uint32_t fbbase);
 
 struct display_timing default_timing;
 
-// This function initializes the HDMI port and TCON.
-// Almost everything here is resolution specific and
-// currently hardcoded to 1920x1080@60Hz.
 void display_init(const struct display_phys_mode_t *mode) {
   if (mode) {
     default_timing.hdmi_monitor = mode->hdmi;
