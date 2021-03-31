@@ -29,6 +29,8 @@ void _reset(void);
 void init_sp_irq(uint32_t addr);
 void main(int argc, char **argv);
 
+extern void h3_timer_init(void);
+
 void startup() {
   init_sp_irq(0x2000);
 
@@ -69,6 +71,9 @@ void startup() {
   audio_i2s2_on();
 
   sys_init_timer();
+#ifdef LIBH3_MMC
+  h3_timer_init();
+#endif
 
   // USB
   usb_init();

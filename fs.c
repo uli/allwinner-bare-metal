@@ -8,6 +8,15 @@ FATFS Fatfs;
 
 int fs_init(void)
 {
+#ifdef LIBH3_MMC
+	// lib-h3 driver does not seem to do that
+	for (int i = 0; i <= 5; ++i) {
+		set_pin_mode(PORTF, i, 2);
+		set_pin_pull(PORTF, i, PIO_PULL_UP);
+		set_pin_drive(PORTF, i, 2);
+	}
+#endif
+
 	DSTATUS st = disk_initialize(0);
 	if (st != 0)
 		return st;

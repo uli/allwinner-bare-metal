@@ -20,7 +20,13 @@ endif
 LIBC_CSRC = libc_io.c
 LIBC_OBJS = $(LIBC_CSRC:.c=.o)
 
-SD_OBJS = fatfs/mmc_sunxi.o fatfs/ff.o fatfs/ffunicode.o
+ifneq ($(LIBH3_MMC),)
+SD_OBJS = lib-h3/lib-hal/src/h3/sdcard/diskio.o
+else
+SD_OBJS = fatfs/mmc_sunxi.o
+endif
+
+SD_OBJS += fatfs/ff.o fatfs/ffunicode.o
 
 ALL_OBJS = $(OBJS) $(GDB_OBJS) $(USB_OBJS) $(LIBC_OBJS) $(SD_OBJS)
 

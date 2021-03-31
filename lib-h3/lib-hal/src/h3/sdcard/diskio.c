@@ -190,6 +190,7 @@ DRESULT disk_ioctl(__attribute__((unused)) BYTE drv, BYTE ctrl, void *buf) {
 	return RES_OK;
 }
 
+#if 0
 DWORD get_fattime(void) {
 	time_t ltime;
 	struct tm *local_time;
@@ -207,3 +208,4 @@ DWORD get_fattime(void) {
 
 	return packed_time;
 }
+#endif

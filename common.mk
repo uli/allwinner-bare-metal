@@ -10,7 +10,7 @@ AR=$(PREFIX)ar
 
 CFLAGS_COMMON = -MMD -g -O2 -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -ffreestanding \
 		-DREENTRANT_SYSCALLS_PROVIDED -D__DYNAMIC_REENT__ \
-		-I $(LIBH3DIR)/lib-h3/include -I $(LIBH3DIR)/lib-arm/include -DORANGE_PI_ONE
+		-I $(LIBH3DIR)/lib-h3/include -I $(LIBH3DIR)/lib-arm/include -I $(LIBH3DIR)/lib-hal/include -DORANGE_PI_ONE
 
 # debugging: detect stack smashing
 #CFLAGS_COMMON += -fstack-protector-strong
@@ -24,8 +24,16 @@ CFLAGS_COMMON = -MMD -g -O2 -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -ffreest
 # debugging: enable GDB stub
 #GDB = 1
 
+# use lib-h3 MMC driver
+# this is optional because I have not seen any improvement over the existing driver (yet)
+#LIBH3_MMC = 1
+
 ifneq ($(GDB),)
 CFLAGS_COMMON += -DGDBSTUB
+endif
+
+ifneq ($(LIBH3_MMC),)
+CFLAGS_COMMON += -DLIBH3_MMC -DSD_WRITE_SUPPORT
 endif
 
 CFLAGS=-T $(OSDIR)/linker.ld $(CFLAGS_COMMON) -nostdlib -Wall -Wextra \

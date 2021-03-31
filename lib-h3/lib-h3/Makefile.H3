@@ -1,5 +1,5 @@
 #
-DEFINES = NDEBUG ARM_ALLOW_MULTI_CORE
+DEFINES = NDEBUG ARM_ALLOW_MULTI_CORE SD_WRITE_SUPPORT
 #
 EXTRA_SRCDIR = arm arm/aeabi device/mmc device/emac device/fb net
 #
