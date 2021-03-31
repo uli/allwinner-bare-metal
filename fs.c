@@ -71,12 +71,16 @@ int sd_detect(void)
 
 #define FFAPI1(n) \
 DSTATUS mmc_ ##n ( BYTE pdrv );	\
+DSTATUS usb1_ ## n ( BYTE pdrv);	\
+DSTATUS usb2_ ## n ( BYTE pdrv);	\
 DSTATUS n ( BYTE pdrv ) \
 { \
 	switch (pdrv) {	\
 		case 0: return mmc_ ##n (pdrv);	\
 		case 1: return STA_NOINIT;	/* flash */	\
 		case 2: return STA_NOINIT;	/* USB0 */	\
+		case 3: return usb1_ ##n (pdrv - 3);	\
+		case 4: return usb2_ ##n (pdrv - 4);	\
 		default: return STA_NOINIT;	\
 	}	\
 }
@@ -86,12 +90,16 @@ FFAPI1(disk_initialize)
 
 #define FFAPI2(n, t) \
 DRESULT mmc_ ##n ( BYTE pdrv, t BYTE *buff, DWORD sector, UINT count );	\
+DRESULT usb1_ ##n ( BYTE pdrv, t BYTE *buff, DWORD sector, UINT count );	\
+DRESULT usb2_ ##n ( BYTE pdrv, t BYTE *buff, DWORD sector, UINT count );	\
 DRESULT n ( BYTE pdrv, t BYTE *buff, DWORD sector, UINT count ) \
 {	\
 	switch (pdrv) {	\
 		case 0: return mmc_ ##n (pdrv, buff, sector, count);	\
 		case 1: return RES_NOTRDY;	\
 		case 2: return RES_NOTRDY;	\
+		case 3: return usb1_ ##n (pdrv - 3, buff, sector, count);	\
+		case 4: return usb2_ ##n (pdrv - 4, buff, sector, count);	\
 		default: return RES_NOTRDY;	\
 	}	\
 }
@@ -100,12 +108,16 @@ FFAPI2(disk_read,)
 FFAPI2(disk_write,const)
 
 DRESULT mmc_disk_ioctl ( BYTE pdrv, BYTE cmd, void *buff );
+DRESULT usb1_disk_ioctl ( BYTE pdrv, BYTE cmd, void *buff );
+DRESULT usb2_disk_ioctl ( BYTE pdrv, BYTE cmd, void *buff );
 DRESULT disk_ioctl ( BYTE pdrv, BYTE cmd, void *buff )
 {
 	switch (pdrv) {	\
 		case 0: return mmc_disk_ioctl(pdrv, cmd, buff);	\
 		case 1: return RES_NOTRDY;	\
 		case 2: return RES_NOTRDY;	\
+		case 3: return usb1_disk_ioctl(pdrv - 3, cmd, buff);	\
+		case 4: return usb2_disk_ioctl(pdrv - 4, cmd, buff);	\
 		default: return RES_NOTRDY;	\
 	}	\
 }
