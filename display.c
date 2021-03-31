@@ -159,6 +159,9 @@ int display_single_buffer = 0;
 
 void display_swap_buffers() {
   // Make sure whatever is in the active buffer is committed to memory.
+  // XXX: using a clean (c10) instead of a flush (c14) does not seem to do
+  // anything on the H3 (in fact, the data seems to be lost altogether). Not
+  // sure what is going on there...
   mmu_flush_dcache();
 
   if (display_single_buffer)
