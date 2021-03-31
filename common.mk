@@ -1,3 +1,5 @@
+LIBH3DIR ?= $(OSDIR)/lib-h3/lib-h3
+
 PREFIX=~/x-tools/arm-unknown-eabihf/bin/arm-unknown-eabihf-
 #PREFIX=arm-linux-gnueabihf-
 

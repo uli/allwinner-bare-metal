@@ -1,6 +1,4 @@
 OSDIR = .
-# Point this to a checkout of https://github.com/vanvught/rpidmx512
-LIBH3DIR = ../rpidmx512/lib-h3
 
 include common.mk
 
@@ -26,11 +24,15 @@ SD_OBJS = fatfs/mmc_sunxi.o fatfs/ff.o fatfs/ffunicode.o
 
 ALL_OBJS = $(OBJS) $(GDB_OBJS) $(USB_OBJS) $(LIBC_OBJS) $(SD_OBJS)
 
-libos.a: $(ALL_OBJS) Makefile
+libos.a: $(ALL_OBJS) Makefile $(LIBH3DIR)/lib_h3/libh3.a
 	rm -f $@
 	$(AR) rc $@ $(ALL_OBJS)
 
+$(LIBH3DIR)/lib_h3/libh3.a:
+	$(MAKE) -C $(LIBH3DIR) -f Makefile.H3 PREFIX=$(PREFIX) PLATFORM=ORANGE_PI_ONE
+
 clean:
 	rm -f $(ALL_OBJS) $(ALL_OBJS:%.o=%.d) libos.a
+	$(MAKE) -C $(LIBH3DIR) -f Makefile.H3 clean
 
 -include $(ALL_OBJS:%.o=%.d)
