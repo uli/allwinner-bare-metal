@@ -123,7 +123,7 @@ static inline int sdcard_write(const uint8_t* buf, int sector, int count) {
 }
 #endif
 
-DSTATUS __attribute__((cold)) disk_initialize(BYTE drv) {
+DSTATUS __attribute__((cold)) mmc_disk_initialize(BYTE drv) {
 	if (drv == (BYTE) 0 && sdcard_init() == 0) {
 		diskio_status &= ~STA_NOINIT;
 	}
@@ -131,7 +131,7 @@ DSTATUS __attribute__((cold)) disk_initialize(BYTE drv) {
 	return diskio_status;
 }
 
-DRESULT disk_read(BYTE drv, BYTE *buf, DWORD sector, UINT count) {
+DRESULT mmc_disk_read(BYTE drv, BYTE *buf, DWORD sector, UINT count) {
 	if (drv || !count) {
 		return RES_PARERR;
 	}
@@ -143,7 +143,7 @@ DRESULT disk_read(BYTE drv, BYTE *buf, DWORD sector, UINT count) {
 	return sdcard_read((uint8_t *) buf, (int) sector, (int) count);
 }
 
-DRESULT disk_write(__attribute__((unused)) BYTE drv, __attribute__((unused)) const BYTE *buf, __attribute__((unused)) DWORD sector, __attribute__((unused)) UINT count) {
+DRESULT mmc_disk_write(__attribute__((unused)) BYTE drv, __attribute__((unused)) const BYTE *buf, __attribute__((unused)) DWORD sector, __attribute__((unused)) UINT count) {
 #ifdef SD_WRITE_SUPPORT
 	if (drv || !count) {
 		return RES_PARERR;
@@ -163,14 +163,14 @@ DRESULT disk_write(__attribute__((unused)) BYTE drv, __attribute__((unused)) con
 #endif
 }
 
-DSTATUS disk_status(BYTE drv) {
+DSTATUS mmc_disk_status(BYTE drv) {
 	if (drv != (BYTE) 0) {
 		return (DSTATUS) STA_NOINIT;
 	}
 	return diskio_status;
 }
 
-DRESULT disk_ioctl(__attribute__((unused)) BYTE drv, BYTE ctrl, void *buf) {
+DRESULT mmc_disk_ioctl(__attribute__((unused)) BYTE drv, BYTE ctrl, void *buf) {
 	switch (ctrl) {
 	case CTRL_SYNC:
 		return RES_OK;
