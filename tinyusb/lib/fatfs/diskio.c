@@ -156,6 +156,7 @@ static inline uint8_t c2i(char ch)
   return ch - '0';
 }
 
+#if 0
 DWORD get_fattime (void)
 {
   union {
@@ -208,5 +209,6 @@ DWORD get_fattime (void)
 
   return timestamp.value;
 }
+#endif
 
 #endif // CFG_TUH_MSC
