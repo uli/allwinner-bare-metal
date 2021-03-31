@@ -1,0 +1,12 @@
+#
+PLATFORM = ORANGE_PI
+#
+DEFINES = NODE_OSC_SERVER OUTPUT_DMXSEND DISABLE_RTC NDEBUG
+#
+LIBS = oscserver osc
+
+SRCDIR = firmware lib
+
+include ../h3-firmware-template/Rules.mk
+
+prerequisites:

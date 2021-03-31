@@ -1,0 +1,10 @@
+#
+DEFINES = NODE_ARTNET_MULTI OUTPUT_DMXSEND_MULTI ENABLE_SPIFLASH DISPLAY_UDF DISABLE_RTC NDEBUG
+#
+LIBS = rdmdiscovery rdm
+#
+SRCDIR = firmware lib
+
+include ../h3-firmware-template/Rules.mk
+
+prerequisites:

@@ -1,0 +1,104 @@
+# Object files
+*.o
+
+# Libraries
+lib*.a
+# Executables
+*.out
+*.a
+*.exe
+
+# Others 
+*.bak
+*.list
+*.lst
+*.map
+*.elf
+*.prefs
+*.class
+
+*.txt
+*._txt
+*.txt_
+*.uid
+
+*.c_
+*.cpp_
+*.h_
+
+*.list_
+
+# Linux 
+.nfs*
+.nfs.*
+
+# Apple
+.DS*
+._.DS*
+._*
+
+# Eclipse
+.tracecompass
+*/.tracecompass
+
+# H2+/H3 binaries 
+uImage
+*.uImage
+*.uImage.gz
+orangepi*.img
+orangepi*.img.gz
+
+# Broadcom binaries
+kernel.img
+kernel7.img
+
+# lib-i2c
+i2cdetect
+
+# lib-display
+detect
+lcd1602
+lcd2004
+oled128x32
+ssd1306
+
+# lib-l6470
+get_set_param_test
+get_temp
+input_output
+limit_switch
+precise_move
+simple_move
+SparkFunGetSetParamTest
+#lib-rdmnet
+dummy_device
+
+# lib-pca9685
+servo
+simple
+
+# lib-tlc59711
+pwmled
+linux_artnet
+linux_e131
+linux_osc
+artnet.txt
+e131.txt
+osc.txt
+*.Linux
+*.MacOS
+# 
+lib-bob/examples/si5351a
+linux_rpi_artipprog/linux_rpi_artipprog
+*.gz
+#
+*/sofware_version_id.h
+*/include/sofware_version_id.h
+*/example/sofware_version_id.h
+
+# Scripts
+loop.sh
+do-tftp.sh
+*/do-tftp.sh
+do-tftp-one.sh
+*/do-tftp-one.sh
