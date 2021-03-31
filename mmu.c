@@ -72,7 +72,12 @@ void mmu_init() {
   asm("ldr r8, =0x0;    mcr p15, 0, r8, c2, c0, 2" : : : "r8");
   asm("ldr r8, =0x3;    mcr p15, 0, r8, c3, c0, 0" : : : "r8");
 
-  invalidate_data_cache_l1_only();
+  // Word on the street (i.e. in lib-h3) has it that it is necessary to
+  // invalidate the L1 cache here because it comes out of reset
+  // uninitialized and bogus data might be flushed to RAM. Any attempt to do
+  // so at any place (by calling invalidate_data_cache_l1_only()) resulted
+  // in crashes of secondary cores that would not be there otherwise, so I'm
+  // ignoring this.
 
   // Enable MMU
   asm(
