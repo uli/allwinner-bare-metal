@@ -1,5 +1,5 @@
 #
-DEFINES = NDEBUG
+DEFINES = NDEBUG ARM_ALLOW_MULTI_CORE
 #
 EXTRA_SRCDIR = arm arm/aeabi device/mmc device/emac device/fb net
 #
