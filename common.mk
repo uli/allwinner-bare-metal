@@ -1,4 +1,4 @@
-LIBH3DIR ?= $(OSDIR)/lib-h3/lib-h3
+LIBH3DIR ?= $(OSDIR)/lib-h3
 
 PREFIX=~/x-tools/arm-unknown-eabihf/bin/arm-unknown-eabihf-
 #PREFIX=arm-linux-gnueabihf-
@@ -10,7 +10,7 @@ AR=$(PREFIX)ar
 
 CFLAGS_COMMON = -MMD -g -O2 -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -ffreestanding \
 		-DREENTRANT_SYSCALLS_PROVIDED -D__DYNAMIC_REENT__ \
-		-I $(LIBH3DIR)/include -DORANGE_PI_ONE
+		-I $(LIBH3DIR)/lib-h3/include -I $(LIBH3DIR)/lib-arm/include -DORANGE_PI_ONE
 
 # debugging: detect stack smashing
 #CFLAGS_COMMON += -fstack-protector-strong
