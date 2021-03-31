@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "mmu.h"
 #include "uart.h"
+#include <arm/synchronize.h>
 
 #define DRAM_START 0x40000000
 #define DRAM_MAX   0xc0000000
@@ -70,6 +71,8 @@ void mmu_init() {
   asm("ldr r8, =0xc000; mcr p15, 0, r8, c2, c0, 0" : : : "r8");
   asm("ldr r8, =0x0;    mcr p15, 0, r8, c2, c0, 2" : : : "r8");
   asm("ldr r8, =0x3;    mcr p15, 0, r8, c3, c0, 0" : : : "r8");
+
+  invalidate_data_cache_l1_only();
 
   // Enable MMU
   asm(
