@@ -1,0 +1,12 @@
+#
+DEFINES = NODE_OSC_CLIENT ENABLE_SPIFLASH DISABLE_RTC NDEBUG
+#
+LIBS = oscclient osc
+#
+PLATFORM = ORANGE_PI
+
+SRCDIR = firmware lib
+
+include ../h3-firmware-template/Rules.mk
+
+prerequisites:

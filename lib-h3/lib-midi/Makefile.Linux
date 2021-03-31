@@ -1,0 +1,6 @@
+#
+DEFINES = NDEBUG 
+#
+EXTRA_INCLUDES = ../lib-properties/include ../lib-network/include ../lib-hal/include
+#
+include ../linux-template/lib/Rules.mk
