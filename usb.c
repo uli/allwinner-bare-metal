@@ -304,11 +304,15 @@ void usb2_tuh_msc_isr(uint8_t dev_addr, xfer_result_t event, uint32_t xferred_by
 // one mount point per host controller;
 // XXX: no support for more than one mass-storage device per hub
 static FATFS fatfs[4];
-static const char *usb_volname[] = {
- "/usb0",
- "/usb1",
- "/usb2",
- "/usb3",
+static struct usb_drive_t {
+  const char *name;
+  int hcd;
+  uint8_t dev_addr;
+} usb_drives[] = {
+  { "/usb0", 0, 0 },
+  { "/usb1", 0, 0 },
+  { "/usb2", 0, 0 },
+  { "/usb3", 0, 0 },
 };
 
 uint8_t usb1_disk_initialize(BYTE pdrv);
@@ -319,15 +323,30 @@ uint8_t usb2_disk_deinitialize(BYTE pdrv);
 void msc_mounted_cb(int hcd, uint8_t dev_addr)
 {
   printf("\na MassStorage device is mounted, hcd %d, dev_addr %d\n", hcd, dev_addr);
-  uint8_t phy_disk = dev_addr - 1;
+  int logical_vol = -1;
+  for (int i = 0; i < 4; i++) {
+    if (usb_drives[i].dev_addr == 0) {
+      logical_vol = i;
+      break;
+    }
+  }
+
+  if (logical_vol == -1) {
+    printf("max number of USB drives reached\n");
+    return;
+  }
+
+  usb_drives[logical_vol].dev_addr = dev_addr;
+  usb_drives[logical_vol].hcd = hcd;
+
   switch (hcd) {
-    case 1: usb1_disk_initialize(phy_disk); break;
-    case 2: usb2_disk_initialize(phy_disk); break;
+    case 1: usb1_disk_initialize(dev_addr - 1); break;
+    case 2: usb2_disk_initialize(dev_addr - 1); break;
   };
 
   // XXX: cannot use disk_is_ready(), it's an inline function and not prefixed with usb?_
   int res;
-  if ((res = f_mount(&fatfs[hcd], usb_volname[hcd], 1)) != FR_OK) {
+  if ((res = f_mount(&fatfs[logical_vol], usb_drives[logical_vol].name, 1)) != FR_OK) {
     printf("mount failed, %d\n", res);
   }
 }
@@ -335,18 +354,110 @@ void msc_mounted_cb(int hcd, uint8_t dev_addr)
 void usb1_tuh_msc_mounted_cb(uint8_t dev_addr) { msc_mounted_cb(1, dev_addr); }
 void usb2_tuh_msc_mounted_cb(uint8_t dev_addr) { msc_mounted_cb(2, dev_addr); }
 
+static struct usb_drive_t *get_logical_volume(int hcd, uint8_t dev_addr)
+{
+  for (int i = 0; i < 4; i++) {
+    if (usb_drives[i].hcd == hcd && usb_drives[i].dev_addr == dev_addr)
+      return &usb_drives[i];
+  }
+
+  printf("unknown drive\n");
+  return NULL;
+}
+
 void msc_unmounted_cb(int hcd, uint8_t dev_addr)
 {
   printf("\na MassStorage device is unmounted, hcd %d, dev_addr %d\n", hcd, dev_addr);
-  uint8_t phy_disk = dev_addr - 1;
 
-  f_unmount(usb_volname[hcd]);
+  struct usb_drive_t *dr = get_logical_volume(hcd, dev_addr);
+  if (!dr)
+    return;
+
+  f_unmount(dr->name);
+  dr->dev_addr = 0;
 
   switch (hcd) {
-    case 1: usb1_disk_deinitialize(phy_disk); break;
-    case 2: usb2_disk_deinitialize(phy_disk); break;
+    case 1: usb1_disk_deinitialize(dev_addr - 1); break;
+    case 2: usb2_disk_deinitialize(dev_addr - 1); break;
   };
 }
 
 void usb1_tuh_msc_unmounted_cb(uint8_t dev_addr) { msc_unmounted_cb(1, dev_addr); }
 void usb2_tuh_msc_unmounted_cb(uint8_t dev_addr) { msc_unmounted_cb(2, dev_addr); }
+
+#include "fatfs/diskio.h"
+
+DRESULT usb1_disk_read ( BYTE pdrv, BYTE *buff, DWORD sector, UINT count );
+DRESULT usb2_disk_read ( BYTE pdrv, BYTE *buff, DWORD sector, UINT count );
+
+DRESULT usb_disk_read ( BYTE pdrv, BYTE *buff, DWORD sector, UINT count )
+{
+  struct usb_drive_t *dr = &usb_drives[pdrv - 2];
+
+  switch (dr->hcd) {
+    case 1: return usb1_disk_read(dr->dev_addr - 1, buff, sector, count);
+    case 2: return usb2_disk_read(dr->dev_addr - 1, buff, sector, count);
+  }
+
+  return RES_NOTRDY;
+}
+
+DRESULT usb1_disk_write ( BYTE pdrv, const BYTE *buff, DWORD sector, UINT count );
+DRESULT usb2_disk_write ( BYTE pdrv, const BYTE *buff, DWORD sector, UINT count );
+
+DRESULT usb_disk_write ( BYTE pdrv, const BYTE *buff, DWORD sector, UINT count )
+{
+  struct usb_drive_t *dr = &usb_drives[pdrv - 2];
+
+  switch (dr->hcd) {
+    case 1: return usb1_disk_write(dr->dev_addr - 1, buff, sector, count);
+    case 2: return usb2_disk_write(dr->dev_addr - 1, buff, sector, count);
+  }
+
+  return RES_NOTRDY;
+}
+
+DSTATUS usb1_disk_status(BYTE pdrv);
+DSTATUS usb2_disk_status(BYTE pdrv);
+
+DSTATUS usb_disk_status(BYTE pdrv)
+{
+  struct usb_drive_t *dr = &usb_drives[pdrv - 2];
+
+  switch (dr->hcd) {
+    case 1: return usb1_disk_status(dr->dev_addr - 1);
+    case 2: return usb2_disk_status(dr->dev_addr - 1);
+  }
+
+  return STA_NOINIT;
+}
+
+DSTATUS usb1_disk_initialize(BYTE pdrv);
+DSTATUS usb2_disk_initialize(BYTE pdrv);
+
+DSTATUS usb_disk_initialize(BYTE pdrv)
+{
+  struct usb_drive_t *dr = &usb_drives[pdrv - 2];
+
+  switch (dr->hcd) {
+    case 1: return usb1_disk_initialize(dr->dev_addr - 1);
+    case 2: return usb2_disk_initialize(dr->dev_addr - 1);
+  }
+
+  return STA_NOINIT;
+}
+
+DRESULT usb1_disk_ioctl ( BYTE pdrv, BYTE cmd, void *buff );
+DRESULT usb2_disk_ioctl ( BYTE pdrv, BYTE cmd, void *buff );
+
+DRESULT usb_disk_ioctl ( BYTE pdrv, BYTE cmd, void *buff )
+{
+  struct usb_drive_t *dr = &usb_drives[pdrv - 2];
+
+  switch (dr->hcd) {
+    case 1: return usb1_disk_ioctl(dr->dev_addr - 1, cmd, buff);
+    case 2: return usb2_disk_ioctl(dr->dev_addr - 1, cmd, buff);
+  }
+
+  return RES_NOTRDY;
+}
