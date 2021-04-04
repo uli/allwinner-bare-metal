@@ -10,6 +10,7 @@ extern uint32_t _ivt;
 
 void usb1_hal_hcd_isr(uint8_t hostid);
 void usb2_hal_hcd_isr(uint8_t hostid);
+void usb3_hal_hcd_isr(uint8_t hostid);
 
 int irq_pending(uint32_t irq)
 {
@@ -34,6 +35,9 @@ void __attribute__((interrupt("IRQ"))) interrupt(void) {
 
   if (irq_pending(109))
     usb2_hal_hcd_isr(0);
+
+  if (irq_pending(111))
+    usb3_hal_hcd_isr(0);
 
   if (irq_pending(118)) {
     tick_counter++;

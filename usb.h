@@ -64,6 +64,11 @@ extern "C" {
 #define USB2_HSIC_STATUS           *(volatile uint32_t *)(USB2_BASE + 0x804)
 #define USB2_HCI_UNK1              *(volatile uint32_t *)(USB2_BASE + 0x810)
 
+#define USB3_BASE 0x01C1D000
+#define USB3_HCI_ICR               *(volatile uint32_t *)(USB3_BASE + 0x800)
+#define USB3_HSIC_STATUS           *(volatile uint32_t *)(USB3_BASE + 0x804)
+#define USB3_HCI_UNK1              *(volatile uint32_t *)(USB3_BASE + 0x810)
+
 #define USB_PHY_CFG                *(volatile uint32_t *)0x01c19410
 
 struct td {
