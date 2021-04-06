@@ -10,6 +10,7 @@
 #include "fs.h"
 #include "dma.h"
 #include "smp.h"
+#include "network.h"
 #include <stdio.h>
 #include <stdlib.h>
 #ifdef GDBSTUB
@@ -76,11 +77,13 @@ void startup() {
   // USB
   usb_init();
 
+  dma_init();
+
+  network_init();
+
   uart_print("Ready!\r\n");
 
   set_pin_mode(PORTF, 6, 0);	// SD CD pin
-
-  dma_init();
 
   __libc_init_array();
 
