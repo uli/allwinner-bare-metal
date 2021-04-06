@@ -32,7 +32,7 @@ SD_OBJS += fatfs/ff.o fatfs/ffunicode.o
 
 LWIPDIR = $(OSDIR)/lwip/src
 -include $(LWIPDIR)/Filelists.mk
-NET_CSRC = network.c $(COREFILES) $(CORE4FILES) $(NETIFFILES) $(HTTPFILES) $(TFTPFILES)
+NET_CSRC = network.c $(COREFILES) $(CORE4FILES) $(NETIFFILES) $(HTTPFILES) $(TFTPFILES) $(LWIPDIR)/api/err.c
 NET_OBJS = $(NET_CSRC:.c=.o)
 
 ALL_OBJS = $(OBJS) $(GDB_OBJS) $(USB_OBJS) $(LIBC_OBJS) $(SD_OBJS) $(NET_OBJS)
