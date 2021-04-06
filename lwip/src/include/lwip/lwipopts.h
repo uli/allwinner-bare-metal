@@ -328,4 +328,6 @@ void lwip_example_app_platform_assert(const char *msg, int line, const char *fil
 
 #define MEM_LIBC_MALLOC 1
 
+#define LWIP_HTTPC_HAVE_FILE_IO 1
+
 #endif /* LWIP_LWIPOPTS_H */
