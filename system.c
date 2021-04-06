@@ -30,6 +30,11 @@ uint64_t sys_get_usec(void)
 	return sys_get_tick() / sys_per_usec;
 }
 
+uint64_t sys_get_msec(void)
+{
+	return sys_get_tick() / sys_per_usec / 1000;
+}
+
 void sys_init_timer(void)
 {
   uint32_t t;

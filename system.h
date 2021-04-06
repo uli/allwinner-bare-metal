@@ -20,6 +20,7 @@ extern volatile uint32_t tick_counter;
 void sys_init_timer(void);
 uint64_t sys_get_tick(void);
 uint64_t sys_get_usec(void);
+uint64_t sys_get_msec(void);
 
 uint32_t sys_mem_free(void);
 
