@@ -144,7 +144,7 @@ void usb3_hcd_int_disable(uint8_t rhport)
 
 uint32_t tusb_hal_millis(void)
 {
-  return tick_counter * 1000 / 60;
+  return sys_get_msec();
 }
 
 static hid_keyboard_report_t usb_keyboard_report __attribute__ ((section ("UNCACHED")));
