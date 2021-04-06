@@ -71,9 +71,7 @@ void startup() {
   audio_i2s2_on();
 
   sys_init_timer();
-#ifdef LIBH3_MMC
   h3_timer_init();
-#endif
 
   // USB
   usb_init();
