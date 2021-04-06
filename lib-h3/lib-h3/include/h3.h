@@ -32,7 +32,8 @@
 #define H3_LOSC					32768
 
 #define H3_MEM_DRAM_START		0x40000000
-#define H3_MEM_COHERENT_REGION	(H3_MEM_DRAM_START + 0x400000) // Defined in linker script. 1M region = 1 Page
+extern unsigned char libh3_coherent_region[1048576];
+#define H3_MEM_COHERENT_REGION	((uint32_t)libh3_coherent_region) // Defined in linker script. 1M region = 1 Page
 #define H3_MEM_COHERENT_SIZE	(1 * MEGABYTE)
 #define H3_MEM_BROM_START		0xFFFF0000
 
