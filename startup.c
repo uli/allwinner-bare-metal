@@ -17,6 +17,8 @@
 #include "gdb/gdbstub.h"
 #endif
 
+#include <h3_codec.h>
+
 volatile uint32_t tick_counter;
 
 void libc_set_heap(void *start, void *end);
@@ -63,11 +65,14 @@ void startup() {
   set_pin_mode(PORTL, 10, 1); // PORT L10 output
   set_pin_data(PORTL, 10, 1); // PORT L10 high
 
+  dma_init();
+
   // Configure display
   // We have to init the display because the system timer initialization
   // uses it for calibration.
   display_init(NULL);
 
+  h3_codec_begin();
   audio_i2s2_init();
   audio_i2s2_on();
 
@@ -76,8 +81,6 @@ void startup() {
 
   // USB
   usb_init();
-
-  dma_init();
 
   network_init();
 
