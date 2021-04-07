@@ -32,7 +32,7 @@
 #ifndef LWIP_LWIPOPTS_H
 #define LWIP_LWIPOPTS_H
 
-#define LWIP_DEBUG	0
+//#define LWIP_DEBUG	1
 
 #ifdef LWIP_OPTTEST_FILE
 #include "lwipopts_test.h"
