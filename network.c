@@ -41,6 +41,7 @@ static struct pbuf *eth_recv_pbuf(void)
 
 static err_t netif_output(struct netif *netif, struct pbuf *p)
 {
+  (void)netif;
   // XXX: This is a lot of copying. (emac_eth_send() copies the buffer, too.)
   uint8_t send_buffer[p->tot_len];
   pbuf_copy_partial(p, send_buffer, p->tot_len, 0);
