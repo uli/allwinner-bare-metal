@@ -399,7 +399,8 @@ static void codec_hw_params(uint32_t rate, uint32_t channels) {
 	codec_prepare(rate);
 }
 
-static void __attribute__((interrupt("FIQ"))) codec_fiq_handler(void) {
+// removed FIQ attribute so this can be called from a master interrupt handler
+void /*__attribute__((interrupt("FIQ")))*/ codec_fiq_handler(void) {
 	dmb();
 	clean_data_cache();
 	isb();
@@ -458,7 +459,7 @@ void h3_codec_set_volume(uint8_t volume) {
 }
 
 void h3_codec_begin(void) {
-	__disable_fiq();
+	__disable_irq();
 
 #ifdef LOGIC_ANALYZER
 	h3_gpio_fsel(1, GPIO_FSEL_OUTPUT);
@@ -503,9 +504,9 @@ void h3_codec_begin(void) {
 	struct sunxi_dma_lli *lli_last = &p_coherent_region->lli[CONFIG_TX_DESCR_NUM - 1];
 	lli_last->p_lli_next =  (uint32_t) &p_coherent_region->lli[0];
 
-	arm_install_handler((unsigned) codec_fiq_handler, ARM_VECTOR(ARM_VECTOR_FIQ));
-
-	gic_fiq_config(H3_DMA_IRQn, GIC_CORE0);
+// interrupt handler has to be called manually
+//	arm_install_handler((unsigned) codec_fiq_handler, ARM_VECTOR(ARM_VECTOR_FIQ));
+//	gic_fiq_config(H3_DMA_IRQn, GIC_CORE0);
 
 	H3_CCU->BUS_SOFT_RESET0 |= CCU_BUS_SOFT_RESET0_DMA;
 	H3_CCU->BUS_CLK_GATING0 |= CCU_BUS_CLK_GATING0_DMA;
@@ -518,7 +519,7 @@ void h3_codec_begin(void) {
 	H3_DMA_CHL0->DESC_ADDR = (uint32_t) &p_coherent_region->lli[0];
 
 	isb();
-	__enable_fiq();
+	__enable_irq();
 
 	/**
 	 * Codec setup
@@ -608,7 +609,7 @@ void __attribute__((cold)) h3_codec_start(void) {
 void h3_codec_set_buffer_length(uint32_t length) {
 	assert((length * 2) < CONFIG_BUFSIZE);
 
-	__disable_fiq();
+	__disable_irq();
 
 	H3_DMA_CHL0->EN = DMA_CHAN_ENABLE_STOP;
 
@@ -622,7 +623,7 @@ void h3_codec_set_buffer_length(uint32_t length) {
 
 	}
 
-	__enable_fiq();
+	__enable_irq();
 }
 
 void h3_codec_push_data(const int16_t *src) {
