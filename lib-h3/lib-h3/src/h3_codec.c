@@ -531,7 +531,7 @@ void h3_codec_begin(void) {
 
 	codec_init(s_volume);
 
-	codec_hw_params(48000, 1);
+	codec_hw_params(48000, 2);
 
 	/*
 	 * Stop issuing DRQ when we have room for less than 16 samples
