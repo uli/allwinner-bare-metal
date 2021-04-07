@@ -72,10 +72,6 @@ void startup() {
   // uses it for calibration.
   display_init(NULL);
 
-  h3_codec_begin();
-  audio_i2s2_init();
-  audio_i2s2_on();
-
   sys_init_timer();
   h3_timer_init();
 

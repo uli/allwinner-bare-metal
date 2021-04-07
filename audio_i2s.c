@@ -104,3 +104,14 @@ void audio_i2s2_off(void)
 	// XXX: should we do a flush?
 	// XXX: hub enable/disable? Not enabled in register trace.
 }
+
+void audio_start(int buf_len)
+{
+  h3_codec_begin();
+  h3_codec_set_buffer_length(buf_len);
+
+  audio_i2s2_init();
+
+  audio_i2s2_on();
+  h3_codec_start();
+}

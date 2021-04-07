@@ -80,6 +80,8 @@ void audio_queue_samples(void);
 
 void hook_audio_get_sample(int16_t *l, int16_t *r);
 
+void audio_start(int buf_len);
+
 #ifdef __cplusplus
 }
 #endif
