@@ -24,12 +24,20 @@ void __attribute__((weak)) hook_display_vblank(void)
 {
 }
 
+// analog audio codec interrupt handler
+extern void codec_fiq_handler(void);
+
 // Called when an interrupt is triggered
-// Currently this is always triggered by at new frame at 60Hz
 void __attribute__((interrupt("IRQ"))) interrupt(void) {
+  // digital audio
   if (irq_pending(47))
     audio_queue_samples();
 
+  // analog audio
+  if (irq_pending(82))
+    codec_fiq_handler();
+
+  // USB controllers
   if (irq_pending(107))
     usb1_hal_hcd_isr(0);
 
@@ -39,6 +47,7 @@ void __attribute__((interrupt("IRQ"))) interrupt(void) {
   if (irq_pending(111))
     usb3_hal_hcd_isr(0);
 
+  // LCD controller
   if (irq_pending(118)) {
     tick_counter++;
     LCD0_GINT0 &= ~(1<<12);
