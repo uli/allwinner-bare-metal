@@ -376,7 +376,7 @@ void __attribute__((cold)) emac_start(__attribute__((unused)) bool reset_emac) {
 	debug_print_bits((uint32_t) phy_read (PHY_ADDR, MII_BMSR));
 #endif
 
-	assert(p_coherent_region == 0);
+	assert(p_coherent_region == 0 || p_coherent_region == (struct coherent_region *)H3_MEM_COHERENT_REGION);
 	assert(sizeof(struct coherent_region) < MEGABYTE/2);
 
 	p_coherent_region = (struct coherent_region *)H3_MEM_COHERENT_REGION;
