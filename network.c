@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2021 Ulrich Hecht
 
-#include "lwip/dhcp.h"
 #include "lwip/init.h"
 #include "lwip/netif.h"
 #include "lwip/etharp.h"
@@ -114,12 +113,6 @@ void network_task(void)
 
     sys_check_timeouts();	/* lwip timers */
   } while (p);
-}
-
-void network_dhcp_start(void)
-{
-  dhcp_start(&netif_eth0);
-  httpd_init();
 }
 
 void network_if_start(void)
