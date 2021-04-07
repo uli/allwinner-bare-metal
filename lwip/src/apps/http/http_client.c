@@ -275,6 +275,11 @@ http_wait_headers(struct pbuf *p, u32_t *content_length, u16_t *total_header_len
   return ERR_VAL;
 }
 
+err_t httpc_abort(httpc_state_t *req)
+{
+  return httpc_close(req, HTTPC_RESULT_LOCAL_ABORT, req->rx_status, ERR_OK);
+}
+
 /** http client tcp recv callback */
 static err_t
 httpc_tcp_recv(void *arg, struct altcp_pcb *pcb, struct pbuf *p, err_t r)

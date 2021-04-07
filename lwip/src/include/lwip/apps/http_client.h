@@ -151,6 +151,8 @@ err_t httpc_get_file_dns_to_disk(const char* server_name, u16_t port, const char
                      void* callback_arg, const char* local_file_name, httpc_state_t **connection);
 #endif /* LWIP_HTTPC_HAVE_FILE_IO */
 
+err_t httpc_abort(httpc_state_t *req);
+
 #ifdef __cplusplus
 }
 #endif
