@@ -121,6 +121,12 @@ void network_if_start(void)
   netif_set_link_up(&netif_eth0);
 }
 
+void network_if_stop(void)
+{
+  netif_set_link_down(&netif_eth0);
+  emac_shutdown();
+}
+
 void network_init(void)
 {
   // fast initialization bits that do not delay boot
