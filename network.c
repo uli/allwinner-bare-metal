@@ -79,12 +79,6 @@ static err_t _netif_init(struct netif *netif)
 
 struct netif netif_eth0 = {};
 
-int network_is_up(void)
-{
-  // XXX: DHCP finished?
-  return netif_is_up(&netif_eth0);
-}
-
 void network_task(void)
 {
   struct pbuf *p = NULL;
