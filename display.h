@@ -7,6 +7,11 @@ extern "C" {
 
 #include <stdint.h>
 
+struct virt_mode_t {
+    int fb_width, fb_height, fb_bytes;
+    int x, y, ovx, ovy;
+};
+
 #include <../device/fb/display_timing.h>
 extern struct display_timing default_timing;
 

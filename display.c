@@ -16,10 +16,7 @@ static uint32_t *framebuffer2 = 0;
 volatile uint32_t *display_active_buffer;
 volatile uint32_t *display_visible_buffer;
 
-static struct {
-	int fb_width, fb_height, fb_bytes;
-	int x, y, ovx, ovy;
-} dsp;
+struct virt_mode_t dsp;
 
 static int filter_enabled = 0;
 
