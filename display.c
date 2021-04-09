@@ -8,6 +8,8 @@
 #include "mmu.h"
 #include "util.h"
 
+int display_is_digital;
+
 static uint32_t *framebuffer1 = 0;
 static uint32_t *framebuffer2 = 0;
 
@@ -51,12 +53,12 @@ static void de2_init() {
    *(volatile uint32_t*)(addr) = 0;
 
   DE_MIXER0_GLB_CTL = 1;
-  DE_MIXER0_GLB_SIZE = ((DISPLAY_HDMI_RES_Y - 1) << 16) | (DISPLAY_HDMI_RES_X - 1);
+  DE_MIXER0_GLB_SIZE = ((DISPLAY_PHYS_RES_Y - 1) << 16) | (DISPLAY_PHYS_RES_X - 1);
 
   DE_MIXER0_BLD_FILL_COLOR_CTL = 0x100;
   DE_MIXER0_BLD_CH_RTCTL = 0;
-  DE_MIXER0_BLD_SIZE = ((DISPLAY_HDMI_RES_Y - 1) << 16) | (DISPLAY_HDMI_RES_X - 1);
-  DE_MIXER0_BLD_CH_ISIZE(0) = ((DISPLAY_HDMI_RES_Y - 1) << 16) | (DISPLAY_HDMI_RES_X - 1);
+  DE_MIXER0_BLD_SIZE = ((DISPLAY_PHYS_RES_Y - 1) << 16) | (DISPLAY_PHYS_RES_X - 1);
+  DE_MIXER0_BLD_CH_ISIZE(0) = ((DISPLAY_PHYS_RES_Y - 1) << 16) | (DISPLAY_PHYS_RES_X - 1);
 
   // The output takes a dsp.x*dsp.y area from a total (dsp.x+dsp.ovx)*(dsp.y+dsp.ovy) buffer
   DE_MIXER0_OVL_V_ATTCTL(0) = BIT(15) | BIT(0);
@@ -69,11 +71,11 @@ static void de2_init() {
   DE_MIXER0_OVL_V_SIZE = ((dsp.y - 1) << 16) | (dsp.x - 1);
 
   DE_MIXER0_VS_CTRL = 1;
-  DE_MIXER0_VS_OUT_SIZE = ((DISPLAY_HDMI_RES_Y - 1) << 16) | (DISPLAY_HDMI_RES_X - 1);
+  DE_MIXER0_VS_OUT_SIZE = ((DISPLAY_PHYS_RES_Y - 1) << 16) | (DISPLAY_PHYS_RES_X - 1);
   DE_MIXER0_VS_Y_SIZE = ((dsp.y - 1) << 16) | (dsp.x - 1);
-  double scale_x = (double)dsp.x * (double)0x100000 / (double)DISPLAY_HDMI_RES_X;
+  double scale_x = (double)dsp.x * (double)0x100000 / (double)DISPLAY_PHYS_RES_X;
   DE_MIXER0_VS_Y_HSTEP = (uint32_t)scale_x;
-  double scale_y = (double)dsp.y * (double)0x100000 / (double)DISPLAY_HDMI_RES_Y;
+  double scale_y = (double)dsp.y * (double)0x100000 / (double)DISPLAY_PHYS_RES_Y;
   DE_MIXER0_VS_Y_VSTEP = (uint32_t)scale_y;
   DE_MIXER0_VS_C_SIZE = ((dsp.y - 1) << 16) | (dsp.x - 1);
   DE_MIXER0_VS_C_HSTEP = (uint32_t)scale_x;
@@ -86,11 +88,14 @@ static void de2_init() {
 
 #include <../device/fb/display_timing.h>
 
-void h3_de2_init(struct display_timing *timing, uint32_t fbbase);
+int h3_de2_init(struct display_timing *timing, uint32_t fbbase);
 
 struct display_timing default_timing;
 
-void display_init(const struct display_phys_mode_t *mode) {
+int display_init(const struct display_phys_mode_t *mode) {
+  if (mode != NULL && !display_is_digital)
+    return 0;
+
   if (mode) {
     default_timing.hdmi_monitor = mode->hdmi;
     default_timing.pixelclock.typ = mode->pixclk;
@@ -127,10 +132,15 @@ void display_init(const struct display_phys_mode_t *mode) {
     default_timing.flags = (DISPLAY_FLAGS_HSYNC_LOW | DISPLAY_FLAGS_VSYNC_LOW);
   };
 
-  h3_de2_init(&default_timing, (uint32_t)0x40000000);
-
-  LCD0_GINT1 = 1;
-  LCD0_GINT0 = BIT(28);
+  if (h3_de2_init(&default_timing, (uint32_t)0x40000000) == 0) {
+    display_is_digital = 1;
+    LCD0_GINT1 = 1;
+    LCD0_GINT0 = BIT(28);
+    return 0;
+  } else {
+    display_is_digital = 0;
+    return -1;
+  }
 }
 
 

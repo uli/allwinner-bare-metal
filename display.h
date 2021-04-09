@@ -10,11 +10,13 @@ extern "C" {
 #include <../device/fb/display_timing.h>
 extern struct display_timing default_timing;
 
+extern int display_is_digital;
+
 // HDMI controller output resolution
 // NB: Any change in resolution requires additional changes in the HDMI
 // controller register settings below.
-#define DISPLAY_HDMI_RES_X	(default_timing.hactive.typ)
-#define DISPLAY_HDMI_RES_Y	(default_timing.vactive.typ)
+#define DISPLAY_PHYS_RES_X	(display_is_digital ? default_timing.hactive.typ : 720)
+#define DISPLAY_PHYS_RES_Y	(display_is_digital ? default_timing.vactive.typ : 576)
 
 #define VIDEO_RAM_BYTES 0x180000
 
@@ -243,7 +245,7 @@ struct display_phys_mode_t {
     int hdmi;
 };
 
-void display_init(const struct display_phys_mode_t *mode);
+int display_init(const struct display_phys_mode_t *mode);
 #ifdef __cplusplus
 }
 #endif
