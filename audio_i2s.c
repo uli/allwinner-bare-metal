@@ -3,6 +3,7 @@
 #include "system.h"
 #include "interrupts.h"
 #include <stdio.h>
+#include <h3_codec.h>
 
 int sample_count;
 

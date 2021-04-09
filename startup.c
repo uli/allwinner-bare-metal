@@ -17,8 +17,6 @@
 #include "gdb/gdbstub.h"
 #endif
 
-#include <h3_codec.h>
-
 volatile uint32_t tick_counter;
 
 void libc_set_heap(void *start, void *end);
