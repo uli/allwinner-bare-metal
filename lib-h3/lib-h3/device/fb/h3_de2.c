@@ -167,12 +167,13 @@ void de2_mode_set(const struct display_timing *mode, const uint32_t bpp, uint32_
 
 extern int h3_hdmi_probe(void);
 extern int h3_hdmi_enable(uint32_t panel_bpp, const struct display_timing *edid);
-
-void __attribute__((cold)) h3_de2_init(struct display_timing *timing, uint32_t fbbase) {
-	h3_hdmi_probe();
+int __attribute__((cold)) h3_de2_init(struct display_timing *timing, uint32_t fbbase) {
+	if (h3_hdmi_probe() != 0)
+		return -1;
 
 	de2_composer_init();
 	de2_mode_set(timing, 1 << VIDEO_BPP32, fbbase);
 
 	h3_hdmi_enable(1 << VIDEO_BPP32, timing);
+	return 0;
 }
