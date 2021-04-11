@@ -162,7 +162,10 @@ void display_set_mode(int x, int y, int ovx, int ovy)
 
   display_active_buffer = framebuffer1;
 
-  de2_init();
+  if (display_is_digital)
+    de2_init();
+  else
+    tve_de2_init();  // XXX: refactor
 }
 
 int display_single_buffer = 0;
@@ -178,8 +181,13 @@ void display_swap_buffers() {
     display_active_buffer = framebuffer1;
 
   display_visible_buffer = display_active_buffer;
-  DE_MIXER0_OVL_V_TOP_LADD0(0) = (uint32_t)
-  	(display_active_buffer + dsp.fb_width * dsp.ovy + dsp.ovx);
+  if (display_is_digital) {
+    DE_MIXER0_OVL_V_TOP_LADD0(0) = (uint32_t)
+    	(display_active_buffer + dsp.fb_width * dsp.ovy + dsp.ovx);
+  } else {
+    // XXX: refactor
+    tve_set_visible_buffer(display_active_buffer + dsp.fb_width * dsp.ovy + dsp.ovx);
+  }
 
   if (!display_single_buffer) {
     if(display_active_buffer == framebuffer1) {
@@ -189,7 +197,10 @@ void display_swap_buffers() {
     }
   }
 
-  DE_MIXER0_GLB_DBUFFER = 1;
+  if (display_is_digital)
+    DE_MIXER0_GLB_DBUFFER = 1;
+  else
+    tve_update_buffer();  // XXX: refactor
 }
 
 void display_clear_active_buffer(void)
