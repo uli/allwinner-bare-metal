@@ -8,8 +8,8 @@ extern "C" {
 #include <stdint.h>
 
 struct virt_mode_t {
-    int fb_width, fb_height, fb_bytes;
-    int x, y, ovx, ovy;
+  int fb_width, fb_height, fb_bytes;
+  int x, y, ovx, ovy;
 };
 
 #include <../device/fb/display_timing.h>
@@ -27,11 +27,11 @@ extern int display_is_pal;
 #define VIDEO_RAM_BYTES 0x180000
 
 // The HDMI registers base address.
-#define HDMI_BASE 0x01EE0000
+#define HDMI_BASE     0x01EE0000
 #define HDMI_PHY_BASE (HDMI_BASE + 0x10000)
 
-#define HDMI_REG8(off)	      *(volatile uint8_t *)(HDMI_BASE + (off))
-#define HDMI_REG32(off)	      *(volatile uint32_t *)(HDMI_BASE + (off))
+#define HDMI_REG8(off)  *(volatile uint8_t *)(HDMI_BASE + (off))
+#define HDMI_REG32(off) *(volatile uint32_t *)(HDMI_BASE + (off))
 
 // HDMI register helpers.
 #define HDMI_PHY_POL          *(volatile uint32_t*)(HDMI_BASE + 0x10000)
@@ -279,16 +279,16 @@ extern int display_is_pal;
 #define DE_MIXER1_OVL_V_SIZE          *(volatile uint32_t*)(DE_MIXER1_OVL_V + 0xE8)
 
 #define DE_MIXER1_OVL_UI               (DE_MIXER1 + 0x3000)
-#define DE_MIXER1_OVL_UI_ATTR_CTL(x)     *(volatile uint32_t*)(DE_MIXER1_OVL_UI + 0x00 + x * 0x20)
-#define DE_MIXER1_OVL_UI_MBSIZE(x)     *(volatile uint32_t*)(DE_MIXER1_OVL_UI + 0x04 + x * 0x20)
-#define DE_MIXER1_OVL_UI_COOR(x)       *(volatile uint32_t*)(DE_MIXER1_OVL_UI + 0x08 + x * 0x20)
-#define DE_MIXER1_OVL_UI_PITCH(x)     *(volatile uint32_t*)(DE_MIXER1_OVL_UI + 0x0C + x * 0x20)
-#define DE_MIXER1_OVL_UI_TOP_LADD(x)  *(volatile uint32_t*)(DE_MIXER1_OVL_UI + 0x10 + x * 0x20)
-#define DE_MIXER1_OVL_UI_BOT_LADD(x)  *(volatile uint32_t*)(DE_MIXER1_OVL_UI + 0x14 + x * 0x20)
-#define DE_MIXER1_OVL_UI_FILL_COLOR(x) *(volatile uint32_t*)(DE_MIXER1_OVL_UI + 0x18 + x * 0x4)
-#define DE_MIXER1_OVL_UI_TOP_HADD     *(volatile uint32_t*)(DE_MIXER1_OVL_UI + 0x80)
-#define DE_MIXER1_OVL_UI_BOT_HADD     *(volatile uint32_t*)(DE_MIXER1_OVL_UI + 0x84)
-#define DE_MIXER1_OVL_UI_SIZE          *(volatile uint32_t*)(DE_MIXER1_OVL_UI + 0x88)
+#define DE_MIXER1_OVL_UI_ATTR_CTL(x)   *(volatile uint32_t *)(DE_MIXER1_OVL_UI + 0x00 + x * 0x20)
+#define DE_MIXER1_OVL_UI_MBSIZE(x)     *(volatile uint32_t *)(DE_MIXER1_OVL_UI + 0x04 + x * 0x20)
+#define DE_MIXER1_OVL_UI_COOR(x)       *(volatile uint32_t *)(DE_MIXER1_OVL_UI + 0x08 + x * 0x20)
+#define DE_MIXER1_OVL_UI_PITCH(x)      *(volatile uint32_t *)(DE_MIXER1_OVL_UI + 0x0C + x * 0x20)
+#define DE_MIXER1_OVL_UI_TOP_LADD(x)   *(volatile uint32_t *)(DE_MIXER1_OVL_UI + 0x10 + x * 0x20)
+#define DE_MIXER1_OVL_UI_BOT_LADD(x)   *(volatile uint32_t *)(DE_MIXER1_OVL_UI + 0x14 + x * 0x20)
+#define DE_MIXER1_OVL_UI_FILL_COLOR(x) *(volatile uint32_t *)(DE_MIXER1_OVL_UI + 0x18 + x * 0x4)
+#define DE_MIXER1_OVL_UI_TOP_HADD      *(volatile uint32_t *)(DE_MIXER1_OVL_UI + 0x80)
+#define DE_MIXER1_OVL_UI_BOT_HADD      *(volatile uint32_t *)(DE_MIXER1_OVL_UI + 0x84)
+#define DE_MIXER1_OVL_UI_SIZE          *(volatile uint32_t *)(DE_MIXER1_OVL_UI + 0x88)
 
 #define DE_MIXER1_VS_BASE             (DE_MIXER1 + 0x20000)
 #define DE_MIXER1_VS_CTRL             *(volatile uint32_t*)(DE_MIXER1_VS_BASE + 0x00)
@@ -344,21 +344,21 @@ void display_scaler_set_coeff(uint32_t hstep, int sub);
 void display_scaler_nearest_neighbour(void);
 
 struct display_phys_mode_t {
-    int pixclk;
+  int pixclk;
 
-    int hactive;
-    int hfront_porch;
-    int hsync_width;
-    int hback_porch;
-    int hsync_pol;
+  int hactive;
+  int hfront_porch;
+  int hsync_width;
+  int hback_porch;
+  int hsync_pol;
 
-    int vactive;
-    int vfront_porch;
-    int vsync_width;
-    int vback_porch;
-    int vsync_pol;
+  int vactive;
+  int vfront_porch;
+  int vsync_width;
+  int vback_porch;
+  int vsync_pol;
 
-    int hdmi;
+  int hdmi;
 };
 
 int display_init(const struct display_phys_mode_t *mode);
