@@ -99,8 +99,6 @@ void __attribute__((no_sanitize("all"))) install_ivt() {
   for(int n=0; n<2*8; n++)
     destination[n] = source[n];
 
-  irq_enable(118);	// LCD0
-
   volatile struct gicc_reg* gicc = (volatile struct gicc_reg*) GICC_BASE;
 #ifdef GDBSTUB
   // enable interrupt groups 0 and 1, signal group 0 as FIQ
