@@ -53,6 +53,11 @@ void __attribute__((interrupt("IRQ"))) interrupt(void) {
     LCD0_GINT0 &= ~(1<<12);
     hook_display_vblank();
   }
+  if (irq_pending(119)) {
+    tick_counter++;
+    LCD1_GINT0 &= ~(1<<12);
+    hook_display_vblank();
+  }
 }
 
 // XXX: Something is really wrong here.
