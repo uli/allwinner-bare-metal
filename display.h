@@ -327,6 +327,9 @@ extern int display_is_pal;
 #define DE_MIXER1_UIS_VPHASE1(n)      *(volatile uint32_t*)(DE_MIXER1_UIS_BASE(n) + 0x9C)
 #define DE_MIXER1_UIS_HCOEF(n, x)     *(volatile uint32_t*)(DE_MIXER1_UIS_BASE(n) + 0x200 + x * 4)
 
+#define DE_SIZE(x, y) ((((y)-1) << 16) | ((x)-1))
+#define DE_SIZE_PHYS  DE_SIZE(DISPLAY_PHYS_RES_X, DISPLAY_PHYS_RES_Y)
+
 void display_set_mode(int x, int y, int ovx, int ovy);
 void display_swap_buffers();
 void display_clear_active_buffer(void);
