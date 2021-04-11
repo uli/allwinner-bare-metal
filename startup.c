@@ -1,18 +1,20 @@
-#include "ports.h"
-#include "uart.h"
-#include "mmu.h"
-#include "system.h"
-#include "display.h"
 #include "audio.h"
-#include "interrupts.h"
 #include "ccu.h"
-#include "usb.h"
-#include "fs.h"
+#include "display.h"
 #include "dma.h"
-#include "smp.h"
+#include "fs.h"
+#include "interrupts.h"
+#include "mmu.h"
 #include "network.h"
+#include "ports.h"
+#include "smp.h"
+#include "system.h"
+#include "uart.h"
+#include "usb.h"
+
 #include <stdio.h>
 #include <stdlib.h>
+
 #ifdef GDBSTUB
 #include "gdb/gdbstub.h"
 #endif
@@ -22,9 +24,7 @@ volatile uint32_t tick_counter;
 void libc_set_heap(void *start, void *end);
 
 void __libc_init_array(void);
-void _init(void)
-{
-}
+void _init(void) {}
 
 void _reset(void);
 void init_sp_irq(uint32_t addr);
@@ -33,7 +33,8 @@ void main(int argc, char **argv);
 void h3_timer_init(void);
 void h3_hs_timer_init(void);
 
-void startup() {
+void startup()
+{
   init_sp_irq(0x2000);
 
   // detect memory size
@@ -61,8 +62,8 @@ void startup() {
   uart_print("Booting!\r\n");
 
   // Illuminate the power LED
-  set_pin_mode(PORTL, 10, 1); // PORT L10 output
-  set_pin_data(PORTL, 10, 1); // PORT L10 high
+  set_pin_mode(PORTL, 10, 1);  // PORT L10 output
+  set_pin_data(PORTL, 10, 1);  // PORT L10 high
 
   dma_init();
 
@@ -82,7 +83,7 @@ void startup() {
 
   uart_print("Ready!\r\n");
 
-  set_pin_mode(PORTF, 6, 0);	// SD CD pin
+  set_pin_mode(PORTF, 6, 0);  // SD CD pin
 
   __libc_init_array();
 
