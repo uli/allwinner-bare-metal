@@ -9,6 +9,7 @@
 #include "ports.h"
 #include "smp.h"
 #include "system.h"
+#include "tve.h"
 #include "uart.h"
 #include "usb.h"
 
@@ -66,15 +67,16 @@ void startup()
   set_pin_data(PORTL, 10, 1);  // PORT L10 high
 
   dma_init();
-
-  // Configure display
-  // We have to init the display because the system timer initialization
-  // uses it for calibration.
-  display_init(NULL);
-
-  sys_init_timer();
   h3_timer_init();
   h3_hs_timer_init();
+
+  // Configure display; try HDMI/DVI first, fall back to analog if it fails to initialize
+  // XXX: We have to init the display because the system timer
+  // initialization uses it for calibration.
+  if (display_init(NULL) != 0)
+    tve_init(TVE_NORM_NTSC);
+
+  sys_init_timer();
 
   // USB
   usb_init();
