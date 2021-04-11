@@ -16,12 +16,13 @@ struct virt_mode_t {
 extern struct display_timing default_timing;
 
 extern int display_is_digital;
+extern int display_is_pal;
 
 // HDMI controller output resolution
 // NB: Any change in resolution requires additional changes in the HDMI
 // controller register settings below.
 #define DISPLAY_PHYS_RES_X	(display_is_digital ? default_timing.hactive.typ : 720)
-#define DISPLAY_PHYS_RES_Y	(display_is_digital ? default_timing.vactive.typ : 576)
+#define DISPLAY_PHYS_RES_Y	(display_is_digital ? default_timing.vactive.typ : (display_is_pal ? 576 : 480))
 
 #define VIDEO_RAM_BYTES 0x180000
 
