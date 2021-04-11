@@ -30,7 +30,8 @@ void _reset(void);
 void init_sp_irq(uint32_t addr);
 void main(int argc, char **argv);
 
-extern void h3_timer_init(void);
+void h3_timer_init(void);
+void h3_hs_timer_init(void);
 
 void startup() {
   init_sp_irq(0x2000);
@@ -72,6 +73,7 @@ void startup() {
 
   sys_init_timer();
   h3_timer_init();
+  h3_hs_timer_init();
 
   // USB
   usb_init();
