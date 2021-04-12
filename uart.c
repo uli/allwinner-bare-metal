@@ -1,9 +1,9 @@
 #include <stddef.h>
 #include <stdint.h>
-#include "uart.h"
-#include "ports.h"
 #include "ccu.h"
 #include "interrupts.h"
+#include "ports.h"
+#include "uart.h"
 #include "util.h"
 
 // Set up the UART (serial port)
@@ -13,11 +13,11 @@ void uart_init()
   set_pin_mode(PORTA, 4, 2);
 
   // Enable clock
-  BUS_CLK_GATING3 |= (1<<16);
-  BUS_SOFT_RST4 |= (1<<16);
+  BUS_CLK_GATING3 |= (1 << 16);
+  BUS_SOFT_RST4 |= (1 << 16);
 
   // Configure baud rate
-  UART0_LCR = (1<<7) | 3;
+  UART0_LCR = (1 << 7) | 3;
   UART0_DLL = 13;
   UART0_LCR = 3;
 
@@ -52,20 +52,22 @@ unsigned char uart_rx_ready()
 void uart_putc(unsigned char byte)
 {
   // Wait for UART transmit FIFO to be not full.
-  while ( ! uart_tx_ready() );
+  while (!uart_tx_ready())
+    ;
   UART0_THR = byte;
 }
 
 unsigned char uart_getc(void)
 {
-  while ( ! uart_rx_ready() );
+  while (!uart_rx_ready())
+    ;
   return UART0_RBR;
 }
 
 // Write a zero terminated string to the UART
-void uart_print(const char* str)
+void uart_print(const char *str)
 {
-  while(*str) {
+  while (*str) {
     uart_putc(*str);
     str++;
   }
