@@ -135,7 +135,7 @@ int display_init(const struct display_phys_mode_t *mode) {
   if (h3_de2_init(&default_timing, (uint32_t)0x40000000) == 0) {
     display_is_digital = 1;
     LCD0_GINT1         = 1;
-    LCD0_GINT0         = BIT(28);
+    LCD0_GINT0         = BIT(30);
     irq_enable(118);  // LCD0
     return 0;
   } else {

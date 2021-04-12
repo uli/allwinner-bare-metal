@@ -50,12 +50,12 @@ void __attribute__((interrupt("IRQ"))) interrupt(void) {
   // LCD controller
   if (irq_pending(118)) {
     tick_counter++;
-    LCD0_GINT0 &= ~(1<<12);
+    LCD0_GINT0 &= ~(1<<14);
     hook_display_vblank();
   }
   if (irq_pending(119)) {
     tick_counter++;
-    LCD1_GINT0 &= ~(1<<12);
+    LCD1_GINT0 &= ~(1<<14);
     hook_display_vblank();
   }
 }
