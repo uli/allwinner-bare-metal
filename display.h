@@ -361,6 +361,8 @@ struct display_phys_mode_t {
   int hdmi;
 };
 
+void hook_display_vblank(void);
+
 int display_init(const struct display_phys_mode_t *mode);
 #ifdef __cplusplus
 }
