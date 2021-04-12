@@ -71,28 +71,6 @@ extern "C" {
 
 #define USB_PHY_CFG                *(volatile uint32_t *)0x01c19410
 
-struct td {
-  uint32_t info;
-  uint32_t cbp;
-  uint32_t nexttd;
-  uint32_t bufferend;
-} __attribute__ ((aligned (16)));
-
-struct ed {
-  uint32_t info;
-  struct td* tailp;
-  struct td* headp;
-  struct ed* nexted;
-} __attribute__ ((aligned (16)));
-
-struct hcca {
-  uint32_t HccaInterrruptTable[32];
-  uint16_t HccaFrameNumber;
-  uint16_t HccaPad1;
-  uint32_t HccaDoneHead;
-  uint8_t reserved[120];
-} __attribute__ ((aligned (256)));
-
 void usb_init();
 void usb_task();
 
