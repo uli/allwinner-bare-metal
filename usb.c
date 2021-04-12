@@ -353,7 +353,6 @@ void usb3_tuh_msc_isr(uint8_t dev_addr, xfer_result_t event, uint32_t xferred_by
 #include "fatfs/ff.h"
 
 // one mount point per host controller;
-// XXX: no support for more than one mass-storage device per hub
 static FATFS fatfs[4];
 static struct usb_drive_t {
   const char *name;
