@@ -83,7 +83,7 @@ void network_task(void)
 {
   struct pbuf *p = NULL;
 
-  if (!netif_is_up(&netif_eth0))
+  if (!netif_is_link_up(&netif_eth0))
     return;
 
   do {
