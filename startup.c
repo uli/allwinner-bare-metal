@@ -66,6 +66,12 @@ void startup()
   set_pin_mode(PORTL, 10, 1);  // PORT L10 output
   set_pin_data(PORTL, 10, 1);  // PORT L10 high
 
+  // reset button
+  set_pin_mode(PORTL, 3, GPIO_MODE_EINT);
+  gpio_irq_set_trigger(PORTL, 3, GPIO_EINT_NEGEDGE);
+  gpio_irq_enable(PORTL, 3, 1);
+  irq_enable(77);  // PORT L interrupt (R_PL_EINT)
+
   dma_init();
   h3_timer_init();
   h3_hs_timer_init();

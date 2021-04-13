@@ -3,6 +3,7 @@
 #include "audio.h"
 #include "display.h"
 #include "interrupts.h"
+#include "ports.h"
 #include "system.h"
 #include "uart.h"
 #include "util.h"
@@ -31,6 +32,12 @@ extern void codec_fiq_handler(void);
 // Called when an interrupt is triggered
 void __attribute__((interrupt("IRQ"))) interrupt(void)
 {
+  // PL EINT (reset button)
+  if (irq_pending(77)) {
+    gpio_irq_ack(PORTL);
+    sys_reset();
+  }
+
   // digital audio
   if (irq_pending(47))
     audio_queue_samples();
