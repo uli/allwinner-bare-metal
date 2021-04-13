@@ -24,6 +24,8 @@ uint64_t sys_get_msec(void);
 
 uint32_t sys_mem_free(void);
 
+void sys_reset(void);
+
 #ifdef __cplusplus
 }
 #endif

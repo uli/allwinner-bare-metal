@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <h3_watchdog.h>
 #include "system.h"
+#include "uart.h"
 
 static uint32_t sys_freq;
 static uint32_t sys_per_usec;
@@ -69,4 +71,11 @@ uint32_t sys_mem_free(void)
 {
   struct mallinfo mi = mallinfo();
   return mi.fordblks + (max_brk - current_brk);
+}
+
+void sys_reset(void)
+{
+  h3_watchdog_enable();
+  uart_print("reset!\r\n");
+  for (;;);
 }
