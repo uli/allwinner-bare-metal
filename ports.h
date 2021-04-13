@@ -32,9 +32,9 @@ struct port_registers {
 #define PIO_PULL_UP	1
 #define PIO_PULL_DOWN	2
 
-void set_pin_mode(uint32_t port, uint32_t pin, uint32_t mode);
-void set_pin_data(uint32_t port, uint32_t pin, uint32_t data);
-int get_pin_data(uint32_t port, uint32_t pin);
+void set_pin_mode(uint32_t port_addr, uint32_t pin, uint32_t mode);
+void set_pin_data(uint32_t port_addr, uint32_t pin, uint32_t data);
+int get_pin_data(uint32_t port_addr, uint32_t pin);
 void set_pin_drive(uint32_t port_addr, uint32_t pin, uint32_t strength);
 void set_pin_pull(uint32_t port_addr, uint32_t pin, uint32_t pull);
 
