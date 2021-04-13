@@ -17,6 +17,16 @@ struct port_registers {
   uint32_t pul1;
 };
 
+struct port_irq_registers {
+  uint32_t cfg0;
+  uint32_t cfg1;
+  uint32_t cfg2;
+  uint32_t cfg3;
+  uint32_t ctl;
+  uint32_t status;
+  uint32_t deb;
+};
+
 // The PORT registers base address.
 #define PIO_BASE          0x01C20800
 #define PORTA             PIO_BASE + 0 * 0x24
@@ -38,7 +48,15 @@ int get_pin_data(uint32_t port_addr, uint32_t pin);
 void set_pin_drive(uint32_t port_addr, uint32_t pin, uint32_t strength);
 void set_pin_pull(uint32_t port_addr, uint32_t pin, uint32_t pull);
 
+void gpio_irq_set_trigger(uint32_t port_addr, int pin, uint8_t mode);
+void gpio_irq_enable(uint32_t port_addr, int pin, int enable);
+void gpio_irq_ack(uint32_t port_addr);
+
 void gpio_init();
+
+#define GPIO_MODE_EINT 6
+
+#define GPIO_EINT_NEGEDGE 1
 
 #ifdef __cplusplus
 }

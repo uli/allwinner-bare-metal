@@ -1,5 +1,6 @@
 #include "ccu.h"
 #include "ports.h"
+#include "util.h"
 
 void gpio_init()
 {
@@ -65,4 +66,24 @@ void set_pin_pull(uint32_t port_addr, uint32_t pin, uint32_t pull)
     port->pul1 &= ~(3 << pin * 2);
     port->pul1 |= pull << pin * 2;
   }
+}
+
+void gpio_irq_set_trigger(uint32_t port_addr, int pin, uint8_t mode)
+{
+  set_pin_mode(port_addr + 0x200, pin, mode);
+}
+
+void gpio_irq_enable(uint32_t port_addr, int pin, int enable)
+{
+  volatile struct port_irq_registers *port = (volatile struct port_irq_registers *)(port_addr + 0x200);
+  if (enable)
+    port->ctl |= BIT(pin);
+  else
+    port->ctl &= ~BIT(pin);
+}
+
+void gpio_irq_ack(uint32_t port_addr)
+{
+  volatile struct port_irq_registers *port = (volatile struct port_irq_registers *)(port_addr + 0x200);
+  port->status = port->status;
 }
