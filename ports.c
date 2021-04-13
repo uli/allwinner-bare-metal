@@ -9,7 +9,7 @@ void gpio_init()
 
 void set_pin_mode(uint32_t port_addr, uint32_t pin, uint32_t mode)
 {
-  struct port_registers *port = (struct port_registers *)port_addr;
+  volatile struct port_registers *port = (volatile struct port_registers *)port_addr;
   if (pin < 8) {
     port->cfg0 &= ~(7 << ((pin - 0) * 4));
     port->cfg0 |= (mode << ((pin - 0) * 4));
@@ -27,7 +27,7 @@ void set_pin_mode(uint32_t port_addr, uint32_t pin, uint32_t mode)
 
 void set_pin_data(uint32_t port_addr, uint32_t pin, uint32_t data)
 {
-  struct port_registers *port = (struct port_registers *)port_addr;
+  volatile struct port_registers *port = (volatile struct port_registers *)port_addr;
   if (data) {
     port->data |= (1 << pin);
   } else {
@@ -37,7 +37,7 @@ void set_pin_data(uint32_t port_addr, uint32_t pin, uint32_t data)
 
 int get_pin_data(uint32_t port_addr, uint32_t pin)
 {
-  struct port_registers *port = (struct port_registers *)port_addr;
+  volatile struct port_registers *port = (volatile struct port_registers *)port_addr;
   return !!(port->data & (1 << pin));
 }
 
