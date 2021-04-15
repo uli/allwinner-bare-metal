@@ -24,4 +24,4 @@ $(TARGET)_sd.img: $(TARGET).uimg $(OSDIR)/sunxi-spl.bin
 	parted -s "$@" mkpart primary fat32 4 67
 	dd if=$(OSDIR)/sunxi-spl.bin of="$@" conv=notrunc bs=1024 seek=8
 	dd if=$(TARGET).uimg of="$@" conv=notrunc bs=1024 seek=40
-	test -e "$(INIT_FS_DIR)" && mcopy -s -i basic_sd.img@@4M $(INIT_FS_DIR)/* ::
+	test -e "$(INIT_FS_DIR)" && mcopy -s -i $(TARGET)_sd.img@@4M $(INIT_FS_DIR)/* ::
