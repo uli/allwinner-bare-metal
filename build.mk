@@ -7,7 +7,7 @@ $(TARGET).elf: $(OBJS) $(OSDIR)/libos.a $(LIBH3DIR)/lib-h3/lib_h3/libh3.a $(LIBH
 	  -L $(OSDIR) -L $(LIBH3DIR)/lib-h3/lib_h3 -L $(LIBH3DIR)/lib-arm/lib_h3 $(LIBS) -los -lh3 -larm -lc -lm -lgcc
 
 install: $(TARGET).bin
-	sudo sunxi-fel -v -p spl $(OSDIR)/sunxi-spl.bin write 0x40000000 $(TARGET).bin exe 0x40000000
+	for i in 1 2 3 4 ; do sudo sunxi-fel -v -p spl $(OSDIR)/sunxi-spl.bin write 0x40000000 $(TARGET).bin exe 0x40000000 && break ; sleep .5 ; done
 
 image: $(TARGET)_sd.img
 
