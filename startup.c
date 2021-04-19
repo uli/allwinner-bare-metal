@@ -16,9 +16,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <h3_i2c.h>
+
 #ifdef GDBSTUB
 #include "gdb/gdbstub.h"
 #endif
+
 
 volatile uint32_t tick_counter;
 
@@ -88,6 +91,8 @@ void startup()
   usb_init();
 
   network_init();
+
+  h3_i2c_begin();
 
   uart_print("Ready!\r\n");
 
