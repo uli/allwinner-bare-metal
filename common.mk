@@ -4,6 +4,8 @@ LWIPDIR ?= $(OSDIR)/lwip/src
 PREFIX=~/x-tools/arm-unknown-eabihf/bin/arm-unknown-eabihf-
 #PREFIX=arm-linux-gnueabihf-
 
+OBJDIR ?= build
+
 CC=$(PREFIX)gcc
 CXX=$(PREFIX)g++
 OBJCOPY=$(PREFIX)objcopy
@@ -42,7 +44,16 @@ CFLAGS=-T $(OSDIR)/linker.ld $(CFLAGS_COMMON) -nostdlib -Wall -Wextra \
 	-I $(OSDIR) -I $(OSDIR)/tinyusb/src
 CXXFLAGS=$(CFLAGS_COMMON) -nostdlib -Wall -Wextra -I $(OSDIR) -I $(OSDIR)/tinyusb/src
 
-%.o: %.s
+$(OBJDIR)/%.o: %.c
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+$(OBJDIR)/%.o: %.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+$(OBJDIR)/%.o: %.S
+	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 %.bin: %.elf

@@ -2,8 +2,10 @@ include $(OSDIR)/common.mk
 
 all: $(TARGET).bin
 
-$(TARGET).elf: $(OBJS) $(OSDIR)/libos.a $(LIBH3DIR)/lib-h3/lib_h3/libh3.a $(LIBH3DIR)/lib-arm/lib_h3/libarm.a $(OSDIR)/linker.ld
-	$(CC) $(CFLAGS) -o $(TARGET).elf $(OBJS) -Wl,--wrap,__stack_chk_fail -Wl,-wrap,__malloc_lock -Wl,-wrap,__malloc_unlock -lc \
+OUT_OBJS = $(addprefix $(OBJDIR)/, $(OBJS))
+
+$(TARGET).elf: $(OUT_OBJS) $(OSDIR)/libos.a $(LIBH3DIR)/lib-h3/lib_h3/libh3.a $(LIBH3DIR)/lib-arm/lib_h3/libarm.a $(OSDIR)/linker.ld
+	$(CC) $(CFLAGS) -o $(TARGET).elf $(OUT_OBJS) -Wl,--wrap,__stack_chk_fail -Wl,-wrap,__malloc_lock -Wl,-wrap,__malloc_unlock -lc \
 	  -L $(OSDIR) -L $(LIBH3DIR)/lib-h3/lib_h3 -L $(LIBH3DIR)/lib-arm/lib_h3 $(LIBS) -los -lh3 -larm -lc -lm -lgcc
 
 install: $(TARGET).bin

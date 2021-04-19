@@ -36,12 +36,13 @@ NET_CSRC = network.c $(COREFILES) $(CORE4FILES) $(NETIFFILES) $(HTTPFILES) $(TFT
 NET_OBJS = $(NET_CSRC:.c=.o)
 
 ALL_OBJS = $(OBJS) $(GDB_OBJS) $(USB_OBJS) $(LIBC_OBJS) $(SD_OBJS) $(NET_OBJS)
+OUT_ALL_OBJS = $(addprefix $(OBJDIR)/, $(ALL_OBJS))
 
 all:	libos.a libh3 libarm
 
-libos.a: $(ALL_OBJS) Makefile
+libos.a: $(OUT_ALL_OBJS) Makefile
 	rm -f $@
-	$(AR) rc $@ $(ALL_OBJS)
+	$(AR) rc $@ $(OUT_ALL_OBJS)
 
 libh3:
 	$(MAKE) -C $(LIBH3DIR)/lib-h3 -f Makefile.H3 PREFIX=$(PREFIX) PLATFORM=ORANGE_PI_ONE
@@ -49,8 +50,8 @@ libarm:
 	$(MAKE) -C $(LIBH3DIR)/lib-arm -f Makefile.H3 PREFIX=$(PREFIX) PLATFORM=ORANGE_PI_ONE
 
 clean:
-	rm -f $(ALL_OBJS) $(ALL_OBJS:%.o=%.d) libos.a
+	rm -fr build libos.a
 	$(MAKE) -C $(LIBH3DIR)/lib-h3 -f Makefile.H3 clean
 	$(MAKE) -C $(LIBH3DIR)/lib-arm -f Makefile.H3 clean
 
--include $(ALL_OBJS:%.o=%.d)
+-include $(OUT_ALL_OBJS:%.o=%.d)
