@@ -52,7 +52,7 @@ void startup()
 
   install_ivt();
 
-  uart_init();
+  uart_init(0);
 #ifdef GDBSTUB
   gdbstub_init();
 #endif

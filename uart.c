@@ -6,28 +6,36 @@
 #include "uart.h"
 #include "util.h"
 
-// Set up the UART (serial port)
-void uart_init()
+// Set up a UART (serial port)
+void uart_init(int n)
 {
-  // Configure port
-  set_pin_mode(PORTA, 4, 2);
+  if (n == 0) {
+    // Configure port
+    set_pin_mode(PORTA, 4, 2);
+  }
 
   // Enable clock
-  BUS_CLK_GATING3 |= (1 << 16);
-  BUS_SOFT_RST4 |= (1 << 16);
+  if (n < 4) {
+    BUS_CLK_GATING3 |= BIT(16 + n);
+    BUS_SOFT_RST4 |= BIT(16 + n);
+  } else {
+    // XXX: S_UART?
+  }
 
   // Configure baud rate
-  UART0_LCR = (1 << 7) | 3;
-  UART0_DLL = 13;
-  UART0_LCR = 3;
+  UART_LCR(n) = (1 << 7) | 3;
+  UART_DLL(n) = 13;
+  UART_LCR(n) = 3;
 
   // Enable FIFO
-  UART0_FCR = 0x00000001;
+  UART_FCR(n) = 0x00000001;
 
 #ifdef GDBSTUB
-  // signal UART0 interrupt as FIQ for the GDB stub
-  irq_enable_fiq(32);
-  UART0_IER |= BIT(0);
+  if (n == 0) {
+    // signal UART0 interrupt as FIQ for the GDB stub
+    irq_enable_fiq(32);
+    UART_IER(n) |= BIT(0);
+  }
 #endif
 }
 
@@ -37,31 +45,41 @@ void uart_init()
 #pragma GCC optimize "-fno-stack-protector"
 
 // UART is ready to receive data to transmit?
-unsigned char uart_tx_ready()
+unsigned char uart_tx_ready(int n)
 {
-  return (UART0_USR & 2);
+  return (UART_USR(n) & 2);
 }
 
 // UART has received data?
-unsigned char uart_rx_ready()
+unsigned char uart_rx_ready(int n)
 {
-  return (UART0_LSR & 1);
+  return (UART_LSR(n) & 1);
 }
 
 // Push one byte to the UART port (blocking until ready to transmit)
-void uart_putc(unsigned char byte)
+void uart_write_byte(int n, char byte)
 {
   // Wait for UART transmit FIFO to be not full.
-  while (!uart_tx_ready())
+  while (!uart_tx_ready(n))
     ;
-  UART0_THR = byte;
+  UART_THR(n) = byte;
 }
 
-unsigned char uart_getc(void)
+void uart_putc(char byte)
 {
-  while (!uart_rx_ready())
+  uart_write_byte(0, byte);
+}
+
+char uart_read_byte(int n)
+{
+  while (!uart_rx_ready(n))
     ;
-  return UART0_RBR;
+  return UART_RBR(n);
+}
+
+char uart_getc(void)
+{
+  return uart_read_byte(0);
 }
 
 // Write a zero terminated string to the UART
