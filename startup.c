@@ -17,6 +17,7 @@
 #include <stdlib.h>
 
 #include <h3_i2c.h>
+#include <h3_spi.h>
 
 #ifdef GDBSTUB
 #include "gdb/gdbstub.h"
@@ -93,6 +94,7 @@ void startup()
   network_init();
 
   h3_i2c_begin();
+  h3_spi_begin();
 
   uart_print("Ready!\r\n");
 
