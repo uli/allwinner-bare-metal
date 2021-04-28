@@ -42,7 +42,7 @@
 #define SECTOR_SIZE	512
 
 #ifdef CACHE_ENABLED
-#define CACHE_ENTRIES	(1 << 4)			///< 16 entries
+#define CACHE_ENTRIES	(1 << 13)			///< 8192 entries
 #define CACHE_MASK		(CACHE_ENTRIES - 1)	///< mask 0x0F
 
 static uint32_t cached_blocks[CACHE_ENTRIES] __attribute__((aligned(4)));
