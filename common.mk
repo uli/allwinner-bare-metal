@@ -12,7 +12,7 @@ OBJCOPY=$(PREFIX)objcopy
 AR=$(PREFIX)ar
 
 CFLAGS_COMMON = -MMD -g -O2 -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -ffreestanding \
-		-DREENTRANT_SYSCALLS_PROVIDED -D__DYNAMIC_REENT__ \
+		-DREENTRANT_SYSCALLS_PROVIDED -D__DYNAMIC_REENT__ -DALLWINNER_BARE_METAL \
 		-I $(LIBH3DIR)/lib-h3/include -I $(LIBH3DIR)/lib-arm/include -I $(LIBH3DIR)/lib-hal/include -DORANGE_PI_ONE \
 		-I $(LWIPDIR)/include
 
