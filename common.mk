@@ -29,8 +29,7 @@ CFLAGS_COMMON = -MMD -g -O2 -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -ffreest
 #GDB = 1
 
 # use lib-h3 MMC driver
-# this is optional because I have not seen any improvement over the existing driver (yet)
-#LIBH3_MMC = 1
+LIBH3_MMC = 1
 
 ifneq ($(GDB),)
 CFLAGS_COMMON += -DGDBSTUB
