@@ -426,6 +426,30 @@ int _rename_r(struct _reent *r, const char *oldpath, const char *newpath)
 	return 1;
 }
 
+#include "rtc.h"
+#include "system.h"
+
+static int64_t timeoff = 0;
+
+int _gettimeofday_r (struct _reent *r, struct timeval *tp, void *tzp)
+{
+	(void)r; (void)tzp;
+	if (timeoff == 0) {
+		struct tm t;
+		t.tm_sec = rtc_get_second();
+		t.tm_min = rtc_get_minute();
+		t.tm_hour = rtc_get_hour();
+		t.tm_mday = rtc_get_day();
+		t.tm_mon = rtc_get_month();
+		t.tm_year = rtc_get_year() - 1900;
+		timeoff = mktime(&t) * 1000000 - sys_get_usec();
+	}
+	uint64_t us = sys_get_usec() + timeoff;
+	tp->tv_sec = us / 1000000;
+	tp->tv_usec = us % 1000000;
+	return 0;
+}
+
 int mkdir(const char *pathname, mode_t mode)
 {
 	(void)mode;
