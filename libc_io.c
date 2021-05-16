@@ -49,6 +49,25 @@ static spinlock_t fs_lock_v = 0;
 
 #define fs_unlock_ret(n) do { fs_unlock(); return (n); } while (0);
 
+static int rc2errno(int rc) {
+	switch (rc) {
+	case FR_OK: return 0;
+	case FR_DISK_ERR: return EIO;
+	case FR_NOT_READY: return EAGAIN;
+	case FR_NO_FILE: return ENOENT;
+	case FR_NO_PATH: return ENOENT;
+	case FR_INVALID_NAME: return EINVAL;
+	case FR_DENIED: return EPERM;
+	case FR_EXIST: return EEXIST;
+	case FR_INVALID_OBJECT: return EBADF;
+	case FR_WRITE_PROTECTED: return EROFS;
+	case FR_NOT_ENOUGH_CORE: return ENOMEM;
+	case FR_TOO_MANY_OPEN_FILES: return EMFILE;
+	case FR_INVALID_PARAMETER: return EINVAL;
+	default: return EIO;
+	}
+}
+
 #define MAX_FILE_DESCRIPTORS 16
 static FIL file_descriptor[MAX_FILE_DESCRIPTORS] = { };
 
