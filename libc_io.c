@@ -441,8 +441,16 @@ int _stat_r(struct _reent *r, const char *pathname, struct stat *buf)
 int _rename_r(struct _reent *r, const char *oldpath, const char *newpath)
 {
 	(void)oldpath; (void)newpath;
-	r->_errno = EINVAL;
-	return 1;
+	fs_lock();
+	int rc = f_rename(oldpath, newpath);
+	fs_unlock();
+
+	if (rc) {
+		r->_errno = rc2errno(rc);
+		return -1;
+	}
+
+	return 0;
 }
 
 #include "rtc.h"
