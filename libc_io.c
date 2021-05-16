@@ -107,21 +107,38 @@ int _write_r(struct _reent *r, int fd, const void *buf, size_t n)
 	if (fd > 2)
 		dbg_libc("write %d %p %d\n", fd, buf, n);
 
+	void *bbuf = (void *)buf;
+	int free_tmp_buffer = 0;
+
+	// the MMC driver doesn't like unaligned buffers
+	if (((ptrdiff_t)buf) & 3) {
+		dbg_libc("unaligned write buffer\n");
+		bbuf = malloc(n);
+		memcpy(bbuf, buf, n);
+		free_tmp_buffer = 1;
+	}
+
 	fs_lock();
 	FIL *filp = get_descr(r, fd);
 	dbg_libc("write filp %p\n", filp);
 	if (!filp) {
+		if (free_tmp_buffer)
+			free(bbuf);
 		fs_unlock_ret(-1);
 	}
 
 	size_t bw;
 	int rc;
 
-	if ((rc = f_write(filp, buf, n, &bw))) {
+	if ((rc = f_write(filp, bbuf, n, &bw))) {
 		dbg_libc("write err %d\n", rc);
-		r->_errno = rc;
+		r->_errno = rc2errno(rc);
+		if (free_tmp_buffer)
+			free(bbuf);
 		fs_unlock_ret(-1);
 	}
+	if (free_tmp_buffer)
+		free(bbuf);
 	fs_unlock_ret(bw);
 }
 
@@ -130,18 +147,40 @@ int _read_r(struct _reent *r, int fd, void *ptr, size_t n)
 	if (fd == 1 || fd == 2)
 		return -1;
 
+	void *pptr = (void *)ptr;
+	int free_tmp_buffer = 0;
+
+	// the MMC driver doesn't like unaligned buffers
+	if (((ptrdiff_t)ptr) & 3) {
+		dbg_libc("unaligned read buffer\n");
+		pptr = malloc(n);
+		free_tmp_buffer = 1;
+	}
+
 	fs_lock();
 	FIL *filp = get_descr(r, fd);
-	if (!filp)
+	if (!filp) {
+		if (free_tmp_buffer)
+			free(pptr);
 		fs_unlock_ret(-1);
+	}
 
 	size_t br;
 	int rc;
 
-	if ((rc = f_read(filp, ptr, n, &br))) {
-		r->_errno = rc;
+	if ((rc = f_read(filp, pptr, n, &br))) {
+		r->_errno = rc2errno(rc);
+
+		if (free_tmp_buffer)
+			free(pptr);
 		fs_unlock_ret(-1);
 	}
+
+	if (free_tmp_buffer) {
+		memcpy(ptr, pptr, n);
+		free(pptr);
+	}
+
 	fs_unlock_ret(br);
 }
 
