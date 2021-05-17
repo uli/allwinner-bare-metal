@@ -204,7 +204,7 @@ off_t _lseek_r(struct _reent *r, int fd, off_t ptr, int dir)
 	}
 	rc = f_lseek(fil, dest);
 	if (rc) {
-		r->_errno = rc;
+		r->_errno = rc2errno(rc);
 		fs_unlock_ret(-1);
 	}
 	fs_unlock_ret(dest);
@@ -266,7 +266,7 @@ int _open_r(struct _reent *r, const char *path, int c_flags)
 	rc = f_open(fil, path, flags);
 	dbg_libc("open %s %d rc %d\n", path, flags, rc);
 	if (rc) {
-		r->_errno = rc;
+		r->_errno = rc2errno(rc);
 		fs_unlock_ret(-1);
 	}
 
@@ -285,7 +285,7 @@ int _close_r(struct _reent *r, int fd)
 	int rc = f_close(fil);
 	if (rc) {
 		dbg_libc("close err %d\n", rc);
-		r->_errno = rc;
+		r->_errno = rc2errno(rc);
 		fs_unlock_ret(EOF);
 	}
 	dbg_libc("close ok\n");
@@ -300,7 +300,7 @@ int _unlink_r(struct _reent *r, const char *path)
 	fs_unlock();
 
 	if (rc) {
-		r->_errno = rc;
+		r->_errno = rc2errno(rc);
 		return -1;
 	}
 	return 0;
@@ -381,7 +381,7 @@ DIR *opendir(const char *name)
 
 	if (rc) {
 		free(dir);
-		errno = rc;
+		errno = rc2errno(rc);
 		return NULL;
 	}
 	return dir;
@@ -395,7 +395,7 @@ int closedir(DIR *dir)
 
 	if (rc) {
 		// XXX: free?
-		errno = rc;
+		errno = rc2errno(rc);
 		return -1;
 	}
 	free(dir);
@@ -413,7 +413,7 @@ struct dirent *readdir(DIR *dir)
 
 	if (rc) {
 		// error
-		errno = rc;
+		errno = rc2errno(rc);
 		return NULL;
 	}
 	if (!fi.fname[0]) {
@@ -437,7 +437,7 @@ int chdir(const char *path)
 	fs_unlock();
 
 	if (rc) {
-		errno = rc;
+		errno = rc2errno(rc);
 		return -1;
 	}
 	return 0;
@@ -450,7 +450,7 @@ char *getcwd(char *buf, size_t size)
 	fs_unlock();
 
 	if (rc) {
-		errno = rc;
+		errno = rc2errno(rc);
 		return NULL;
 	}
 	return buf;
@@ -465,7 +465,7 @@ int _stat_r(struct _reent *r, const char *pathname, struct stat *buf)
 	fs_unlock();
 
 	if (rc) {
-		r->_errno = rc;
+		r->_errno = rc2errno(rc);
 		return -1;
 	}
 
@@ -525,7 +525,7 @@ int mkdir(const char *pathname, mode_t mode)
 	fs_unlock();
 
 	if (rc) {
-		errno = rc;
+		errno = rc2errno(rc);
 		return -1;
 	}
 	return 0;
@@ -538,7 +538,7 @@ int rmdir(const char *pathname)
 	fs_unlock();
 
 	if (rc) {
-		errno = rc;
+		errno = rc2errno(rc);
 		return -1;
 	}
 	return 0;
