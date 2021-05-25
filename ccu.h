@@ -86,6 +86,12 @@ extern "C" {
 #define R_PRCM_BASE 0x01F01400
 #define APB0_CLK_GATING       *(volatile uint32_t *)(R_PRCM_BASE + 0x28)
 
+#define PLL_CPUX_FACTOR_K_SHIFT 4
+#define PLL_CPUX_FACTOR_N_SHIFT 8
+
+#define PLL_CPUX_FACTOR_K_MASK	0x00000030UL
+#define PLL_CPUX_FACTOR_N_MASK  0x00001f00UL
+
 #ifdef __cplusplus
 }
 #endif
