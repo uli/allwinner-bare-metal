@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <h3_watchdog.h>
+#include "ccu.h"
 #include "system.h"
 #include "uart.h"
 
@@ -78,4 +79,25 @@ void sys_reset(void)
   h3_watchdog_enable();
   uart_print("reset!\r\n");
   for (;;);
+}
+
+void sys_set_cpu_multiplier(int factor)
+{
+  if (factor > SYS_CPU_MULTIPLIER_MAX)
+    factor = SYS_CPU_MULTIPLIER_MAX;
+  else if (factor < SYS_CPU_MULTIPLIER_MIN)
+    factor = SYS_CPU_MULTIPLIER_MIN;
+
+  uint32_t factor_n = factor;
+  uint32_t factor_k = 1;
+  while (factor_n > 32) {
+    factor_k++;
+    factor_n = factor / factor_k;
+  }
+
+  factor_n--;
+  factor_k--;
+
+  PLL_CPUX_CTRL = (PLL_CPUX_CTRL & ~(PLL_CPUX_FACTOR_K_MASK | PLL_CPUX_FACTOR_N_MASK)) |
+    (factor_n << PLL_CPUX_FACTOR_N_SHIFT) | (factor_k << PLL_CPUX_FACTOR_K_SHIFT);
 }

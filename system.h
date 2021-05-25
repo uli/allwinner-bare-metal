@@ -26,6 +26,12 @@ uint32_t sys_mem_free(void);
 
 void sys_reset(void);
 
+#define SYS_CPU_MULTIPLIER_MIN     1
+#define SYS_CPU_MULTIPLIER_DEFAULT 84
+#define SYS_CPU_MULTIPLIER_MAX     108
+
+void sys_set_cpu_multiplier(int factor);
+
 #ifdef __cplusplus
 }
 #endif
