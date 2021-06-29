@@ -68,6 +68,9 @@ rule sdimg
             dd if="\$in" of="\$out" conv=notrunc bs=1024 seek=40 ; \$
             test -e "\$initfs_dir" && mcopy -s -i \${out}@@4M \$initfs_dir/* ::
 
+rule upload
+  command = for i in 1 2 3 4 5 ; do sudo sunxi-fel -v -p spl $OSDIR/sunxi-spl.bin write 0x40000000 \$
+            \$in exe 0x40000000 && break ; sleep .5 ; done
 EOT
 
 cat <<EOT >build.ninja
