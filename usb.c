@@ -30,6 +30,9 @@ void usb3_diskio_init(void);
 tusb_error_t usb1_tuh_hid_keyboard_get_report(uint8_t dev_addr, void * p_report);
 tusb_error_t usb2_tuh_hid_keyboard_get_report(uint8_t dev_addr, void * p_report);
 tusb_error_t usb3_tuh_hid_keyboard_get_report(uint8_t dev_addr, void * p_report);
+tusb_error_t usb1_tuh_hid_mouse_get_report(uint8_t dev_addr, void * p_report);
+tusb_error_t usb2_tuh_hid_mouse_get_report(uint8_t dev_addr, void * p_report);
+tusb_error_t usb3_tuh_hid_mouse_get_report(uint8_t dev_addr, void * p_report);
 tusb_error_t usb1_tuh_hid_generic_get_report(uint8_t dev_addr, void * p_report);
 tusb_error_t usb2_tuh_hid_generic_get_report(uint8_t dev_addr, void * p_report);
 tusb_error_t usb3_tuh_hid_generic_get_report(uint8_t dev_addr, void * p_report);
@@ -222,10 +225,22 @@ void usb1_tuh_hid_keyboard_isr(uint8_t dev_addr, xfer_result_t event) { keyboard
 void usb2_tuh_hid_keyboard_isr(uint8_t dev_addr, xfer_result_t event) { keyboard_isr(2, dev_addr, event); }
 void usb3_tuh_hid_keyboard_isr(uint8_t dev_addr, xfer_result_t event) { keyboard_isr(3, dev_addr, event); }
 
+static hid_mouse_report_t usb_mouse_report __attribute__ ((section ("UNCACHED")));
+
+static void mouse_get_report(int hcd, uint8_t dev_addr, uint8_t *report) {
+  switch (hcd) {
+  case 1: usb1_tuh_hid_mouse_get_report(dev_addr, report); break;
+  case 2: usb2_tuh_hid_mouse_get_report(dev_addr, report); break;
+  case 3: usb3_tuh_hid_mouse_get_report(dev_addr, report); break;
+  default: break;
+  }
+}
+
 static void mouse_mounted(int hcd, uint8_t dev_addr)
 {
   // application set-up
   printf("\na Mouse device (hcd %d, address %d) is mounted\n", hcd, dev_addr);
+  mouse_get_report(hcd, dev_addr, (uint8_t*) &usb_mouse_report); // first report
 }
 void usb1_tuh_hid_mouse_mounted_cb(uint8_t dev_addr) { mouse_mounted(1, dev_addr); }
 void usb2_tuh_hid_mouse_mounted_cb(uint8_t dev_addr) { mouse_mounted(2, dev_addr); }
@@ -240,9 +255,34 @@ void usb1_tuh_hid_mouse_unmounted_cb(uint8_t dev_addr) { mouse_unmounted(1, dev_
 void usb2_tuh_hid_mouse_unmounted_cb(uint8_t dev_addr) { mouse_unmounted(2, dev_addr); }
 void usb3_tuh_hid_mouse_unmounted_cb(uint8_t dev_addr) { mouse_unmounted(3, dev_addr); }
 
+void __attribute__((weak)) hook_usb_mouse_report(int hcd, uint8_t dev_addr, hid_mouse_report_t *r)
+{
+  printf("mouserep %d/%d btn 0x%x dx %d dy %d w %d\n",
+         hcd, dev_addr,
+	 r->buttons,
+	 r->x,
+	 r->y,
+	 r->wheel
+  );
+}
+
 // invoked ISR context
 void mouse_isr(int hcd, uint8_t dev_addr, xfer_result_t event)
 {
+  switch(event)
+  {
+    case XFER_RESULT_SUCCESS:
+      hook_usb_mouse_report(hcd, dev_addr, &usb_mouse_report);
+      mouse_get_report(hcd, dev_addr, (uint8_t*) &usb_mouse_report);
+    break;
+
+    case XFER_RESULT_FAILED:
+      mouse_get_report(hcd, dev_addr, (uint8_t*) &usb_mouse_report); // ignore & continue
+    break;
+
+    default :
+    break;
+  }
 }
 void usb1_tuh_hid_mouse_isr(uint8_t dev_addr, xfer_result_t event) { mouse_isr(1, dev_addr, event); }
 void usb2_tuh_hid_mouse_isr(uint8_t dev_addr, xfer_result_t event) { mouse_isr(2, dev_addr, event); }
