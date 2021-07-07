@@ -71,6 +71,7 @@ rule sdimg
 rule upload
   command = for i in 1 2 3 4 5 ; do sudo sunxi-fel -v -p spl $OSDIR/sunxi-spl.bin write 0x40000000 \$
             \$in exe 0x40000000 && break ; sleep .5 ; done
+  pool = console
 EOT
 
 cat <<EOT >build.ninja
