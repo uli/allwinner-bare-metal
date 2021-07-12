@@ -10,6 +10,7 @@ test "$LIBH3_MMC" == "off" && LIBH3_MMC=0 || LIBH3_MMC=1
 test -z "$OSDIR" && OSDIR=`pwd`
 test -z "$LIBH3DIR" && LIBH3DIR=$OSDIR/lib-h3
 test -z "$LWIPDIR" && LWIPDIR=$OSDIR/lwip/src
+test -z "$SYSROOT" && SYSROOT=~/x-tools/arm-unknown-eabihf/arm-unknown-eabihf
 test -z "$CROSS_COMPILE" && CROSS_COMPILE=~/x-tools/arm-unknown-eabihf/bin/arm-unknown-eabihf-
 test -z "$OBJDIR" && OBJDIR=$OSDIR/build
 
@@ -27,6 +28,9 @@ test -z "$AR" && AR=${CROSS_COMPILE}ar
 
 test -e build.ninja && ninja -t clean
 
+[[ "$CC" == *clang* ]] && CC="$CC -target arm-none-eabihf --sysroot $SYSROOT"
+[[ "$CXX" == *clang++* ]] && CXX="$CXX -target arm-none-eabihf --sysroot $SYSROOT"
+
 cat <<EOT >build.ninja.common
 aw_cc = $CC
 aw_cxx = $CXX
@@ -36,10 +40,11 @@ aw_common_flags = -g -O2 -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -ffreestand
   -I $LIBH3DIR/lib-h3/include -I $LIBH3DIR/lib-arm/include -I $LIBH3DIR/lib-hal/include -DORANGE_PI_ONE \$
   -I $LWIPDIR/include $OPT_FLAGS
 
-aw_cflags = -T $OSDIR/linker.ld \$aw_common_flags -nostdlib -Wall -Wextra \$
-  -I $OSDIR -I $OSDIR/tinyusb/src
+aw_cflags = \$aw_common_flags -Wall -Wextra -I $OSDIR -I $OSDIR/tinyusb/src
 
 aw_cxxflags = \$aw_common_flags -nostdlib -Wall -Wextra -I $OSDIR -I $OSDIR/tinyusb/src
+
+aw_ldflags = -T $OSDIR/linker.ld -nostdlib
 
 rule cc
   depfile = \$out.d
@@ -48,7 +53,7 @@ rule cxx
   depfile = \$out.d
   command = $CXX -MD -MF \$out.d \$aw_cxxflags \$cxxflags -c \$in -o \$out
 rule link
-  command = $CC \$aw_cflags \$cflags -o \$out \$in -Wl,--wrap,__stack_chk_fail -Wl,-wrap,__malloc_lock -Wl,-wrap,__malloc_unlock -lc \$
+  command = $CC \$aw_cflags \$cflags \$aw_ldflags -o \$out \$in -Wl,--wrap,__stack_chk_fail -Wl,-wrap,__malloc_lock -Wl,-wrap,__malloc_unlock -lc \$
             -L$OSDIR -L$LIBH3DIR/lib-h3/lib_h3 -L$LIBH3DIR/lib-arm/lib_h3 \$libs -los -lh3 -larm -lc -lm -lgcc
 
 rule bin
