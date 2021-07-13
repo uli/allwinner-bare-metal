@@ -53,7 +53,7 @@
 // TASK API
 // Virtually do nothing in osal none
 //--------------------------------------------------------------------+
-#define OSAL_TASK_DEF(_name, _str, _func, _prio, _stack_sz)  osal_task_def_t _name;
+#define OSAL_TASK_DEF(_name, _str, _func, _prio, _stack_sz)  static osal_task_def_t _name;
 typedef uint8_t osal_task_def_t;
 
 static inline bool osal_task_create(osal_task_def_t* taskdef)
@@ -149,7 +149,7 @@ typedef osal_queue_def_t* osal_queue_t;
 
 // role device/host is used by OS NONE for mutex (disable usb isr) only
 #define OSAL_QUEUE_DEF(_role, _name, _depth, _type) \
-  uint8_t _name##_buf[_depth*sizeof(_type)];        \
+  static uint8_t _name##_buf[_depth*sizeof(_type)];        \
   osal_queue_def_t _name = {                        \
     .role = _role,                                  \
     .ff = {                                         \
