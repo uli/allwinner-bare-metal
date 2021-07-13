@@ -79,19 +79,6 @@ rule upload
   pool = console
 EOT
 
-cat <<EOT >build.ninja
-include build.ninja.common
-
-rule libh3
-  command = $MAKE $LIBH3DIR/lib-h3 -f Makefile.H3 PREFIX=$CROSS_COMPILE PLATFORM=ORANGE_PI_ONE
-rule libarm
-  command = $MAKE $LIBH3DIR/lib-arm -f Makefile.H3 PREFIX=$CROSS_COMPILE PLATFORM=ORANGE_PI_ONE
-
-build libh3: libh3
-build libarm: libarm
-
-EOT
-
 # convert LWIP file list from make to shell format
 tr '()\t' '{} ' <$LWIPDIR/Filelists.mk |grep -v '#'|grep -v '^$'|sed 's, ,\\ ,g' >lwip.files
 . lwip.files
@@ -119,9 +106,18 @@ else
   SOURCES="$SOURCES fatfs/mmc_sunxi.c"
 fi
 
-
 cat <<EOT >build.ninja
+cflags = $COMPILER_CFLAGS
+
 include build.ninja.common
+
+rule libh3
+  command = $MAKE -C $LIBH3DIR/lib-h3 -f Makefile.H3 PREFIX=$CROSS_COMPILE PLATFORM=ORANGE_PI_ONE
+rule libarm
+  command = $MAKE -C $LIBH3DIR/lib-arm -f Makefile.H3 PREFIX=$CROSS_COMPILE PLATFORM=ORANGE_PI_ONE
+
+build lib-h3/lib-h3/lib_h3/libh3.a: libh3
+build lib-h3/lib-arm/lib_h3/libarm.a: libarm
 
 rule link_lib
   command = bash -c "rm -f \$out; $AR rc \$out \$in"
