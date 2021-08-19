@@ -28,7 +28,12 @@ test -z "$AR" && AR=${CROSS_COMPILE}ar
 
 test -e build.ninja && ninja -t clean
 
-[[ "$CC" == *clang* ]] && CC="$CC -target arm-none-eabihf --sysroot $SYSROOT"
+if [[ "$CC" == *clang* ]]; then
+  CC="$CC -target arm-none-eabihf --sysroot $SYSROOT"
+  COMPILER_LDFLAGS="`find $SYSROOT/.. -name libgcc.a` -L $SYSROOT/lib"
+else
+  COMPILER_LDFLAGS="-lgcc"
+fi
 [[ "$CXX" == *clang++* ]] && CXX="$CXX -target arm-none-eabihf --sysroot $SYSROOT"
 
 cat <<EOT >build.ninja.common
@@ -54,7 +59,7 @@ rule cxx
   command = $CXX -MD -MF \$out.d \$aw_cxxflags \$cxxflags -c \$in -o \$out
 rule link
   command = $CC \$aw_cflags \$cflags \$aw_ldflags -o \$out \$in -Wl,--wrap,__stack_chk_fail -Wl,-wrap,__malloc_lock -Wl,-wrap,__malloc_unlock -lc \$
-            -L$OSDIR -L$LIBH3DIR/lib-h3/lib_h3 -L$LIBH3DIR/lib-arm/lib_h3 \$libs -los -lh3 -larm -lc -lm -lgcc
+            -L$OSDIR -L$LIBH3DIR/lib-h3/lib_h3 -L$LIBH3DIR/lib-arm/lib_h3 \$libs -los -lh3 -larm -lc -lm $COMPILER_LDFLAGS
 
 rule bin
   command = $OBJCOPY -O binary --remove-section .uncached \$in \$out
