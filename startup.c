@@ -85,6 +85,8 @@ void startup()
   // initialization uses it for calibration.
   if (display_init(NULL) != 0)
     tve_init(TVE_NORM_NTSC);
+  else
+    audio_hdmi_init();
 
   sys_init_timer();
 
