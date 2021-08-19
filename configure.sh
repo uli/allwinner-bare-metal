@@ -31,6 +31,7 @@ test -e build.ninja && ninja -t clean
 if [[ "$CC" == *clang* ]]; then
   CC="$CC -target arm-none-eabihf --sysroot $SYSROOT"
   COMPILER_LDFLAGS="`find $SYSROOT/.. -name libgcc.a` -L $SYSROOT/lib"
+  COMPILER_CFLAGS="-fno-delete-null-pointer-checks"
 else
   COMPILER_LDFLAGS="-lgcc"
 fi
