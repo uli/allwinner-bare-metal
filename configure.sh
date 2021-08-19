@@ -93,7 +93,7 @@ tr '()\t' '{} ' <$LWIPDIR/Filelists.mk |grep -v '#'|grep -v '^$'|sed 's, ,\\ ,g'
 rm lwip.files
 
 SOURCES="boot.S startup.c uart.c ports.c mmu.c system.c display.c interrupts.c \
-	usb.c fs.c audio_i2s.c exceptions.c cache.S display_filter.c \
+	usb.c fs.c audio_hdmi.c audio_i2s.c exceptions.c cache.S display_filter.c \
 	dma.c rtc.c smp.c spinlock.c ubsan.c tve.c \
 	tinyusb/src/host/ohci/ohci1.c tinyusb/src/host/ohci/ohci2.c tinyusb/src/host/ohci/ohci3.c\
 	tinyusb/src/host/usbh1.c tinyusb/src/host/usbh2.c tinyusb/src/host/usbh3.c \
