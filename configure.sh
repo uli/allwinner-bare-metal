@@ -52,6 +52,8 @@ aw_cxxflags = \$aw_common_flags -nostdlib -Wall -Wextra -I $OSDIR -I $OSDIR/tiny
 
 aw_ldflags = -T $OSDIR/linker.ld -nostdlib
 
+aw_sysroot = $SYSROOT
+
 rule cc
   depfile = \$out.d
   command = $CC -MD -MF \$out.d \$aw_cflags \$cflags -c \$in -o \$out
