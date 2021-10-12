@@ -79,8 +79,19 @@ bool usb_keyboard_set_leds(int hcd, uint8_t dev_addr, uint8_t leds);
 void hook_usb_keyboard_report(int hcd, uint8_t dev_addr, hid_keyboard_report_t *);
 void hook_usb_mouse_report(int hcd, uint8_t dev_addr, hid_mouse_report_t *r);
 void hook_usb_generic_report(int hcd, uint8_t dev_addr, hid_generic_report_t *data);
-void hook_usb_generic_mounted(int hcd, uint8_t dev_addr, uint8_t *report_desc, int report_desc_len);
-void hook_usb_generic_unmounted(int hcd, uint8_t dev_addr);
+
+typedef struct {
+    int hcd;
+    uint8_t dev_addr;
+    uint8_t *report_desc;
+    int report_desc_len;
+    int report_len;
+    uint16_t vendor_id;
+    uint16_t product_id;
+} usb_generic_device_t;
+
+void hook_usb_generic_mounted(const usb_generic_device_t *dev);
+void hook_usb_generic_unmounted(const usb_generic_device_t *dev);
 
 #ifdef __cplusplus
 }

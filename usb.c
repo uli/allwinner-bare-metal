@@ -316,33 +316,55 @@ static int generic_report_size(uint8_t hcd, uint8_t dev_addr)
   }
 }
 
-void __attribute__((weak)) hook_usb_generic_mounted(int hcd, uint8_t dev_addr, uint8_t *report_desc, int report_desc_len)
+void __attribute__((weak)) hook_usb_generic_mounted(const usb_generic_device_t *dev)
 {
-  (void)hcd; (void)dev_addr; (void)report_desc; (void)report_desc_len;
+  (void)dev;
 }
 
-static void generic_mounted(uint8_t hcd, uint8_t dev_addr, uint8_t *report_desc, int report_desc_len)
+// God, why is there no API for that? :(
+#include <host/usbh_hcd.h>
+extern usbh_device_t usb1__usbh_devices[CFG_TUSB_HOST_DEVICE_MAX+1];
+extern usbh_device_t usb2__usbh_devices[CFG_TUSB_HOST_DEVICE_MAX+1];
+extern usbh_device_t usb3__usbh_devices[CFG_TUSB_HOST_DEVICE_MAX+1];
+
+static void generic_mounted(uint8_t hcd, uint8_t dev_addr, uint8_t *report_desc, int report_desc_len, usbh_device_t *usbh_dev)
 {
   // application set-up
-  printf("\na generic device (hcd %d, address %d) is mounted\n", hcd, dev_addr);
-  hook_usb_generic_mounted(hcd, dev_addr, report_desc, report_desc_len);
+  printf("\na generic device (hcd %d, address %d, vid %x, pid %x) is mounted\n",
+         hcd, dev_addr, usbh_dev->vendor_id, usbh_dev->product_id);
+
+  usb_generic_device_t dev = {
+    .hcd = hcd,
+    .dev_addr = dev_addr,
+    .report_desc = report_desc,
+    .report_desc_len = report_desc_len,
+    .report_len = generic_report_size(hcd, dev_addr),
+    .vendor_id = usbh_dev->vendor_id,
+    .product_id = usbh_dev->product_id,
+  };
+  hook_usb_generic_mounted(&dev);
+
   generic_get_report(hcd, dev_addr, (uint8_t*) &usb_generic_report); // first report
 }
 
-void usb1_tuh_hid_generic_mounted_cb(uint8_t dev_addr, uint8_t *report_desc, int report_desc_len) { generic_mounted(1, dev_addr, report_desc, report_desc_len); }
-void usb2_tuh_hid_generic_mounted_cb(uint8_t dev_addr, uint8_t *report_desc, int report_desc_len) { generic_mounted(2, dev_addr, report_desc, report_desc_len); }
-void usb3_tuh_hid_generic_mounted_cb(uint8_t dev_addr, uint8_t *report_desc, int report_desc_len) { generic_mounted(3, dev_addr, report_desc, report_desc_len); }
+void usb1_tuh_hid_generic_mounted_cb(uint8_t dev_addr, uint8_t *report_desc, int report_desc_len) { generic_mounted(1, dev_addr, report_desc, report_desc_len, &usb1__usbh_devices[dev_addr]); }
+void usb2_tuh_hid_generic_mounted_cb(uint8_t dev_addr, uint8_t *report_desc, int report_desc_len) { generic_mounted(2, dev_addr, report_desc, report_desc_len, &usb2__usbh_devices[dev_addr]); }
+void usb3_tuh_hid_generic_mounted_cb(uint8_t dev_addr, uint8_t *report_desc, int report_desc_len) { generic_mounted(3, dev_addr, report_desc, report_desc_len, &usb3__usbh_devices[dev_addr]); }
 
-void __attribute__((weak)) hook_usb_generic_unmounted(int hcd, uint8_t dev_addr)
+void __attribute__((weak)) hook_usb_generic_unmounted(const usb_generic_device_t *dev)
 {
-  (void)hcd; (void)dev_addr;
+  (void)dev;
 }
 
 static void generic_unmounted(uint8_t hcd, uint8_t dev_addr)
 {
   // application tear-down
   printf("\na generic device (hcd %d, address %d) is unmounted\n", hcd, dev_addr);
-  hook_usb_generic_unmounted(hcd, dev_addr);
+  usb_generic_device_t dev = {
+    .hcd = hcd,
+    .dev_addr = dev_addr,
+  };
+  hook_usb_generic_unmounted(&dev);
 }
 
 void usb1_tuh_hid_generic_unmounted_cb(uint8_t dev_addr) { generic_unmounted(1, dev_addr); }
