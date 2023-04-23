@@ -52,7 +52,10 @@ void startup()
 
   install_ivt();
 
+#ifndef JAILHOUSE
   uart_init(0);
+#endif
+
 #ifdef GDBSTUB
   gdbstub_init();
 #endif
@@ -60,8 +63,10 @@ void startup()
   // Set up MMU and paging configuration
   mmu_init();
 
+#ifndef JAILHOUSE
   // Enble all GPIO
   gpio_init();
+#endif
 
   // Configure the UART for debugging
   uart_print("Booting!\r\n");
@@ -76,7 +81,9 @@ void startup()
   gpio_irq_enable(PORTL, 3, 1);
   irq_enable(77);  // PORT L interrupt (R_PL_EINT)
 
+#ifndef JAILHOUSE	// XXX??
   dma_init();
+#endif
   h3_timer_init();
   h3_hs_timer_init();
 
@@ -90,17 +97,21 @@ void startup()
 
   sys_init_timer();
 
+#ifndef JAILHOUSE
   // USB
   usb_init();
 
   network_init();
+#endif
 
   h3_i2c_begin();
   h3_spi_begin();
 
   uart_print("Ready!\r\n");
 
+#ifndef JAILHOUSE
   set_pin_mode(PORTF, 6, 0);  // SD CD pin
+#endif
 
   __libc_init_array();
 
