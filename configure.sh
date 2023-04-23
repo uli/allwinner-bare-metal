@@ -6,6 +6,7 @@ test -n "$UBSAN" && UBSAN_FLAGS="-fsanitize=object-size -fsanitize=null -fsaniti
 test -n "$UBSAN_FULL" && UBSAN_FLAGS="-fsanitize=undefined -fno-sanitize=float-cast-overflow -fno-sanitize=pointer-overflow -fno-sanitize=vptr -fsanitize=bounds-strict"
 test "$GDBSTUB" == "on" && GDB=1 || GDB=0
 test "$LIBH3_MMC" == "off" && LIBH3_MMC=0 || LIBH3_MMC=1
+test -n "$JAILHOUSE" && JAILHOUSE=1 || JAILHOUSE=0
 
 test -z "$OSDIR" && OSDIR=`pwd`
 test -z "$LIBH3DIR" && LIBH3DIR=$OSDIR/lib-h3
@@ -16,8 +17,10 @@ test -z "$OBJDIR" && OBJDIR=$OSDIR/build
 
 test "$LIBH3_MMC" == 1 && LIBH3_MMC_FLAGS="-DLIBH3_MMC -DSD_WRITE_SUPPORT"
 test "$GDB" == 1 && GDB_FLAGS="-DGDB"
+test "$JAILHOUSE" == 1 && JAILHOUSE_FLAGS="-DJAILHOUSE"
+test "$JAILHOUSE" == 1 && LINKER_LD="linker_jh.ld" || LINKER_LD="linker.ld"
 
-OPT_FLAGS="$STACK_PROT_FLAGS $UBSAN_FLAGS $GDB_FLAGS $LIBH3_MMC_FLAGS"
+OPT_FLAGS="$STACK_PROT_FLAGS $UBSAN_FLAGS $GDB_FLAGS $LIBH3_MMC_FLAGS $JAILHOUSE_FLAGS"
 
 test -z "$MAKE" && MAKE=make
 
@@ -50,7 +53,7 @@ aw_cflags = \$aw_common_flags -Wall -Wextra -I $OSDIR -I $OSDIR/tinyusb/src
 
 aw_cxxflags = \$aw_common_flags -nostdlib -Wall -Wextra -I $OSDIR -I $OSDIR/tinyusb/src
 
-aw_ldflags = -T $OSDIR/linker.ld -nostdlib
+aw_ldflags = -T $OSDIR/$LINKER_LD -nostdlib
 
 aw_sysroot = $SYSROOT
 
