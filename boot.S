@@ -11,10 +11,18 @@ VMSR FPEXC,r0            // Set EN bit in FPEXC
 
 MRC p15, 0, r0, c0, c0, 5
 and r0, r0, #3
+#ifdef JAILHOUSE
+CMP r0, #2
+#else
 CMP r0, #0
+#endif
 BNE start_secondary
 
+#ifdef JAILHOUSE
+mov sp, #0xf000
+#else
 mov sp, #0xc000
+#endif
 
 bl init_bss
 movw r0, #0x4541
