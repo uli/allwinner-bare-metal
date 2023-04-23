@@ -133,7 +133,13 @@ int display_init(const struct display_phys_mode_t *mode)
     default_timing.flags            = (DISPLAY_FLAGS_HSYNC_LOW | DISPLAY_FLAGS_VSYNC_LOW);
   };
 
-  if (h3_de2_init(&default_timing, (uint32_t)0x40000000) == 0) {
+  if (h3_de2_init(&default_timing, (uint32_t)
+#ifdef JAILHOUSE
+                                             0x48000000
+#else
+                                             0x40000000
+#endif
+                                                       ) == 0) {
     display_is_digital = 1;
     LCD0_GINT1         = 1;
     LCD0_GINT0         = BIT(30);
