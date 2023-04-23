@@ -19,7 +19,20 @@ void smp_start_secondary_core(int cpuid, secondary_task_t task, void *stack, uin
 {
   tasks[cpuid]            = task;
   _smp_secondary_sp       = (uint32_t)stack + stack_size - 0x400;
+
+#ifdef JAILHOUSE
+  // Use PSCI to bring up the core
+  // We use the "unused" vector in the loader program as entry point.
+  asm("movw r0, #0xba60\n"
+      "movt r0, #0x95c1\n"	// PSCI_CPU_ON_V0_1_UBOOT
+      "mov r1, %0\n"		// cpuid
+      "mov r2, %1\n"		// start address
+      "mov r3, #0\n"		// "context", but that context doesn't
+                                // include the SP for some reason, so it's pretty useless
+      "smc #0\n" : : "r"(cpuid), "r"(0x00000014) : "r0", "r1", "r2", "r3");
+#else
   CPU_RST_CTRL_REG(cpuid) = 0x3;
+#endif
 }
 
 void smp_stop_secondary_core(int cpuid)
@@ -35,7 +48,10 @@ void init_sp_irq(uint32_t addr);
 void _smp_startup_secondary(int cpuid)
 {
   init_sp_irq(_smp_secondary_sp + 0x400);
+
+#ifndef JAILHOUSE
   mmu_init();
+#endif
   uart_print("Secondary boot\r\n");
   while (1) {
     if (tasks[cpuid])
