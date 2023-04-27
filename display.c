@@ -181,16 +181,14 @@ int display_single_buffer = 0;
 
 void display_swap_buffers()
 {
-  // Make sure whatever is in the active buffer is committed to memory.
-  // XXX: using a clean (c10) instead of a flush (c14) does not seem to do
-  // anything on the H3 (in fact, the data seems to be lost altogether). Not
-  // sure what is going on there...
-  mmu_flush_dcache();
-
   if (display_single_buffer)
     display_active_buffer = framebuffer1;
 
   display_visible_buffer = display_active_buffer;
+
+  // Make sure whatever is in the active buffer is committed to memory.
+  mmu_flush_dcache_range((void *)display_visible_buffer, dsp.fb_bytes, MMU_DCACHE_CLEAN);
+
   if (display_is_digital) {
     DE_MIXER0_OVL_V_TOP_LADD0(0) =
       (uint32_t)(display_active_buffer + dsp.fb_width * dsp.ovy + dsp.ovx);
