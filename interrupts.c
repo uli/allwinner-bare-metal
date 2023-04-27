@@ -50,6 +50,7 @@ void
   if (irq_pending(82))
     codec_fiq_handler();
 
+#ifndef JAILHOUSE
   // USB controllers
   if (irq_pending(107))
     usb1_hal_hcd_isr(0);
@@ -59,6 +60,7 @@ void
 
   if (irq_pending(111))
     usb3_hal_hcd_isr(0);
+#endif
 
   // LCD controllers 0 and 1
   // NB: Only one of these will be enabled at any time.
