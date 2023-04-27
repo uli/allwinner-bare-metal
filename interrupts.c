@@ -30,7 +30,11 @@ void __attribute__((weak)) hook_display_vblank(void)
 extern void codec_fiq_handler(void);
 
 // Called when an interrupt is triggered
-void __attribute__((interrupt("IRQ"))) interrupt(void)
+void
+#ifndef JAILHOUSE
+     __attribute__((interrupt("IRQ")))
+#endif
+                                       interrupt(void)
 {
   // PL EINT (reset button)
   if (irq_pending(77)) {
@@ -109,6 +113,21 @@ void irq_disable(uint32_t irq)
 // Copy the interrupt table from _ivt to 0x0
 void __attribute__((no_sanitize("all"))) install_ivt()
 {
+#ifdef JAILHOUSE
+
+  // Jailhouse doesn't seem to like it if we use our interrupt handler. It
+  // executes, but then the main thread seems to freeze, or is caught in an
+  // endless loop or something like that. When bouncing off the handler in
+  // the loader program, everything works. So we just do that.
+  *((void **)0xfffc) = interrupt;
+
+  // XXX: Our exception handlers don't do much, so we just keep the ones
+  // from the Jailhouse demos.
+
+  // XXX: GIC seems to be set up reasonably well by Jailhouse.
+
+#else
+
   uint32_t *source      = &_ivt;
   uint32_t *destination = (uint32_t *)(0);
   for (int n = 0; n < 2 * 8; n++)
@@ -128,6 +147,8 @@ void __attribute__((no_sanitize("all"))) install_ivt()
   // set all interrupts to group 1
   for (int i = 0; i < 32; ++i)
     gicd->igroupr[i] = 0xffffffff;
+
+#endif	// JAILHOUSE
 
   asm("cpsie if;");  // Enable interrupts
 }
