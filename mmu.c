@@ -40,6 +40,7 @@ void *mmu_detect_dram_end(void)
 
 void mmu_init()
 {
+#ifndef JAILHOUSE	// MMU setup is done by the loader program.
   // Disable MMU
   asm("ldr r8, =0x0;    mcr p15, 0, r8, c1, c0, 0;" : : : "r8");
 
@@ -97,4 +98,5 @@ void mmu_init()
     :
     :
     : "r8");
+#endif
 }
