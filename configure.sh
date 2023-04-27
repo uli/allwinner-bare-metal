@@ -18,6 +18,7 @@ test -z "$OBJDIR" && OBJDIR=$OSDIR/build
 test "$LIBH3_MMC" == 1 && LIBH3_MMC_FLAGS="-DLIBH3_MMC -DSD_WRITE_SUPPORT"
 test "$GDB" == 1 && GDB_FLAGS="-DGDB"
 test "$JAILHOUSE" == 1 && JAILHOUSE_FLAGS="-DJAILHOUSE"
+test "$JAILHOUSE" == 1 && LIBC_IO_FILES="libc_io_jh.c" || LIBC_IO_FILES="libc_io.c"
 test "$JAILHOUSE" == 1 && LINKER_LD="linker_jh.ld" || LINKER_LD="linker.ld"
 
 OPT_FLAGS="$STACK_PROT_FLAGS $UBSAN_FLAGS $GDB_FLAGS $LIBH3_MMC_FLAGS $JAILHOUSE_FLAGS"
@@ -106,7 +107,7 @@ SOURCES="boot.S startup.c uart.c ports.c mmu.c system.c display.c interrupts.c \
 	tinyusb/src/tusb1.c tinyusb/src/tusb2.c tinyusb/src/tusb3.c \
 	tinyusb/src/class/msc/msc_host1.c tinyusb/src/class/msc/msc_host2.c tinyusb/src/class/msc/msc_host3.c \
 	tinyusb/lib/fatfs/diskio1.c tinyusb/lib/fatfs/diskio2.c tinyusb/lib/fatfs/diskio3.c \
-	libc_io.c \
+	${LIBC_IO_FILES} \
 	fatfs/ff.c fatfs/ffunicode.c \
 	network.c ${COREFILES} ${CORE4FILES} ${NETIFFILES} ${HTTPFILES} ${TFTPFILES} $LWIPDIR/api/err.c"
 
