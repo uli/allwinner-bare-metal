@@ -97,8 +97,12 @@ tr '()\t' '{} ' <$LWIPDIR/Filelists.mk |grep -v '#'|grep -v '^$'|sed 's, ,\\ ,g'
 rm lwip.files
 
 SOURCES="boot.S startup.c uart.c ports.c mmu.c system.c display.c interrupts.c \
-	usb.c fs.c audio_hdmi.c audio_i2s.c exceptions.c cache.S display_filter.c \
+	audio_hdmi.c audio_i2s.c exceptions.c cache.S display_filter.c \
 	dma.c rtc.c smp.c spinlock.c ubsan.c tve.c \
+	${LIBC_IO_FILES} \
+	network.c ${COREFILES} ${CORE4FILES} ${NETIFFILES} ${HTTPFILES} ${TFTPFILES} $LWIPDIR/api/err.c"
+
+test "$JAILHOUSE" == 1 || SOURCES="$SOURCES usb.c fs.c \
 	tinyusb/src/host/ohci/ohci1.c tinyusb/src/host/ohci/ohci2.c tinyusb/src/host/ohci/ohci3.c\
 	tinyusb/src/host/usbh1.c tinyusb/src/host/usbh2.c tinyusb/src/host/usbh3.c \
 	tinyusb/src/host/hub1.c tinyusb/src/host/hub2.c tinyusb/src/host/hub3.c \
@@ -107,9 +111,7 @@ SOURCES="boot.S startup.c uart.c ports.c mmu.c system.c display.c interrupts.c \
 	tinyusb/src/tusb1.c tinyusb/src/tusb2.c tinyusb/src/tusb3.c \
 	tinyusb/src/class/msc/msc_host1.c tinyusb/src/class/msc/msc_host2.c tinyusb/src/class/msc/msc_host3.c \
 	tinyusb/lib/fatfs/diskio1.c tinyusb/lib/fatfs/diskio2.c tinyusb/lib/fatfs/diskio3.c \
-	${LIBC_IO_FILES} \
-	fatfs/ff.c fatfs/ffunicode.c \
-	network.c ${COREFILES} ${CORE4FILES} ${NETIFFILES} ${HTTPFILES} ${TFTPFILES} $LWIPDIR/api/err.c"
+	fatfs/ff.c fatfs/ffunicode.c"
 
 test "$GDB" == 1 && SOURCES="$SOURCES gdb/tzvecs.c gdb/gdbstub.c gdb/string.c gdb/printk.c"
 if test "$LIBH3_MMC" == 1; then
