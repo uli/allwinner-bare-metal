@@ -38,8 +38,39 @@ void *mmu_detect_dram_end(void)
   return (void *)dram_end;
 }
 
+uint32_t cache_line_size;
+
+// XXX: These macros look awful, but make for much more readable code than
+// the raw copro access insns. We might want to use them throughout.
+// Lifted from Jailhouse code.
+#define _arm_write_sysreg(size, ...) arm_write_sysreg_ ## size(__VA_ARGS__)
+#define arm_write_sysreg(...) _arm_write_sysreg(__VA_ARGS__)
+
+#define _arm_read_sysreg(size, ...) arm_read_sysreg_ ## size(__VA_ARGS__)
+#define arm_read_sysreg(...) _arm_read_sysreg(__VA_ARGS__)
+
+#define SYSREG_32(...) 32, __VA_ARGS__
+
+#define arm_write_sysreg_32(op1, crn, crm, op2, val) \
+        asm volatile ("mcr      p15, "#op1", %0, "#crn", "#crm", "#op2"\n" \
+                        : : "r" ((uint32_t)(val)))
+
+#define arm_read_sysreg_32(op1, crn, crm, op2, val) \
+        asm volatile ("mrc      p15, "#op1", %0, "#crn", "#crm", "#op2"\n" \
+                        : "=r" ((uint32_t)(val)))
+
+#define CTR_EL0               SYSREG_32(0, c0, c0, 1)
+#define DCIMVAC               SYSREG_32(0, c7, c6, 1)
+#define DCCMVAC               SYSREG_32(0, c7, c10, 1)
+#define DCCIMVAC      SYSREG_32(0, c7, c14, 1)
+
 void mmu_init()
 {
+    uint32_t ctr;
+    arm_read_sysreg(CTR_EL0, ctr);
+    /* Extract the minimal cache line size */
+    cache_line_size = 4 << (ctr >> 16 & 0xf);
+
 #ifndef JAILHOUSE	// MMU setup is done by the loader program.
   // Disable MMU
   asm("ldr r8, =0x0;    mcr p15, 0, r8, c1, c0, 0;" : : : "r8");
@@ -99,4 +130,19 @@ void mmu_init()
     :
     : "r8");
 #endif
+}
+
+void mmu_flush_dcache_range(void *addr, unsigned long size, int flush)
+{
+        while (size > 0) {
+                /* clean / invalidate by MVA to PoC */
+                if (flush == MMU_DCACHE_CLEAN)
+                        arm_write_sysreg(DCCMVAC, addr);
+                else if (flush == MMU_DCACHE_INVALIDATE)
+                        arm_write_sysreg(DCIMVAC, addr);
+                else
+                        arm_write_sysreg(DCCIMVAC, addr);
+                size -= cache_line_size < size ? cache_line_size : size;
+                addr += cache_line_size;
+        }
 }
