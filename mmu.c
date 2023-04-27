@@ -4,9 +4,21 @@
 #include "mmu.h"
 #include "uart.h"
 
+#ifdef JAILHOUSE
+
+#define DRAM_START 0x49000000
+#define DRAM_MAX   0xc0000000
+// We are not allowed to access root cell or Hypervisor memory, so we have
+// to take big steps over it.
+#define DRAM_STEP  0x10000000
+
+#else
+
 #define DRAM_START 0x40000000
 #define DRAM_MAX   0xc0000000
 #define DRAM_STEP  0x02000000
+
+#endif
 
 void *mmu_detect_dram_end(void)
 {
@@ -24,7 +36,13 @@ void *mmu_detect_dram_end(void)
     saved_dram_end = *dram_end;
 
     *dram_end = 0xcafebabe;
+#ifdef JAILHOUSE
+    // caches enabled
+    mmu_flush_dcache_range((void *)dram_start, sizeof(*dram_start), MMU_DCACHE_INVALIDATE);
+    mmu_flush_dcache_range((void *)dram_end, sizeof(*dram_end), MMU_DCACHE_CLEAN_INVALIDATE);
+#else
     asm volatile("dsb");
+#endif
     if (*dram_start == 0xcafebabe)
       break;
 
@@ -32,6 +50,11 @@ void *mmu_detect_dram_end(void)
     dram_end += DRAM_STEP / sizeof(uint32_t);
   }
   *dram_start = saved_dram_start;
+
+#ifdef JAILHOUSE
+  // round down because we had to step over root cell/hypervisor memory
+  dram_end = (volatile uint32_t *)((uint32_t)dram_end & 0xf0000000);
+#endif
 
   uart_print_uint32((uint32_t)dram_end);
   uart_print(" RAM limit\r\n");

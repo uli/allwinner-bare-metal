@@ -1,6 +1,6 @@
 SECTIONS
 {
-  . = 0x48000000;
+  . = 0x49000000;
   _hend = . ;
   .text : {
     *boot.o(.text)
@@ -29,7 +29,7 @@ SECTIONS
     *(.bss); *(COMMON);
     _bend1 = . ;
   }
-  .uncached 0x49000000 : {
+  .uncached 0x4a000000 : {
     _bstart2 = . ;
     *(UNCACHED);
     _bend2 = . ;

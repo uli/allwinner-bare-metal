@@ -40,11 +40,21 @@ void h3_hs_timer_init(void);
 
 void startup()
 {
+#ifdef JAILHOUSE
+  // SP_irq set up by loader
+#else
   init_sp_irq(0x2000);
+#endif
 
   // detect memory size
 #ifdef GDBSTUB
   libc_set_heap((void *)0x42000000, (void *)0x60000000);
+#elif defined(JAILHOUSE)
+  // MMU is already on, so memory detection needs to do cache management to
+  // work, so it needs to know the cache line size, so we need to call
+  // mmu_init() beforehand.
+  mmu_init();
+  libc_set_heap((void *)0x4b000000, mmu_detect_dram_end());
 #else
   // XXX: check why this doesn't work with the stub enabled
   libc_set_heap((void *)0x42000000, mmu_detect_dram_end());
@@ -60,8 +70,10 @@ void startup()
   gdbstub_init();
 #endif
 
+#ifndef JAILHOUSE
   // Set up MMU and paging configuration
   mmu_init();
+#endif
 
 #ifndef JAILHOUSE
   // Enble all GPIO

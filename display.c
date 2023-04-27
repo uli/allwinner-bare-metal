@@ -135,7 +135,7 @@ int display_init(const struct display_phys_mode_t *mode)
 
   if (h3_de2_init(&default_timing, (uint32_t)
 #ifdef JAILHOUSE
-                                             0x48000000
+                                             0x49000000
 #else
                                              0x40000000
 #endif

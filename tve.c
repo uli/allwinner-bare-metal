@@ -224,7 +224,7 @@ void tve_init(int pal)
   DE_MIXER1_OVL_UI_PITCH(0)    = 0x00000B40;
   DE_MIXER1_OVL_UI_TOP_LADD(0) =
 #ifdef JAILHOUSE
-                                 0x48000000;  // show text section on screen :)
+                                 0x49000000;  // show text section on screen :)
 #else
                                  0x40000000;  // show text section on screen :)
 #endif
