@@ -85,14 +85,18 @@ void
 void irq_enable(uint32_t irq)
 {
   volatile struct gicd_reg *gicd = (volatile struct gicd_reg *)GICD_BASE;
+#ifndef JAILHOUSE
 #ifdef GDBSTUB
   gicd->ctlr = BIT(1) | BIT(0);
 #else
   gicd->ctlr = BIT(1);
 #endif
+#endif
   gicd->igroupr[irq / 32] |= 1UL << (irq % 32);  // set to group 1
   gicd->isenabler[irq / 32] = 1UL << (irq % 32);
+#ifndef JAILHOUSE
   gicd->itargetsr[irq]      = 1;  // target core 0
+#endif
   gicd->ipriorityr[irq]     = 2;  // lower than FIQ
 }
 
