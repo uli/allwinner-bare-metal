@@ -9,6 +9,7 @@
 //#define DEBUG
 
 #include "libc_server.h"
+#include "fixed_addr.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -104,7 +105,7 @@ int main(void)
     }
 
     // Map call ring buffer.
-    callbuf = (struct libc_call_buffer *)mmap((void *)0x488fc000, sizeof(*callbuf), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, mem_fd, 0x488fc000);
+    callbuf = (struct libc_call_buffer *)mmap((void *)LIBC_CALL_BUFFER_ADDR, sizeof(*callbuf), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, mem_fd, LIBC_CALL_BUFFER_ADDR);
     if (callbuf == MAP_FAILED) {
         perror("failed to map call buffer");
         return 0;

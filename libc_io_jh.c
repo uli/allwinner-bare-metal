@@ -9,6 +9,7 @@
 #include "smp.h"
 #include "spinlock.h"
 #include "libc_server.h"
+#include "fixed_addr.h"
 
 //#define DEBUG_LIBC
 //#define DEBUG_LOCK
@@ -55,7 +56,7 @@ static int console_write(const void *buf, size_t n)
 	return n;
 }
 
-struct libc_call_buffer *callbuf = (struct libc_call_buffer *)0x488fc000;
+struct libc_call_buffer *callbuf = (struct libc_call_buffer *)LIBC_CALL_BUFFER_ADDR;
 static spinlock_t libc_lock;
 
 static uint32_t libc_call(int func, uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3, int *_errno)
