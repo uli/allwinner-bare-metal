@@ -7,7 +7,7 @@
 #ifdef JAILHOUSE
 
 #define DRAM_START 0x49000000
-#define DRAM_MAX   0xc0000000
+#define DRAM_MAX   0xb0000000
 // We are not allowed to access root cell or Hypervisor memory, so we have
 // to take big steps over it.
 #define DRAM_STEP  0x10000000
