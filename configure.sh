@@ -30,7 +30,7 @@ test -z "$CXX" && CXX=${CROSS_COMPILE}g++
 test -z "$OBJCOPY" && OBJCOPY=${CROSS_COMPILE}objcopy
 test -z "$AR" && AR=${CROSS_COMPILE}ar
 
-test -z "$JAILHOUSE_CROSS_COMPILE" && JAILHOUSE_CROSS_COMPILE=../../basic/buildroot_jh/output/host/bin/arm-buildroot-linux-gnueabihf-
+test -z "$JAILHOUSE_CROSS_COMPILE" && JAILHOUSE_CROSS_COMPILE=../buildroot_jh/output/host/bin/arm-buildroot-linux-gnueabihf-
 test -z "$JAILHOUSE_CC" && JAILHOUSE_CC=${JAILHOUSE_CROSS_COMPILE}gcc
 
 test -e build.ninja && ninja -t clean
