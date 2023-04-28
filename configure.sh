@@ -30,6 +30,9 @@ test -z "$CXX" && CXX=${CROSS_COMPILE}g++
 test -z "$OBJCOPY" && OBJCOPY=${CROSS_COMPILE}objcopy
 test -z "$AR" && AR=${CROSS_COMPILE}ar
 
+test -z "$JAILHOUSE_CROSS_COMPILE" && JAILHOUSE_CROSS_COMPILE=../../basic/buildroot_jh/output/host/bin/arm-buildroot-linux-gnueabihf-
+test -z "$JAILHOUSE_CC" && JAILHOUSE_CC=${JAILHOUSE_CROSS_COMPILE}gcc
+
 test -e build.ninja && ninja -t clean
 
 if [[ "$CC" == *clang* ]]; then
@@ -137,6 +140,21 @@ build lib-h3/lib-arm/lib_h3/libarm.a: libarm
 
 rule link_lib
   command = bash -c "rm -f \$out; $AR rc \$out \$in"
+
+EOT
+
+test "$JAILHOUSE" == 1 && cat <<EOT >>build.ninja
+rule jh_cc
+  depfile = \$out.d
+  command = $JAILHOUSE_CC -MD -MF \$out.d -DJAILHOUSE -Wall -W -c \$in -o \$out
+rule jh_link
+  command = $JAILHOUSE_CC -o \$out \$in \$jh_ldflags
+
+build libc_server.o: jh_cc libc_server.c
+build libc_server: jh_link libc_server.o
+build sdl_server.o: jh_cc sdl_server.c
+build sdl_server: jh_link sdl_server.o
+  jh_ldflags = -lSDL2
 
 EOT
 
