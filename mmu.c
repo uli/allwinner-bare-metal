@@ -3,10 +3,11 @@
 #include <arm/synchronize.h>
 #include "mmu.h"
 #include "uart.h"
+#include "fixed_addr.h"
 
 #ifdef JAILHOUSE
 
-#define DRAM_START 0x49000000
+#define DRAM_START AWBM_BASE_ADDR
 #define DRAM_MAX   0xb0000000
 // We are not allowed to access root cell or Hypervisor memory, so we have
 // to take big steps over it.
