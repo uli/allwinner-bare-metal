@@ -114,10 +114,12 @@ test "$JAILHOUSE" == 1 || SOURCES="$SOURCES usb.c fs.c \
 	fatfs/ff.c fatfs/ffunicode.c"
 
 test "$GDB" == 1 && SOURCES="$SOURCES gdb/tzvecs.c gdb/gdbstub.c gdb/string.c gdb/printk.c"
-if test "$LIBH3_MMC" == 1; then
-  SOURCES="$SOURCES lib-h3/lib-hal/src/h3/sdcard/diskio.c"
-else
-  SOURCES="$SOURCES fatfs/mmc_sunxi.c"
+if test "$JAILHOUSE" == 0; then
+  if test "$LIBH3_MMC" == 1; then
+    SOURCES="$SOURCES lib-h3/lib-hal/src/h3/sdcard/diskio.c"
+  else
+    SOURCES="$SOURCES fatfs/mmc_sunxi.c"
+  fi
 fi
 
 cat <<EOT >build.ninja
