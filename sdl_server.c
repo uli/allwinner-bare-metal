@@ -5,6 +5,7 @@
 // Feeds SDL input events to a bare-metal program running in a Jailhouse cell.
 
 #include "sdl_server.h"
+#include "fixed_addr.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_scancode.h>
 #include <stdio.h>
@@ -47,7 +48,7 @@ int main(int argc, char **argv)
     }
 
     evbuf = (struct sdl_event_buffer *)mmap(NULL, sizeof(*evbuf), PROT_READ | PROT_WRITE, MAP_SHARED, mem_fd,
-            0x488f1000);
+                                            SDL_EVENT_BUFFER_ADDR);
 
     if (!evbuf) {
         perror("failed to map event buffer");
