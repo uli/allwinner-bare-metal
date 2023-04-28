@@ -8,6 +8,7 @@
 #include <dirent.h>
 #include "smp.h"
 #include "spinlock.h"
+#include "libc_server.h"
 
 //#define DEBUG_LIBC
 //#define DEBUG_LOCK
@@ -54,6 +55,43 @@ static int console_write(const void *buf, size_t n)
 	return n;
 }
 
+struct libc_call_buffer *callbuf = (struct libc_call_buffer *)0x488fc000;
+static spinlock_t libc_lock;
+
+static uint32_t libc_call(int func, uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3, int *_errno)
+{
+	while (callbuf->magic != LIBC_SERVER_READY_MAGIC) {
+		asm("wfe");
+	}
+
+	spin_lock(&libc_lock);
+
+	struct libc_call *call = &callbuf->calls[callbuf->write_pos];
+	call->func = func;
+	call->args[0] = arg0;
+	call->args[1] = arg1;
+	call->args[2] = arg2;
+	call->args[3] = arg3;
+	call->processed = 0;
+
+	callbuf->write_pos = (callbuf->write_pos + 1) % LIBC_CALL_BUFFER_SIZE;
+
+	spin_unlock(&libc_lock);
+
+	asm("sev");
+	while (call->processed == 0) {
+		asm("wfe");
+	}
+
+	*_errno = call->_errno;
+	return call->retval;
+}
+
+#define LIBC_CALL0(func, eno) libc_call(func, 0, 0, 0, 0, &eno)
+#define LIBC_CALL1(func, eno, arg0) libc_call(func, (uint32_t)arg0, 0, 0, 0, &eno)
+#define LIBC_CALL2(func, eno, arg0, arg1) libc_call(func, (uint32_t)arg0, (uint32_t)arg1, 0, 0, &eno)
+#define LIBC_CALL3(func, eno, arg0, arg1, arg2) libc_call(func, (uint32_t)arg0, (uint32_t)arg1, (uint32_t)arg2, 0, &eno)
+
 int _write_r(struct _reent *r, int fd, const void *buf, size_t n)
 {
 	if (fd == 1 || fd == 2)
@@ -62,8 +100,7 @@ int _write_r(struct _reent *r, int fd, const void *buf, size_t n)
 	if (fd > 2)
 		dbg_libc("write %d %p %d\n", fd, buf, n);
 
-	r->_errno = ENOTSUP;
-	return -1;
+	return LIBC_CALL3(LIBC_WRITE, r->_errno, fd, buf, n);
 }
 
 int _read_r(struct _reent *r, int fd, void *ptr, size_t n)
@@ -71,40 +108,33 @@ int _read_r(struct _reent *r, int fd, void *ptr, size_t n)
 	if (fd == 1 || fd == 2)
 		return -1;
 
-	r->_errno = ENOTSUP;
-	return -1;
+	return LIBC_CALL3(LIBC_READ, r->_errno, fd, ptr, n);
 }
 
 off_t _lseek_r(struct _reent *r, int fd, off_t ptr, int dir)
 {
-	int rc;
-
-	r->_errno = ENOTSUP;
-	return -1;
+	return LIBC_CALL3(LIBC_LSEEK, r->_errno, fd, ptr, dir);
 }
 
 int _fstat_r(struct _reent *r, int fd, struct stat * st)
 {
-	r->_errno = ENOTSUP;
-	return -1;
+	return LIBC_CALL2(LIBC_FSTAT, r->_errno, fd, st);
 }
 
 int _open_r(struct _reent *r, const char *path, int c_flags)
 {
-	r->_errno = ENOTSUP;
-	return -1;
+	printf("opn %s\n", path);
+	return LIBC_CALL2(LIBC_OPEN, r->_errno, path, c_flags);
 }
 
 int _close_r(struct _reent *r, int fd)
 {
-	r->_errno = ENOTSUP;
-	return -1;
+	return LIBC_CALL1(LIBC_CLOSE, r->_errno, fd);
 }
 
 int _unlink_r(struct _reent *r, const char *path)
 {
-	r->_errno = ENOTSUP;
-	return -1;
+	return LIBC_CALL1(LIBC_UNLINK, r->_errno, path);
 }
 
 void *current_brk;
@@ -170,44 +200,37 @@ int _link(const char *oldpath, const char *newpath)
 
 DIR *opendir(const char *name)
 {
-	errno = ENOTSUP;
-	return NULL;
+	return (DIR *)LIBC_CALL1(LIBC_OPENDIR, errno, name);
 }
 
 int closedir(DIR *dir)
 {
-	errno = ENOTSUP;
-	return -1;
+	return LIBC_CALL1(LIBC_CLOSEDIR, errno, dir);
 }
 
 struct dirent *readdir(DIR *dir)
 {
-	errno = ENOTSUP;
-	return NULL;
+	return (struct dirent *)LIBC_CALL1(LIBC_READDIR, errno, dir);
 }
 
 int chdir(const char *path)
 {
-	errno = ENOTSUP;
-	return -1;
+	return LIBC_CALL1(LIBC_CHDIR, errno, path);
 }
 
 char *getcwd(char *buf, size_t size)
 {
-	errno = ENOTSUP;
-	return NULL;
+	return (char *)LIBC_CALL2(LIBC_GETCWD, errno, buf, size);
 }
 
 int _stat_r(struct _reent *r, const char *pathname, struct stat *buf)
 {
-	r->_errno = ENOTSUP;
-	return -1;
+	return LIBC_CALL2(LIBC_STAT, r->_errno, pathname, buf);
 }
 
 int _rename_r(struct _reent *r, const char *oldpath, const char *newpath)
 {
-	r->_errno = ENOTSUP;
-	return -1;
+	return LIBC_CALL2(LIBC_RENAME, r->_errno, oldpath, newpath);
 }
 
 #include "rtc.h"
@@ -236,14 +259,12 @@ int _gettimeofday_r (struct _reent *r, struct timeval *tp, void *tzp)
 
 int mkdir(const char *pathname, mode_t mode)
 {
-	errno = ENOTSUP;
-	return -1;
+	return LIBC_CALL2(LIBC_MKDIR, errno, pathname, mode);
 }
 
 int rmdir(const char *pathname)
 {
-	errno = ENOTSUP;
-	return -1;
+	return LIBC_CALL1(LIBC_RMDIR, errno, pathname);
 }
 
 // __malloc_lock and __malloc_unlock are not weak symbols because newlib's
