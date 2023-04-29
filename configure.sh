@@ -17,7 +17,12 @@ test -z "$OBJDIR" && OBJDIR=$OSDIR/build
 
 test "$LIBH3_MMC" == 1 && LIBH3_MMC_FLAGS="-DLIBH3_MMC -DSD_WRITE_SUPPORT"
 test "$GDB" == 1 && GDB_FLAGS="-DGDB"
-test "$JAILHOUSE" == 1 && JAILHOUSE_FLAGS="-DJAILHOUSE"
+
+test -z "$JAILHOUSE_SYSROOT" && JAILHOUSE_SYSROOT=../buildroot_jh/output/host/arm-buildroot-linux-gnueabihf/sysroot
+test -z "$JAILHOUSE_CROSS_COMPILE" && JAILHOUSE_CROSS_COMPILE=../buildroot_jh/output/host/bin/arm-buildroot-linux-gnueabihf-
+test -z "$JAILHOUSE_CC" && JAILHOUSE_CC=${JAILHOUSE_CROSS_COMPILE}gcc
+
+test "$JAILHOUSE" == 1 && JAILHOUSE_FLAGS="-DJAILHOUSE -DJAILHOUSE_SDL_HEADER=\\\"$JAILHOUSE_SYSROOT/usr/include/SDL2/SDL_events.h\\\""
 test "$JAILHOUSE" == 1 && LIBC_IO_FILES="libc_io_jh.c" || LIBC_IO_FILES="libc_io.c"
 test "$JAILHOUSE" == 1 && LINKER_LD="linker_jh.ld" || LINKER_LD="linker.ld"
 
@@ -30,8 +35,6 @@ test -z "$CXX" && CXX=${CROSS_COMPILE}g++
 test -z "$OBJCOPY" && OBJCOPY=${CROSS_COMPILE}objcopy
 test -z "$AR" && AR=${CROSS_COMPILE}ar
 
-test -z "$JAILHOUSE_CROSS_COMPILE" && JAILHOUSE_CROSS_COMPILE=../buildroot_jh/output/host/bin/arm-buildroot-linux-gnueabihf-
-test -z "$JAILHOUSE_CC" && JAILHOUSE_CC=${JAILHOUSE_CROSS_COMPILE}gcc
 
 test -e build.ninja && ninja -t clean
 

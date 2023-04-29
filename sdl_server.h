@@ -20,7 +20,9 @@
 // There doesn't seem to be any easy way to configure the bare-metal
 // toolchain to use "-fno-short-enums", unfortunately.
 
+#ifndef USE_CUSTOM_SDL_HEADERS
 #include <SDL2/SDL_events.h>
+#endif
 
 #define SDL_EVENT_BUFFER_SIZE 128
 
