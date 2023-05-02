@@ -90,6 +90,18 @@ int main(int argc, char **argv)
             }
         }
 
+        switch (event.type) {
+            case SDL_CONTROLLERDEVICEADDED:
+                SDL_GameControllerOpen(event.cdevice.which);
+                // Replace the useless joystick index with the instance id,
+                // which is what is actually used everywhere else.
+                event.cdevice.which = SDL_JoystickGetDeviceInstanceID(event.cdevice.which);
+                break;
+            case SDL_CONTROLLERDEVICEREMOVED:
+                SDL_GameControllerClose(SDL_GameControllerFromInstanceID(event.cdevice.which));
+                break;
+        }
+
         // For some reason, SDL2 sends a lot of events with (invalid) type
         // 0. We skip those.
         if (event.type != 0) {
