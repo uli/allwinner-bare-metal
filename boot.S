@@ -2,6 +2,9 @@
 _reset:
 cpsid if
 
+// Switch to System Mode (same as User, but with privileged access)
+cps #0x1f
+
 MRC p15,0,r0,c1,c0,2    // Read CP Access register
 ORR r0,r0,#0x00f00000   // Enable full access to NEON/VFP (Coprocessors 10 and 11)
 MCR p15,0,r0,c1,c0,2    // Write CP Access register
