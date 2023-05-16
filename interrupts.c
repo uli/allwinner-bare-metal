@@ -123,6 +123,10 @@ void irq_disable(uint32_t irq)
   gicd->icenabler[irq / 32]      = 1 << (irq % 32);
 }
 
+#ifdef GDBSTUB
+void _vec_jhirq(void);
+#endif
+
 // Copy the interrupt table from _ivt to 0x0
 void __attribute__((no_sanitize("all"))) install_ivt()
 {
@@ -133,6 +137,9 @@ void __attribute__((no_sanitize("all"))) install_ivt()
   // endless loop or something like that. When bouncing off the handler in
   // the loader program, everything works. So we just do that.
   *((void **)AWBM_IRQ_HANDLER_VECTOR) = interrupt;
+#ifdef GDBSTUB
+  *((void **)GDBSTUB_IRQ_HANDLER_VECTOR) = _vec_jhirq;
+#endif
 
   // XXX: Our exception handlers don't do much, so we just keep the ones
   // from the Jailhouse demos.

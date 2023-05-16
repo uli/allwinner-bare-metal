@@ -8,6 +8,8 @@
 #define GDBSTUB_PORT_ADDR	0x488fa000
 
 #define AWBM_IRQ_HANDLER_VECTOR	0xfffc
+#define GDBSTUB_IRQ_HANDLER_VECTOR 0xfff8
+
 #else
 
 #define AWBM_BASE_ADDR		0x40000000
