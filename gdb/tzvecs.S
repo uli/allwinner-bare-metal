@@ -8,8 +8,10 @@
 .arm
 
 #ifdef JAILHOUSE
+// Jailhouse loader program IRQ handler decrements LR, so we don't need to fix it up here.
 VECTOR(jhirq)
 	ex_handler	#0, gdbstub_io_handler, #CPSR_MODE_SVC
+// SVC insn points LR at the next insn (i.e. the one after our breakpoint), so we need to fix it up here.
 VECTOR(jhsvc)
 	ex_handler	#4, gdbstub_smc_handler, #CPSR_MODE_SVC
 #else
