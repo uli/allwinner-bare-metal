@@ -208,7 +208,7 @@ static ssize_t gdbstub_writev(const struct iovec *vec,
 	for (v = vec; v < vec + count; ++v)
 		for (p = v->iov_base; p < v->iov_base + v->iov_len;
 		     ++p, ++written)
-			uart_putc(*p);
+			gdbstub_putc(*p);
 
 	return written;
 }
@@ -254,7 +254,7 @@ void gdbstub_smc_handler(struct arm_regs *regs)
 
 static int gdbstub_recv_byte(char *b, bool wait)
 {
-	*b = uart_getc();
+	*b = gdbstub_getc();
 
 	return 1;
 }
@@ -279,8 +279,8 @@ static int read_csum(uint8_t *dst)
 {
 	char b[3] = {};
 
-	b[0] = uart_getc();
-	b[1] = uart_getc();
+	b[0] = gdbstub_getc();
+	b[1] = gdbstub_getc();
 
 	*dst = hex_nibble_val(b[0]) * 16 + hex_nibble_val(b[1]);
 
@@ -289,7 +289,7 @@ static int read_csum(uint8_t *dst)
 
 static void ack_packet(bool is_good)
 {
-	uart_putc(is_good ? '+' : '-');
+	gdbstub_putc(is_good ? '+' : '-');
 }
 
 static int unsupported_op(const char *msg)
@@ -700,7 +700,7 @@ void gdbstub_io_handler(struct arm_regs *regs)
 {
 	_libc_disable_stdout = 1;
 	do {
-		int c = uart_getc();
+		int c = gdbstub_getc();
 
 		switch (c) {
 		case '+': /* ACK. */

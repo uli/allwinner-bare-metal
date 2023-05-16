@@ -24,6 +24,13 @@ void uart_print_uint32(uint32_t number);
 void uart_putc(char byte);
 char uart_getc(void);
 
+#ifdef GDBSTUB
+
+#define gdbstub_getc() uart_getc()
+#define gdbstub_putc(c) uart_putc(c)
+
+#endif
+
 void uart_write_byte(int n, char byte);
 void uart_write_bytes(int n, const char *str);
 char uart_read_byte(int n);
