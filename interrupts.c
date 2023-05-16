@@ -7,6 +7,7 @@
 #include "system.h"
 #include "uart.h"
 #include "util.h"
+#include "fixed_addr.h"
 
 extern uint32_t _ivt;
 
@@ -131,7 +132,7 @@ void __attribute__((no_sanitize("all"))) install_ivt()
   // executes, but then the main thread seems to freeze, or is caught in an
   // endless loop or something like that. When bouncing off the handler in
   // the loader program, everything works. So we just do that.
-  *((void **)0xfffc) = interrupt;
+  *((void **)AWBM_IRQ_HANDLER_VECTOR) = interrupt;
 
   // XXX: Our exception handlers don't do much, so we just keep the ones
   // from the Jailhouse demos.
