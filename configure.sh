@@ -160,6 +160,8 @@ build libc_server: jh_link libc_server.o
 build sdl_server.o: jh_cc sdl_server.c
 build sdl_server: jh_link sdl_server.o
   jh_ldflags = -lSDL2
+build jailgdb.o: jh_cc jailgdb.c
+build jailgdb: jh_link jailgdb.o
 
 EOT
 
