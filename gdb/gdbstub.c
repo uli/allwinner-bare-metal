@@ -698,7 +698,9 @@ extern int _libc_disable_stdout;
 
 void gdbstub_io_handler(struct arm_regs *regs)
 {
+#ifndef JAILHOUSE
 	_libc_disable_stdout = 1;
+#endif
 	do {
 		int c = gdbstub_getc();
 
@@ -723,12 +725,20 @@ void gdbstub_io_handler(struct arm_regs *regs)
 	} while (!running);
 }
 
+#ifdef JAILHOUSE
+extern void gdbstub_init_jh(void);
+#else
 extern void init_monitor(void *stack_top);
+#endif
 
 #define MON_STACK_WORDS	1024
 unsigned long monitor_stack[MON_STACK_WORDS];
 
 void gdbstub_init(void)
 {
+#ifdef JAILHOUSE
+	gdbstub_init_jh();
+#else
 	init_monitor(monitor_stack + MON_STACK_WORDS - 16);
+#endif
 }

@@ -6,6 +6,12 @@
 #include "assembly.h"
 
 .arm
+
+#ifdef JAILHOUSE
+VECTOR(jhirq)
+	ex_handler	#0, gdbstub_io_handler, #CPSR_MODE_SVC
+#else
+
 .pushsection .text.tzvectors
 .align	12
 _monitor_vecs:
@@ -43,3 +49,4 @@ init_monitor:
 
 monitor_vec_addr:
 	.word	_monitor_vecs
+#endif
