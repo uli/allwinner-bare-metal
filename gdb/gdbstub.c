@@ -718,6 +718,7 @@ void gdbstub_io_handler(struct arm_regs *regs)
 
 		case '-':
 			BUG("transmission error");
+			break;
 
 		default: /* Unsupported operation. */
 			unsupported_op(NULL);
