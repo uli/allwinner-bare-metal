@@ -30,7 +30,7 @@ void uart_init(int n)
   // Enable FIFO
   UART_FCR(n) = 0x00000001;
 
-#ifdef GDBSTUB
+#if defined(GDBSTUB) && !defined(JAILHOUSE)
   if (n == 0) {
     // signal UART0 interrupt as FIQ for the GDB stub
     irq_enable_fiq(32);
