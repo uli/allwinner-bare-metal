@@ -125,6 +125,7 @@ void irq_disable(uint32_t irq)
 
 #ifdef GDBSTUB
 void _vec_jhirq(void);
+void _vec_jhsvc(void);
 #endif
 
 // Copy the interrupt table from _ivt to 0x0
@@ -139,6 +140,7 @@ void __attribute__((no_sanitize("all"))) install_ivt()
   *((void **)AWBM_IRQ_HANDLER_VECTOR) = interrupt;
 #ifdef GDBSTUB
   *((void **)GDBSTUB_IRQ_HANDLER_VECTOR) = _vec_jhirq;
+  *((void **)GDBSTUB_SVC_HANDLER_VECTOR) = _vec_jhsvc;
 #endif
 
   // XXX: Our exception handlers don't do much, so we just keep the ones

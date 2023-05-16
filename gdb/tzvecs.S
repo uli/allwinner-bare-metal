@@ -10,6 +10,8 @@
 #ifdef JAILHOUSE
 VECTOR(jhirq)
 	ex_handler	#0, gdbstub_io_handler, #CPSR_MODE_SVC
+VECTOR(jhsvc)
+	ex_handler	#4, gdbstub_smc_handler, #CPSR_MODE_SVC
 #else
 
 .pushsection .text.tzvectors

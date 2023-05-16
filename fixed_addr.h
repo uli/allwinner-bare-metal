@@ -9,6 +9,7 @@
 
 #define AWBM_IRQ_HANDLER_VECTOR	0xfffc
 #define GDBSTUB_IRQ_HANDLER_VECTOR 0xfff8
+#define GDBSTUB_SVC_HANDLER_VECTOR 0xfff4
 
 #else
 

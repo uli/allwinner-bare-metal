@@ -32,7 +32,11 @@ static bool running = false;
  * Instead we use an SMC call - the application shouldn't be making monitor
  * calls.
  */
+#ifdef JAILHOUSE
+#define SMC_BKPT	0xef00002a
+#else
 #define SMC_BKPT	0xe161097a
+#endif
 
 struct bkpt {
 	uint32_t *addr;
