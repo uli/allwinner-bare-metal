@@ -731,7 +731,7 @@ void gdbstub_io_handler(struct arm_regs *regs)
 }
 
 #ifdef JAILHOUSE
-extern void gdbstub_init_jh(void);
+extern void gdbstub_init_jh(void *stack_top);
 #else
 extern void init_monitor(void *stack_top);
 #endif
@@ -742,7 +742,7 @@ unsigned long monitor_stack[MON_STACK_WORDS];
 void gdbstub_init(void)
 {
 #ifdef JAILHOUSE
-	gdbstub_init_jh();
+	gdbstub_init_jh(monitor_stack + MON_STACK_WORDS - 16);
 #else
 	init_monitor(monitor_stack + MON_STACK_WORDS - 16);
 #endif

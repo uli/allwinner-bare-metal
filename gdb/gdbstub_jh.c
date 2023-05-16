@@ -1,8 +1,12 @@
 #include "../interrupts.h"
 #include "../fixed_addr.h"
 
-void gdbstub_init_jh(void)
+void gdbstub_init_jh(void *stack)
 {
+    // Initialize SP_svc
+    // XXX: maybe there's a less hacky way to do this...
+    asm("cps #0x13 ; mov sp, r0 ; cps #0x1f");
+
     volatile char *available_in = (volatile char*)GDBSTUB_PORT_ADDR;
     volatile char *available_out = (volatile char*)GDBSTUB_PORT_ADDR + 2;
     *available_in = 0;
