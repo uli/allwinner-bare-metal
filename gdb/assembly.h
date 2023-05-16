@@ -47,6 +47,11 @@
 .endm
 
 .macro ex_handler lr_fixup, handler, mode
+#ifdef JAILHOUSE
+	// Get back registers pushed on the stack by the GCC IRQ handler
+	// prolog of the Jailhouse loader program.
+	pop {r0-r7,ip,lr}
+#endif
 	sub	lr, lr, \lr_fixup
 	srsdb	sp!, \mode
 	cps	\mode
