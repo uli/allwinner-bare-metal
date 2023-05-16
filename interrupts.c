@@ -22,6 +22,12 @@ int irq_pending(uint32_t irq)
   return 0;
 }
 
+void irq_unpend(uint32_t irq)
+{
+  volatile struct gicd_reg *gicd = (volatile struct gicd_reg *)GICD_BASE;
+  gicd->icpendr[irq / 32] = (1 << (irq % 32));
+}
+
 void __attribute__((weak)) hook_display_vblank(void)
 {
 }
