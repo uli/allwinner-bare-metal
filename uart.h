@@ -26,8 +26,17 @@ char uart_getc(void);
 
 #ifdef GDBSTUB
 
+#ifdef JAILHOUSE
+
+char gdbstub_getc(void);
+void gdbstub_putc(char byte);
+
+#else
+
 #define gdbstub_getc() uart_getc()
 #define gdbstub_putc(c) uart_putc(c)
+
+#endif
 
 #endif
 
