@@ -16,7 +16,7 @@ test -z "$CROSS_COMPILE" && CROSS_COMPILE=~/x-tools/arm-unknown-eabihf/bin/arm-u
 test -z "$OBJDIR" && OBJDIR=$OSDIR/build
 
 test "$LIBH3_MMC" == 1 && LIBH3_MMC_FLAGS="-DLIBH3_MMC -DSD_WRITE_SUPPORT"
-test "$GDB" == 1 && GDB_FLAGS="-DGDB"
+test "$GDB" == 1 && GDB_FLAGS="-DGDBSTUB"
 
 test -z "$JAILHOUSE_SYSROOT" && JAILHOUSE_SYSROOT=../buildroot_jh/output/host/arm-buildroot-linux-gnueabihf/sysroot
 test -z "$JAILHOUSE_CROSS_COMPILE" && JAILHOUSE_CROSS_COMPILE=../buildroot_jh/output/host/bin/arm-buildroot-linux-gnueabihf-
@@ -119,7 +119,7 @@ test "$JAILHOUSE" == 1 || SOURCES="$SOURCES usb.c fs.c \
 	tinyusb/lib/fatfs/diskio1.c tinyusb/lib/fatfs/diskio2.c tinyusb/lib/fatfs/diskio3.c \
 	fatfs/ff.c fatfs/ffunicode.c"
 
-test "$GDB" == 1 && SOURCES="$SOURCES gdb/tzvecs.c gdb/gdbstub.c gdb/string.c gdb/printk.c"
+test "$GDB" == 1 && SOURCES="$SOURCES gdb/tzvecs.S gdb/gdbstub.c gdb/string.c gdb/printk.c"
 if test "$JAILHOUSE" == 0; then
   if test "$LIBH3_MMC" == 1; then
     SOURCES="$SOURCES lib-h3/lib-hal/src/h3/sdcard/diskio.c"
