@@ -2,6 +2,7 @@
 #include "ccu.h"
 #include "display.h"
 #include "dma.h"
+#include "fixed_addr.h"
 #include "fs.h"
 #include "interrupts.h"
 #include "mmu.h"
@@ -47,18 +48,15 @@ void startup()
 #endif
 
   // detect memory size
-#ifdef GDBSTUB
-  libc_set_heap((void *)0x42000000, (void *)0x60000000);
-#elif defined(JAILHOUSE)
+
+#ifdef JAILHOUSE
   // MMU is already on, so memory detection needs to do cache management to
   // work, so it needs to know the cache line size, so we need to call
   // mmu_init() beforehand.
   mmu_init();
-  libc_set_heap((void *)0x4b000000, mmu_detect_dram_end());
-#else
-  // XXX: check why this doesn't work with the stub enabled
-  libc_set_heap((void *)0x42000000, mmu_detect_dram_end());
 #endif
+
+  libc_set_heap((void *)AWBM_BASE_ADDR + 0x02000000, mmu_detect_dram_end());
 
   install_ivt();
 
