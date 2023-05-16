@@ -120,6 +120,8 @@ test "$JAILHOUSE" == 1 || SOURCES="$SOURCES usb.c fs.c \
 	fatfs/ff.c fatfs/ffunicode.c"
 
 test "$GDB" == 1 && SOURCES="$SOURCES gdb/tzvecs.S gdb/gdbstub.c gdb/string.c gdb/printk.c"
+test "$GDB" == 1 && test "$JAILHOUSE" == 1 && SOURCES="$SOURCES gdb/gdbstub_jh.c"
+
 if test "$JAILHOUSE" == 0; then
   if test "$LIBH3_MMC" == 1; then
     SOURCES="$SOURCES lib-h3/lib-hal/src/h3/sdcard/diskio.c"
