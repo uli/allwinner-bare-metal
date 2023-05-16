@@ -15,7 +15,7 @@
 #include "printk.h"
 #include "string.h"
 #include "types.h"
-#include "uart.h"
+#include "../uart.h"
 #include "mmu.h"
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
