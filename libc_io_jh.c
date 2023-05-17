@@ -191,6 +191,11 @@ int _getpid_r(struct _reent *r, int n)
 	return 1;
 }
 
+int _wait_r(struct _reent *r, int *wstatus)
+{
+	return LIBC_CALL1(LIBC_WAIT, r->_errno, wstatus);
+}
+
 int _link(const char *oldpath, const char *newpath)
 {
 	(void)oldpath;

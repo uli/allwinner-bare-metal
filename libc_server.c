@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -72,6 +73,7 @@ const call4 libc_functors[LIBC_LAST] = {
     [LIBC_RENAME] = (void *)rename,
     [LIBC_MKDIR] = (void *)mkdir,
     [LIBC_RMDIR] = (void *)rmdir,
+    [LIBC_WAIT] = (void *)wait,
 };
 
 static void translate_stat(struct newlib_stat *dst, struct stat *src)
