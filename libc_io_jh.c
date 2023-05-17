@@ -273,6 +273,11 @@ int rmdir(const char *pathname)
 	return LIBC_CALL1(LIBC_RMDIR, errno, pathname);
 }
 
+pid_t jhlibc_forkptyexec(int *fd, void *ws, char * const *argv)
+{
+	return LIBC_CALL3(LIBC_JHLIBC_FORKPTYEXEC, errno, fd, ws, argv);
+}
+
 // __malloc_lock and __malloc_unlock are not weak symbols because newlib's
 // primary goal is to be as annoying as possible. To work around that we
 // enlist ld's help and let it wrap these functions so we can override them.

@@ -52,6 +52,33 @@ struct newlib_stat {
 
 #include <dirent.h>
 
+// This is an Engine BASIC special helper that implements the Linux side of
+// a SHELL command.
+// The forked process bits have to be done entirely on our side because we
+// only have a single thread on the Engine BASIC side.
+#include <pty.h>
+pid_t jhlibc_forkptyexec(int *fd, struct winsize *ws, char * const *argv)
+{
+    pid_t pid = forkpty(fd, NULL, NULL, ws);
+    if (pid == 0) {
+        // shell
+        unsetenv("DISPLAY");
+        setenv("TERM", "ansi", 1);
+        setenv("LANG", "en_US.UTF-8", 1);
+        if (argv[0] == NULL)
+            execl("/bin/sh", "sh", NULL);
+        else if (argv[1] == NULL)
+            execl("/bin/sh", "sh", "-c", argv[0], (char *) 0);
+        else
+            execvp(argv[0], argv);
+        _exit(1);
+    } else {
+        if (pid > 0)
+            fcntl(*fd, F_SETFL, O_NONBLOCK);
+        return pid;
+    }
+}
+
 struct libc_call_buffer *callbuf;
 
 typedef param_t (*call4)(param_t, param_t, param_t, param_t);
@@ -74,6 +101,7 @@ const call4 libc_functors[LIBC_LAST] = {
     [LIBC_MKDIR] = (void *)mkdir,
     [LIBC_RMDIR] = (void *)rmdir,
     [LIBC_WAIT] = (void *)wait,
+    [LIBC_JHLIBC_FORKPTYEXEC] = (void *)jhlibc_forkptyexec,
 };
 
 static void translate_stat(struct newlib_stat *dst, struct stat *src)

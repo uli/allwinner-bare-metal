@@ -34,6 +34,7 @@ enum libc_funcs {
     LIBC_MKDIR,
     LIBC_RMDIR,
     LIBC_WAIT,
+    LIBC_JHLIBC_FORKPTYEXEC,
     LIBC_LAST
 };
 
