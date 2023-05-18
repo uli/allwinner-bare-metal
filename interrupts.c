@@ -123,20 +123,19 @@ void irq_disable(uint32_t irq)
   gicd->icenabler[irq / 32]      = 1 << (irq % 32);
 }
 
+#ifdef JAILHOUSE
 #ifdef GDBSTUB
 void _vec_jhirq(void);
 void _vec_jhsvc(void);
 #endif
 
-// Copy the interrupt table from _ivt to 0x0
 void __attribute__((no_sanitize("all"))) install_ivt()
 {
-#ifdef JAILHOUSE
-
   // Jailhouse doesn't seem to like it if we use our interrupt handler. It
   // executes, but then the main thread seems to freeze, or is caught in an
   // endless loop or something like that. When bouncing off the handler in
   // the loader program, everything works. So we just do that.
+  // XXX: Is that still true?
   *((void **)AWBM_IRQ_HANDLER_VECTOR) = interrupt;
 #ifdef GDBSTUB
   *((void **)GDBSTUB_IRQ_HANDLER_VECTOR) = _vec_jhirq;
@@ -148,8 +147,14 @@ void __attribute__((no_sanitize("all"))) install_ivt()
 
   // XXX: GIC seems to be set up reasonably well by Jailhouse.
 
-#else
+  asm("cpsie if;");  // Enable interrupts
+}
+#endif	// JAILHOUSE
 
+#ifndef JAILHOUSE
+// Copy the interrupt table from _ivt to 0x0
+void __attribute__((no_sanitize("all"))) install_ivt()
+{
   uint32_t *source      = &_ivt;
   uint32_t *destination = (uint32_t *)(0);
   for (int n = 0; n < 2 * 8; n++)
@@ -170,7 +175,6 @@ void __attribute__((no_sanitize("all"))) install_ivt()
   for (int i = 0; i < 32; ++i)
     gicd->igroupr[i] = 0xffffffff;
 
-#endif	// JAILHOUSE
-
   asm("cpsie if;");  // Enable interrupts
 }
+#endif	// !JAILHOUSE
