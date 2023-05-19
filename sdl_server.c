@@ -64,7 +64,10 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    SDL_GameControllerAddMappingsFromFile("gamecontrollerdb.txt");
+    if (SDL_GameControllerAddMappingsFromFile("/sd/sys/gamecontrollerdb.txt") < 0 &&
+        SDL_GameControllerAddMappingsFromFile("/usr/share/gamecontrollerdb.txt") < 0) {
+        printf("WARNING: could not load gamecontrollerdb.txt: %s\n", SDL_GetError());
+    }
 
     for (;;) {
         SDL_WaitEvent(&event);
