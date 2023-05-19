@@ -401,9 +401,13 @@ static void codec_hw_params(uint32_t rate, uint32_t channels) {
 
 // removed FIQ attribute so this can be called from a master interrupt handler
 void /*__attribute__((interrupt("FIQ")))*/ codec_fiq_handler(void) {
-	dmb();
-	clean_data_cache();
-	isb();
+	// lib-h3 does this:
+	//dmb();
+	//clean_data_cache();
+	//isb();
+	// ...which massively kills performance in Jailhouse and makes no
+	// sense at all to begin with because the buffers are in uncached
+	// memory anyway.
 
 #ifdef LOGIC_ANALYZER
 	h3_gpio_set(6);
