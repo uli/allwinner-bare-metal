@@ -60,6 +60,8 @@ void irq_disable(uint32_t irq);
 int irq_pending(uint32_t irq);
 void irq_unpend(uint32_t irq);
 
+void hook_data_abort(void);
+
 #ifdef __cplusplus
 }
 #endif

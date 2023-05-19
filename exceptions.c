@@ -1,3 +1,4 @@
+#include "interrupts.h"
 #include "uart.h"
 
 void halt(void)
@@ -63,11 +64,8 @@ void __attribute__((interrupt("ABORT"))) except_prefetch_abort(void)
 
 void __attribute__((interrupt("ABORT"))) except_data_abort(void)
 {
-	register uint32_t reg_lr asm("lr");
-	uint32_t saved_lr = reg_lr;
-	uart_print("data abort at ");
-	uart_print_uint32(saved_lr);
-	halt();
+	asm("cps #0x13; cpsie if");
+	hook_data_abort();
 }
 
 void __attribute__((interrupt("FIQ"))) except_fiq(void)

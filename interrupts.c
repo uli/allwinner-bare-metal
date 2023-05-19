@@ -123,6 +123,11 @@ void irq_disable(uint32_t irq)
   gicd->icenabler[irq / 32]      = 1 << (irq % 32);
 }
 
+void __attribute__((weak)) hook_data_abort(void)
+{
+  for (;;);
+}
+
 #ifdef JAILHOUSE
 #ifdef GDBSTUB
 void _vec_jhirq(void);
@@ -141,6 +146,7 @@ void __attribute__((no_sanitize("all"))) install_ivt()
   *((void **)GDBSTUB_IRQ_HANDLER_VECTOR) = _vec_jhirq;
   *((void **)GDBSTUB_SVC_HANDLER_VECTOR) = _vec_jhsvc;
 #endif
+  *((void **)AWBM_DABT_HANDLER_VECTOR) = hook_data_abort;
 
   // XXX: Our exception handlers don't do much, so we just keep the ones
   // from the Jailhouse demos.
