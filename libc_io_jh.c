@@ -323,3 +323,14 @@ void __wrap___malloc_unlock(struct _reent *r)
 		malloc_lock_count = 0;
 	spin_unlock(&malloc_lock_v);
 }
+
+// system and _system_r are not weak symbols because newlib's primary goal
+// is to be as annoying as possible. To work around that we enlist ld's help
+// and let it wrap system so we can override it. Make absolutely sure your
+// program is linked with "-Wl,-wrap,system or the implementations here will
+// not be used!
+
+int __wrap_system(const char *command)
+{
+	return LIBC_CALL1(LIBC_SYSTEM, errno, command);
+}

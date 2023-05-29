@@ -102,6 +102,7 @@ const call4 libc_functors[LIBC_LAST] = {
     [LIBC_RMDIR] = (void *)rmdir,
     [LIBC_WAIT] = (void *)wait,
     [LIBC_JHLIBC_FORKPTYEXEC] = (void *)jhlibc_forkptyexec,
+    [LIBC_SYSTEM] = (void *)system,
 };
 
 static void translate_stat(struct newlib_stat *dst, struct stat *src)

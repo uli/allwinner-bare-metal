@@ -71,7 +71,7 @@ rule cxx
   depfile = \$out.d
   command = $CXX -MD -MF \$out.d \$aw_cxxflags \$cxxflags -c \$in -o \$out
 rule link
-  command = $CC \$aw_cflags \$cflags \$aw_ldflags -o \$out \$in -Wl,--wrap,__stack_chk_fail -Wl,-wrap,__malloc_lock -Wl,-wrap,__malloc_unlock -lc \$
+  command = $CC \$aw_cflags \$cflags \$aw_ldflags -o \$out \$in -Wl,--wrap,__stack_chk_fail -Wl,-wrap,__malloc_lock -Wl,-wrap,__malloc_unlock -Wl,-wrap,system -lc \$
             -L$OSDIR -L$LIBH3DIR/lib-h3/lib_h3 -L$LIBH3DIR/lib-arm/lib_h3 \$libs -los -lh3 -larm -lc -lm $COMPILER_LDFLAGS
 
 rule bin
