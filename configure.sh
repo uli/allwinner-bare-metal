@@ -105,7 +105,7 @@ rm lwip.files
 SOURCES="boot.S startup.c uart.c ports.c mmu.c system.c display.c interrupts.c \
 	audio_hdmi.c audio_i2s.c exceptions.c cache.S display_filter.c \
 	dma.c rtc.c smp.c spinlock.c ubsan.c tve.c \
-	${LIBC_IO_FILES} \
+	libc_common.c ${LIBC_IO_FILES} \
 	network.c ${COREFILES} ${CORE4FILES} ${NETIFFILES} ${HTTPFILES} ${TFTPFILES} $LWIPDIR/api/err.c"
 
 test "$JAILHOUSE" == 1 || SOURCES="$SOURCES usb.c fs.c \
