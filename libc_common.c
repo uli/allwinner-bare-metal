@@ -47,3 +47,21 @@ void __wrap___malloc_unlock(struct _reent *r)
 		malloc_lock_count = 0;
 	spin_unlock(&malloc_lock_v);
 }
+
+// newlib only compiles basename for Unix targets because it's stupid
+#include <string.h>
+char* basename(char *path)
+{
+	char *p;
+	if( path == NULL || *path == '\0' )
+		return ".";
+	p = path + strlen(path) - 1;
+	while( *p == '/' ) {
+		if( p == path )
+			return path;
+		*p-- = '\0';
+	}
+	while( p >= path && *p != '/' )
+		p--;
+	return p + 1;
+}
