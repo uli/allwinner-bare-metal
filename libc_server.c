@@ -62,8 +62,8 @@ pid_t jhlibc_forkptyexec(int *fd, struct winsize *ws, char * const *argv)
     pid_t pid = forkpty(fd, NULL, NULL, ws);
     if (pid == 0) {
         // shell
-        unsetenv("DISPLAY");
-        setenv("TERM", "ansi", 1);
+        unsetenv("DISPLAY");	// XXX: is that necessary?
+        setenv("TERM", "ansiw", 1);
         setenv("LANG", "en_US.UTF-8", 1);
         if (argv[0] == NULL)
             execl("/bin/sh", "sh", NULL);
