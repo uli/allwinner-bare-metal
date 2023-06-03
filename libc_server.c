@@ -63,8 +63,9 @@ pid_t jhlibc_forkptyexec(int *fd, struct winsize *ws, char * const *argv)
     if (pid == 0) {
         // shell
         unsetenv("DISPLAY");	// XXX: is that necessary?
-        setenv("TERM", "ansiw", 1);
+        setenv("TERM", "cons25-debian", 1);
         setenv("LANG", "en_US.UTF-8", 1);
+        setenv("HOME", "/sd", 1);
         if (argv[0] == NULL)
             execl("/bin/sh", "sh", NULL);
         else if (argv[1] == NULL)
