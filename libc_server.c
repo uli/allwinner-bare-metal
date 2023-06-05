@@ -125,6 +125,72 @@ static void translate_dirent(struct awb_dirent *dst, struct dirent *src)
     dst->d_name[sizeof(dst->d_name) - 1] = 0;
 }
 
+// discount version of newlib's fcntl.h
+#define NEWLIB__FOPEN          (-1)    /* from sys/file.h, kernel use only */
+#define NEWLIB__FREAD          0x0001  /* read enabled */
+#define NEWLIB__FWRITE         0x0002  /* write enabled */
+#define NEWLIB__FAPPEND        0x0008  /* append (writes guaranteed at the end) */
+#define NEWLIB__FMARK          0x0010  /* internal; mark during gc() */
+#define NEWLIB__FDEFER         0x0020  /* internal; defer for next gc pass */
+#define NEWLIB__FASYNC         0x0040  /* signal pgrp when data ready */
+#define NEWLIB__FSHLOCK        0x0080  /* BSD flock() shared lock present */
+#define NEWLIB__FEXLOCK        0x0100  /* BSD flock() exclusive lock present */
+#define NEWLIB__FCREAT         0x0200  /* open with file create */
+#define NEWLIB__FTRUNC         0x0400  /* open with truncation */
+#define NEWLIB__FEXCL          0x0800  /* error on open if file exists */
+#define NEWLIB__FNBIO          0x1000  /* non blocking I/O (sys5 style) */
+#define NEWLIB__FSYNC          0x2000  /* do all writes synchronously */
+#define NEWLIB__FNONBLOCK      0x4000  /* non blocking I/O (POSIX style) */
+#define NEWLIB__FNDELAY        NEWLIB__FNONBLOCK      /* non blocking I/O (4.2 style) */
+#define NEWLIB__FNOCTTY        0x8000  /* don't assign a ctty on this open */
+#define NEWLIB__FNOINHERIT	0x40000
+#define NEWLIB__FDIRECT	0x80000
+#define NEWLIB__FNOFOLLOW	0x100000
+#define NEWLIB__FDIRECTORY	0x200000
+#define NEWLIB__FEXECSRCH	0x400000
+
+#define NEWLIB_O_RDONLY        0               /* +1 == FREAD */
+#define NEWLIB_O_WRONLY        1               /* +1 == FWRITE */
+#define NEWLIB_O_RDWR          2               /* +1 == FREAD|FWRITE */
+#define NEWLIB_O_APPEND        NEWLIB__FAPPEND
+#define NEWLIB_O_CREAT         NEWLIB__FCREAT
+#define NEWLIB_O_TRUNC         NEWLIB__FTRUNC
+#define NEWLIB_O_EXCL          NEWLIB__FEXCL
+#define NEWLIB_O_SYNC          NEWLIB__FSYNC
+/*      NEWLIB_O_NDELAY        NEWLIB__FNDELAY        set in include/fcntl.h */
+/*      NEWLIB_O_NDELAY        NEWLIB__FNBIO          set in include/fcntl.h */
+#define NEWLIB_O_NONBLOCK      NEWLIB__FNONBLOCK
+#define NEWLIB_O_NOCTTY        NEWLIB__FNOCTTY
+
+/* POSIX-1.2008 specific flags */
+#define NEWLIB_O_CLOEXEC       NEWLIB__FNOINHERIT
+#define NEWLIB_O_NOFOLLOW      NEWLIB__FNOFOLLOW
+#define NEWLIB_O_DIRECTORY     NEWLIB__FDIRECTORY
+#define NEWLIB_O_EXEC          NEWLIB__FEXECSRCH
+#define NEWLIB_O_SEARCH        NEWLIB__FEXECSRCH
+
+static int translate_fcntl_flags(int flags_in) {
+    int flags_out = 0;
+#define N2L(flag) if (flags_in & NEWLIB_ ## flag) flags_out |= flag;
+    N2L(O_RDONLY)
+    N2L(O_WRONLY)
+    N2L(O_RDWR)
+    N2L(O_APPEND)
+    N2L(O_CREAT)
+    N2L(O_TRUNC)
+    N2L(O_EXCL)
+    N2L(O_SYNC)
+    N2L(O_NONBLOCK)
+    N2L(O_NOCTTY)
+    N2L(O_CLOEXEC)
+    N2L(O_NOFOLLOW)
+    N2L(O_DIRECTORY)
+    // N2L(O_EXEC) POSIX.1
+    // N2L(O_SEARCH) no idea
+
+    return flags_out;
+}
+
 int main(void)
 {
     // Map shared memory communication regions.
@@ -195,6 +261,9 @@ int main(void)
                 trans_dest = call->args[1];
                 call->args[1] = (param_t)malloc(sizeof(struct stat));
                 // XXX: handle OOM
+                break;
+            case LIBC_OPEN:
+                call->args[1] = translate_fcntl_flags(call->args[1]);
                 break;
             default:
                 break;
