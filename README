@@ -1,6 +1,21 @@
 This is an experimental branch targeting Orange Pi H3-based boards that adds a lot
 of functionality, mostly by including external libraries.
 
+This branch includes support for running applications based on
+alwinner-bare-metal in the Jailhouse hypervisor.
+
+It includes server programs (libc_server and sdl_server) that run on the
+Linux root cell and provide services to the bare metal application such as
+input events and library calls.
+
+It also comes with a gdb stub and a communications program (jailgdb) that
+allows to debug the bare metal application from the Linux root cell.
+
+It requires a modified hypervisor (particularly for the GDB stub) and a
+suitable cell configuration, as well as a patched kernel for the root cell
+that maps memory accessed through /dev/mem coherently. You should be able to
+find those nearby. Hopefully.
+
 Original README:
 
 This repository represents an attempt to run bare metal code on an Allwinner SoC.
