@@ -190,9 +190,9 @@ void tve_init(int pal)
   TVE_RESYNC_NUM     = pal ? 0x3005000A : 0x30050368;
 
   // DE display system
-  DE_SCLK_GATE   = 0x00000002;
-  DE_HCLK_GATE   = 0x00000002;
-  DE_AHB_RESET   = 0x00000004;
+  DE_SCLK_GATE   = 0x00000002;	// XXX: shouldn't that be "|="?
+  DE_HCLK_GATE   = 0x00000002;	// XXX: shouldn't that be "|="?
+  DE_AHB_RESET   = 0x00000004;	// XXX: why?
   DE_SCLK_DIV    = 0x00000000;
   DE_DE2TCON_MUX = 0x00000000;
   DE_CMD_CTL     = 0x00000000;
