@@ -330,6 +330,31 @@ extern int display_is_pal;
 #define DE_SIZE(x, y) ((((y)-1) << 16) | ((x)-1))
 #define DE_SIZE_PHYS  DE_SIZE(DISPLAY_PHYS_RES_X, DISPLAY_PHYS_RES_Y)
 
+#define DE_WB                         (DE_BASE + 0x10000)
+
+#define DE_WB_GCTRL        *(volatile uint32_t*)(DE_WB + 0x00)
+#define DE_WB_SIZE         *(volatile uint32_t*)(DE_WB + 0x04)
+#define DE_WB_A_CH0_ADDR   *(volatile uint32_t*)(DE_WB + 0x10)
+#define DE_WB_A_CH1_ADDR   *(volatile uint32_t*)(DE_WB + 0x14)
+#define DE_WB_B_CH0_ADDR   *(volatile uint32_t*)(DE_WB + 0x20)
+#define DE_WB_B_CH1_ADDR   *(volatile uint32_t*)(DE_WB + 0x24)
+#define DE_WB_CH0_PITCH    *(volatile uint32_t*)(DE_WB + 0x30)
+#define DE_WB_CH12_PITCH   *(volatile uint32_t*)(DE_WB + 0x34)
+#define DE_WB_ADDR_SWITCH  *(volatile uint32_t*)(DE_WB + 0x40)
+#define DE_WB_FORMAT       *(volatile uint32_t*)(DE_WB + 0x44)
+#define DE_WB_CH0_HCOEF(n) *(volatile uint32_t*)(DE_WB + 0x200 + (n) * 4)
+#define DE_WB_CH1_HCOEF(n) *(volatile uint32_t*)(DE_WB + 0x280 + (n) * 4)
+#define DE_WB_STATUS       *(volatile uint32_t*)(DE_WB + 0x4C)
+#define DE_WB_CROP_SIZE    *(volatile uint32_t*)(DE_WB + 0x0C)
+#define DE_WB_BYPASS       *(volatile uint32_t*)(DE_WB + 0x54)
+#define DE_WB_CS_HORZ      *(volatile uint32_t*)(DE_WB + 0x70)
+#define DE_WB_CS_VERT      *(volatile uint32_t*)(DE_WB + 0x74)
+#define DE_WB_FS_INSIZE    *(volatile uint32_t*)(DE_WB + 0x80)
+#define DE_WB_FS_OUTSIZE   *(volatile uint32_t*)(DE_WB + 0x84)
+#define DE_WB_FS_HSTEP     *(volatile uint32_t*)(DE_WB + 0x88)
+#define DE_WB_FS_VSTEP     *(volatile uint32_t*)(DE_WB + 0x8C)
+#define DE_WB_INT          *(volatile uint32_t*)(DE_WB + 0x48)
+
 void display_set_mode(int x, int y, int ovx, int ovy);
 void display_swap_buffers();
 void display_clear_active_buffer(void);
@@ -364,6 +389,14 @@ struct display_phys_mode_t {
 void hook_display_vblank(void);
 
 int display_init(const struct display_phys_mode_t *mode);
+
+void display_capture_init(int x, int y);
+void display_capture_set_out_bufs(void *luma_buf, void *chroma_buf);
+void display_capture_kick(void);
+void display_capture_stop(void);
+int display_capture_frame_ready(void **luma_buf, void **chroma_buf);
+void display_capture_ack_frame(void);
+
 #ifdef __cplusplus
 }
 #endif

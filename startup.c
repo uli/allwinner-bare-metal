@@ -104,6 +104,7 @@ void startup()
     tve_init(TVE_NORM_NTSC);
   else
     audio_hdmi_init();
+  irq_enable(127);	// DE (for writeback)
 
   sys_init_timer();
 

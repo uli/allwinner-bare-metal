@@ -81,6 +81,12 @@ void
     LCD1_GINT0 &= ~(1 << 14);
     hook_display_vblank();
   }
+
+  // RT-WB
+  if (irq_pending(127)) {
+    // XXX: notify somebody???
+    DE_WB_STATUS |= 1;
+  }
 }
 
 // XXX: Something is really wrong here.

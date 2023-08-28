@@ -210,3 +210,100 @@ void display_clear_active_buffer(void)
 {
   memset((void *)display_active_buffer, 0, dsp.fb_bytes);
 }
+
+// Coefficients for RT-WB fine scaling. It seems FS is always required when
+// using semi-planar output formats, even if input and output are the same
+// size.
+// XXX: different coefficients are used for downscaling.
+static const uint32_t wb_fs_coeffs[] = {
+  0x00004000, 0x00033FFE, 0x00063EFC, 0x000A3BFB,
+  0xFF0F37FB, 0xFE1433FB, 0xFD192FFB, 0xFD1F29FB,
+  0xFC2424FC, 0xFB291FFD, 0xFB2F19FD, 0xFB3314FE,
+  0xFB370FFF, 0xFB3B0A00, 0xFC3E0600, 0xFE3F0300,
+};
+
+void display_capture_set_out_bufs(void *luma_buf, void *chroma_buf)
+{
+  DE_WB_A_CH0_ADDR = (uint32_t)luma_buf;
+  DE_WB_B_CH0_ADDR = (uint32_t)luma_buf;
+  DE_WB_A_CH1_ADDR = (uint32_t)chroma_buf;
+  DE_WB_B_CH1_ADDR = (uint32_t)chroma_buf;
+}
+
+void display_capture_init(int x, int y)
+{
+  // XXX: should we do that?
+  //75 POKED sclk_gate,1:POKED hclk_gate,1:POKED ahb_reset,1:VSYNC
+
+  // Turn on clocks.
+  DE_SCLK_GATE |= BIT(2);
+  DE_HCLK_GATE |= BIT(2);
+  DE_AHB_RESET |= BIT(2);
+
+  // ungate clocks, assert reset
+  DE_WB_GCTRL = BIT(29) | BIT(28) | BIT(4);
+
+  // input size
+  DE_WB_SIZE = DE_SIZE(x, y);
+  DE_WB_CROP_SIZE = DE_SIZE(x, y);
+
+  // For NV12 it seems that FS, CS and CSC all need to be turned on, even if
+  // input and output dimensions are the same.
+  DE_WB_FS_INSIZE = DE_SIZE(x, y);
+  DE_WB_FS_OUTSIZE = DE_SIZE(x, y);
+  // These values apparently mean "scale 1:1" (from Linux vendor driver):
+  DE_WB_FS_HSTEP = BIT(20);
+  DE_WB_FS_VSTEP = BIT(20);
+  DE_WB_CS_HORZ = 0;
+  DE_WB_CS_VERT = 0;
+  // enable FS, CS, CSC
+  DE_WB_BYPASS = BIT(2) | BIT(1) | BIT(0);
+
+  // Output addresses
+  DE_WB_CH0_PITCH = x;
+  DE_WB_CH12_PITCH = x;
+
+  DE_WB_FORMAT = 0xc;	// NV12
+
+  // Load coefficients for fine scaling.
+  for (int i = 0; i < 15; ++i) {
+    DE_WB_CH0_HCOEF(i) = wb_fs_coeffs[i];
+    DE_WB_CH1_HCOEF(i) = wb_fs_coeffs[i];
+  };
+
+  // deassert reset, clear IRQ flag
+  DE_WB_GCTRL = BIT(29) | BIT(28);
+  DE_WB_STATUS = BIT(0);
+}
+
+void display_capture_kick(void)
+{
+  DE_WB_GCTRL |= BIT(0);
+}
+
+int display_capture_frame_ready(void **luma, void **chroma)
+{
+  if (DE_WB_STATUS & BIT(0)) {
+    *luma = (void *)DE_WB_A_CH0_ADDR;
+    *chroma = (void *)DE_WB_A_CH1_ADDR;
+    return 1;
+  }
+
+  return 0;
+}
+
+void display_capture_ack_frame(void)
+{
+  DE_WB_STATUS |= BIT(0);
+}
+
+void display_capture_stop(void)
+{
+  // gate clocks, assert reset
+  DE_WB_GCTRL = BIT(4);
+
+  // turn off clocks
+  DE_SCLK_GATE &= ~BIT(2);
+  DE_HCLK_GATE &= ~BIT(2);
+  DE_AHB_RESET &= ~BIT(2);
+}
