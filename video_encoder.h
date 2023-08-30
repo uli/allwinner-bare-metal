@@ -13,6 +13,7 @@ struct video_encoder_comm_buffer {
     int video_h;
     void *audio_buffer;
     int audio_frame_no;
+    int audio_size;
     int enabled;
 };
 
