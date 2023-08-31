@@ -148,7 +148,10 @@ rule link_lib
 
 EOT
 
-test "$JAILHOUSE" == 1 && cat <<EOT >>build.ninja
+JH_VIDEO_RECORDER_SOURCES="h264enc/h264enc.c h264enc/h264avi.c h264enc/main.c h264enc/ve.c"
+
+if test "$JAILHOUSE" == 1 ; then
+	cat <<EOT >>build.ninja
 rule jh_cc
   depfile = \$out.d
   command = $JAILHOUSE_CC -MD -MF \$out.d -DJAILHOUSE -Wall -W -c \$in -o \$out
@@ -162,8 +165,17 @@ build sdl_server: jh_link sdl_server.o
   jh_ldflags = -lSDL2
 build jailgdb.o: jh_cc jailgdb.c
 build jailgdb: jh_link jailgdb.o
+EOT
+
+	for s in $JH_VIDEO_RECORDER_SOURCES ; do
+		echo "build ${s/.c/.o}: jh_cc $s" >>build.ninja
+	done
+
+	cat <<EOT >>build.ninja
+build video_recorder: jh_link ${JH_VIDEO_RECORDER_SOURCES//.c/.o}
 
 EOT
+fi
 
 {
 echo -n "build libos.a: link_lib "
