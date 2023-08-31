@@ -1,0 +1,13 @@
+This is a modified version of the proof-of-concept H.264 video encoder for
+Allwinner SoCs found at https://github.com/uboborov/cedrus . It has been
+tested with the hardware driver found at
+https://github.com/Rexarrior/sunxi-cedar-mainline .
+
+It is designed to run on the root Linux cell of a Jailhouse environment and
+records video and audio from an interface described in video_encoder.h that
+is fed by a bare-metal application, then writes the H.264-encoded video and
+raw PCM audio data to an AVI file.
+
+The bare-metal application is resposible for converting the input image to
+NV12 pixel format, which for screen recording can be achieved in hardware
+using the display_capture_*() API of this framework.
