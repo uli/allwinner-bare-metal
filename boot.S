@@ -15,7 +15,7 @@ VMSR FPEXC,r0            // Set EN bit in FPEXC
 MRC p15, 0, r0, c0, c0, 5
 and r0, r0, #3
 #ifdef JAILHOUSE
-CMP r0, #2
+CMP r0, #1
 #else
 CMP r0, #0
 #endif
