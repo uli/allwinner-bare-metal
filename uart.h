@@ -44,6 +44,9 @@ void uart_write_byte(int n, char byte);
 void uart_write_bytes(int n, const char *str);
 char uart_read_byte(int n);
 
+unsigned char uart_rx_ready(int n);
+unsigned char uart_tx_ready(int n);
+
 #ifdef __cplusplus
 }
 #endif
