@@ -290,7 +290,7 @@ void avi_finalize(struct avi_context *c)
 
     // XXX: index?
 
-    unsigned int end_of_movi = ftell(fp);
+    long end_of_movi = ftell(fp);
 
     c->hdrl.dwTotalFrames = c->frame_count;
     fseek(fp, c->hdrl_pos, SEEK_SET);
