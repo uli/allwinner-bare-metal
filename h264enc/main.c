@@ -18,6 +18,7 @@
  *
  */
 
+#define _GNU_SOURCE
 #include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
@@ -40,10 +41,17 @@ void h264enc_set_buffers(h264enc * c, uint8_t *luma, uint8_t *chroma);
 
 int quit = 0;
 
-void sigint_handler(int dummy)
+static void sigint_handler(int dummy)
 {
     (void)dummy;
     quit = 1;
+}
+
+static void scrolllock_led(int enable)
+{
+	char *cmd;
+	asprintf(&cmd, "for i in /sys/class/leds/input*::scrolllock ; do echo %d >$i/brightness ; done", enable);
+	system(cmd);
 }
 
 int main(const int argc, const char **argv)
@@ -121,6 +129,8 @@ int main(const int argc, const char **argv)
 		return EXIT_FAILURE;
 	}
 
+	scrolllock_led(1);
+
 	struct avi_context *avi = avi_new_file(out);
 	avi_write_header(avi, width, height, 30);
 
@@ -188,6 +198,8 @@ err:
 	ve_close();
 	avi_finalize(avi);
 	fclose(out);
+
+	scrolllock_led(0);
     }
 
     return EXIT_SUCCESS;
