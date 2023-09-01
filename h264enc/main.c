@@ -148,10 +148,12 @@ int main(const int argc, const char **argv)
 	printf("Running h264 encoding\n");
 
 	while (video_encoder->enabled && !quit) {
-		while (video_encoder->video_frame_no == last_video_frame_no &&
+		if (video_encoder->video_frame_no == last_video_frame_no &&
 		       video_encoder->audio_frame_no == last_audio_frame_no) {
 			asm("wfe");
+			continue;
 		}
+
 		if (video_encoder->audio_frame_no != last_audio_frame_no) {
 			if (video_encoder->audio_frame_no > last_audio_frame_no + 1)
 				printf("audio frame drop %d->%d\n", last_audio_frame_no, video_encoder->audio_frame_no);
