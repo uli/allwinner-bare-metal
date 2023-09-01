@@ -48,6 +48,8 @@ void sigint_handler(int dummy)
 
 int main(const int argc, const char **argv)
 {
+    (void)argc; (void)argv;
+
     signal(SIGINT, sigint_handler);
 
     // Map shared memory communication regions.
@@ -81,11 +83,8 @@ int main(const int argc, const char **argv)
         return 0;
     }
 
-    if (argc != 2)
-    {
-	printf("Usage: %s <outfile>\n", argv[0]);
-	return EXIT_FAILURE;
-    }
+    int file_count = 0;
+    char out_file_name[] = "/sd/rec0000.avi";
 
     int width;
     int height;
@@ -102,13 +101,26 @@ int main(const int argc, const char **argv)
 	if (!ve_open())
 		return EXIT_FAILURE;
 
+	// Find lowest unused file name.
+	while (file_count < 10000) {
+		struct stat st;
+
+		sprintf(out_file_name, "/sd/rec%04d.avi", file_count);
+
+		if (stat(out_file_name, &st))
+			break;
+
+		++file_count;
+	}
+
 	FILE *out;
 
-	if ((out = fopen(argv[1], "w+")) == NULL)
+	if ((out = fopen(out_file_name, "w+")) == NULL)
 	{
 		printf("could not open output file\n");
 		return EXIT_FAILURE;
 	}
+
 	struct avi_context *avi = avi_new_file(out);
 	avi_write_header(avi, width, height, 30);
 
