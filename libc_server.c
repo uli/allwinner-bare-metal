@@ -62,6 +62,17 @@ pid_t jhlibc_forkptyexec(int *fd, struct winsize *ws, char * const *argv)
     pid_t pid = forkpty(fd, NULL, NULL, ws);
     if (pid == 0) {
         // shell
+
+        // Quoting libvte: "Reset the handlers for all signals to their
+        // defaults. The parent (or one of the libraries it links to) may
+        // have changed one to be ignored."
+        for (int n = 1; n < NSIG; n++) {
+            if (n == SIGSTOP || n == SIGKILL)
+                    continue;
+
+            signal(n, SIG_DFL);
+        }
+
         unsetenv("DISPLAY");	// XXX: is that necessary?
         setenv("TERM", "cons25-debian", 1);
         setenv("LANG", "en_US.UTF-8", 1);
