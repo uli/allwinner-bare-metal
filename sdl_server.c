@@ -95,12 +95,18 @@ int main(int argc, char **argv)
 
         switch (event.type) {
             case SDL_CONTROLLERDEVICEADDED:
+                if (debug)
+                    printf("new stick %d ", event.cdevice.which);
                 SDL_GameControllerOpen(event.cdevice.which);
                 // Replace the useless joystick index with the instance id,
                 // which is what is actually used everywhere else.
                 event.cdevice.which = SDL_JoystickGetDeviceInstanceID(event.cdevice.which);
+                if (debug)
+                    printf(" id %d\n", event.cdevice.which);
                 break;
             case SDL_CONTROLLERDEVICEREMOVED:
+                if (debug)
+                    printf("gone stick %d\n", event.cdevice.which);
                 SDL_GameControllerClose(SDL_GameControllerFromInstanceID(event.cdevice.which));
                 break;
         }
