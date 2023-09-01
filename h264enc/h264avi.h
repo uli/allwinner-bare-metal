@@ -2,6 +2,8 @@
 // Copyright (c) 2023 Ulrich Hecht
 
 #include <stdio.h>
+#include <limits.h>
+#define AVI_MAX_FILE_SIZE INT_MAX
 
 struct avi_context;
 

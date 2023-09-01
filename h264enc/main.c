@@ -161,6 +161,7 @@ int main(const int argc, const char **argv)
 			last_audio_frame_no = video_encoder->audio_frame_no;
 			avi_write_audio(avi, video_encoder->audio_buffer, video_encoder->audio_size);
 		}
+
 		if (video_encoder->video_frame_no != last_video_frame_no) {
 
 			if (video_encoder->video_frame_no > last_video_frame_no + 2)
@@ -174,6 +175,9 @@ int main(const int argc, const char **argv)
 				printf("encoding error\n");
 			}
 		}
+
+		if (ftell(out) > AVI_MAX_FILE_SIZE - (32 * 1024 * 1024))
+			break;
 	}
 
 	printf("Done!\n");
