@@ -145,10 +145,7 @@ int main(const int argc, const char **argv)
 
 	void* output_buf = h264enc_get_bytestream_buffer(encoder);
 
-	int input_size = params.src_width * (params.src_height + params.src_height / 2);
-	void* input_buf = h264enc_get_input_buffer(encoder);
-
-	printf("Running h264 encoding");
+	printf("Running h264 encoding\n");
 
 	while (video_encoder->enabled && !quit) {
 		while (video_encoder->video_frame_no == last_video_frame_no &&
