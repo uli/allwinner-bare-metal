@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdio.h>
 
 #include "audio.h"
 #include "display.h"
@@ -32,15 +33,44 @@ extern void codec_fiq_handler(void);
 // Called when an interrupt is triggered
 void __attribute__((interrupt("IRQ"))) interrupt(void)
 {
-  // PL EINT (reset button)
-  if (irq_pending(77)) {
-    gpio_irq_ack(PORTL);
-    sys_reset();
+  // PA EINT
+  if (irq_pending(43)) {
+    char buf[50];
+	volatile struct port_irq_registers *port = (volatile struct port_irq_registers *)(PA_EINT_BASE);
+    sprintf(buf, "Interrupt source %lu triggered!\r\n", port->status);
+    uart_print(buf);
+    gpio_irq_ack(PA_EINT_BASE);
   }
 
-  // digital audio
+  // digital audio (I2S/PCM-0)
+  if (irq_pending(45))
+    audio_queue_samples();
+
+  // digital audio (I2S/PCM-1)
+  if (irq_pending(46))
+    audio_queue_samples();
+
+  // digital audio (I2S/PCM-2)
   if (irq_pending(47))
     audio_queue_samples();
+
+  // PG EINT
+  if (irq_pending(49)) {
+    char buf[50];
+	volatile struct port_irq_registers *port = (volatile struct port_irq_registers *)(PG_EINT_BASE);
+    sprintf(buf, "Interrupt pin %lu triggered!\r\n", port->status);
+    uart_print(buf);
+    gpio_irq_ack(PG_EINT_BASE);
+  }
+
+  // R PL EINT
+  if (irq_pending(77)) {
+    char buf[50];
+	volatile struct port_irq_registers *port = (volatile struct port_irq_registers *)(R_PL_EINT_BASE);
+    sprintf(buf, "Interrupt pin %lu triggered!\r\n", port->status);
+    uart_print(buf);
+    gpio_irq_ack(R_PL_EINT_BASE);
+  }
 
   // analog audio
   if (irq_pending(82))

@@ -1,0 +1,47 @@
+aw_cc = /home/miika/x-tools/arm-unknown-eabihf/bin/arm-unknown-eabihf-gcc
+aw_cxx = /home/miika/x-tools/arm-unknown-eabihf/bin/arm-unknown-eabihf-g++
+
+aw_common_flags = -g -O2 -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -ffreestanding $
+  -DREENTRANT_SYSCALLS_PROVIDED -D__DYNAMIC_REENT__ -DALLWINNER_BARE_METAL $
+  -I /home/miika/.nanopi_bare_metal/allwinner-bare-metal/lib-h3/lib-h3/include -I /home/miika/.nanopi_bare_metal/allwinner-bare-metal/lib-h3/lib-arm/include -I /home/miika/.nanopi_bare_metal/allwinner-bare-metal/lib-h3/lib-hal/include -DORANGE_PI_ONE $
+  -I /home/miika/.nanopi_bare_metal/allwinner-bare-metal/lwip/src/include    -DLIBH3_MMC -DSD_WRITE_SUPPORT
+
+aw_cflags = $aw_common_flags -Wall -Wextra -I /home/miika/.nanopi_bare_metal/allwinner-bare-metal -I /home/miika/.nanopi_bare_metal/allwinner-bare-metal/tinyusb/src
+
+aw_cxxflags = $aw_common_flags -nostdlib -Wall -Wextra -I /home/miika/.nanopi_bare_metal/allwinner-bare-metal -I /home/miika/.nanopi_bare_metal/allwinner-bare-metal/tinyusb/src
+
+aw_ldflags = -T /home/miika/.nanopi_bare_metal/allwinner-bare-metal/linker.ld -nostdlib
+
+aw_sysroot = /home/miika/x-tools/arm-unknown-eabihf/arm-unknown-eabihf
+
+rule cc
+  depfile = $out.d
+  command = /home/miika/x-tools/arm-unknown-eabihf/bin/arm-unknown-eabihf-gcc -MD -MF $out.d $aw_cflags $cflags -c $in -o $out
+rule cxx
+  depfile = $out.d
+  command = /home/miika/x-tools/arm-unknown-eabihf/bin/arm-unknown-eabihf-g++ -MD -MF $out.d $aw_cxxflags $cxxflags -c $in -o $out
+rule link
+  command = /home/miika/x-tools/arm-unknown-eabihf/bin/arm-unknown-eabihf-gcc $aw_cflags $cflags $aw_ldflags -o $out $in -Wl,--wrap,__stack_chk_fail -Wl,-wrap,__malloc_lock -Wl,-wrap,__malloc_unlock -lc $
+            -L/home/miika/.nanopi_bare_metal/allwinner-bare-metal -L/home/miika/.nanopi_bare_metal/allwinner-bare-metal/lib-h3/lib-h3/lib_h3 -L/home/miika/.nanopi_bare_metal/allwinner-bare-metal/lib-h3/lib-arm/lib_h3 $libs -los -lh3 -larm -lc -lm -lgcc
+
+rule bin
+  command = /home/miika/x-tools/arm-unknown-eabihf/bin/arm-unknown-eabihf-objcopy -O binary --remove-section .uncached $in $out
+rule uimg
+  command = mkimage -A arm -O u-boot -T firmware -d $in $out -C none -a 0x40000000
+
+rule sdimg
+  command = dd if=/dev/zero of=$out.fs bs=1M count=60 ; $
+            mkfs.vfat -F 32 $out.fs ; $
+            dd if=/dev/zero of="$out" bs=1M count=4 ; $
+            cat $out.fs >>"$out" ; $
+            rm -f $out.fs ; $
+            parted -s "$out" mklabel msdos ; $
+            parted -s "$out" mkpart primary fat32 4 67 ; $
+            dd if=/home/miika/.nanopi_bare_metal/allwinner-bare-metal/sunxi-spl.bin of="$out" conv=notrunc bs=1024 seek=8 ; $
+            dd if="$in" of="$out" conv=notrunc bs=1024 seek=40 ; $
+            test -e "$initfs_dir" && mcopy -s -i ${out}@@4M $initfs_dir/* ::
+
+rule upload
+  command = for i in 1 2 3 4 5 ; do sudo sunxi-fel -v -p spl /home/miika/.nanopi_bare_metal/allwinner-bare-metal/sunxi-spl.bin write 0x40000000 $
+            $in exe 0x40000000 && break ; sleep .5 ; done
+  pool = console

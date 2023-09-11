@@ -67,13 +67,13 @@ void startup()
   uart_print("Booting!\r\n");
 
   // Illuminate the power LED
-  set_pin_mode(PORTL, 10, 1);  // PORT L10 output
-  set_pin_data(PORTL, 10, 1);  // PORT L10 high
+  set_pin_mode(PORTL, 10, GPIO_MODE_OUTPUT);  // PORT L10 output
+  set_pin_data(PORTL, 10, GPIO_HIGH_LEVEL);  // PORT L10 high
 
   // reset button
   set_pin_mode(PORTL, 3, GPIO_MODE_EINT);
-  gpio_irq_set_trigger(PORTL, 3, GPIO_EINT_NEGEDGE);
-  gpio_irq_enable(PORTL, 3, 1);
+  gpio_irq_set_trigger(PORTL, 3, GPIO_EINT_FALLING);
+  gpio_irq_enable(PORTL, 3, GPIO_IRQ_ENABLE);
   irq_enable(77);  // PORT L interrupt (R_PL_EINT)
 
   dma_init();
@@ -100,7 +100,7 @@ void startup()
 
   uart_print("Ready!\r\n");
 
-  set_pin_mode(PORTF, 6, 0);  // SD CD pin
+  set_pin_mode(PORTF, 6, GPIO_MODE_INPUT);  // SD CD pin
 
   __libc_init_array();
 

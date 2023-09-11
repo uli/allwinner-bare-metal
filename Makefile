@@ -3,8 +3,9 @@ OSDIR = .
 include common.mk
 
 OBJS = boot.o startup.o uart.o ports.o mmu.o system.o display.o interrupts.o \
-       usb.o fs.o audio_i2s.o exceptions.o cache.o display_filter.o \
-       dma.o rtc.o smp.o spinlock.o ubsan.o tve.o
+       usb.o fs.o audio_i2s.o audio_hdmi.o exceptions.o cache.o display_filter.o \
+       dma.o rtc.o smp.o spinlock.o ubsan.o tve.o \
+       lib-h3/lib-h3/src/h3.o lib-h3/lib-h3/src/h3_cpu.o lib-h3/lib-h3/src/h3_smp.o
 
 USB_OBJS = tinyusb/src/host/ohci/ohci1.o tinyusb/src/host/ohci/ohci2.o tinyusb/src/host/ohci/ohci3.o\
 	   tinyusb/src/host/usbh1.o tinyusb/src/host/usbh2.o tinyusb/src/host/usbh3.o \
@@ -45,9 +46,9 @@ libos.a: $(OUT_ALL_OBJS) Makefile
 	$(AR) rc $@ $(OUT_ALL_OBJS)
 
 libh3:
-	$(MAKE) -C $(LIBH3DIR)/lib-h3 -f Makefile.H3 PREFIX=$(PREFIX) PLATFORM=ORANGE_PI_ONE
+	$(MAKE) -C $(LIBH3DIR)/lib-h3 -f Makefile.H3 PREFIX=$(PREFIX) PLATFORM=NANOPI_NEO_AIR
 libarm:
-	$(MAKE) -C $(LIBH3DIR)/lib-arm -f Makefile.H3 PREFIX=$(PREFIX) PLATFORM=ORANGE_PI_ONE
+	$(MAKE) -C $(LIBH3DIR)/lib-arm -f Makefile.H3 PREFIX=$(PREFIX) PLATFORM=NANOPI_NEO_AIR
 
 clean:
 	rm -fr build libos.a

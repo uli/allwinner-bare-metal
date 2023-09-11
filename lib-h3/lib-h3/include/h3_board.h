@@ -32,8 +32,8 @@
  #include "board/h3_opi_zero.h"
 #elif defined(ORANGE_PI_ONE)
  #include "board/h3_opi_one.h"
-#elif defined(NANO_PI)
- #include "board/h3_nanopi_neo.h"
+#elif defined(NANOPI_NEO_AIR)
+ #include "board/h3_nanopi_neo_air.h"
 #else
  #error Board configuration error
 #endif

@@ -4,6 +4,7 @@
 #include <ports.h>
 #include <system.h>
 #include <stdio.h>
+#include <../../uart.h>
 
 void game_tick(uint32_t tick_counter);
 void game_start();
@@ -19,6 +20,7 @@ void game_tick_next() {
 void main(void)
 {
   game_start();
+    uart_print("Hello world \n");
 
   // Go back to sleep
   while(1) {

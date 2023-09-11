@@ -36,7 +36,12 @@
 
 static volatile bool core_is_started;
 static start_fn_t start_fn;
+/*
+void _init_core()
+{
 
+}
+*/
 void smp_core_main(void) {
 	start_fn_t temp_fn = start_fn;
 	dmb();

@@ -11,9 +11,9 @@ CXX=$(PREFIX)g++
 OBJCOPY=$(PREFIX)objcopy
 AR=$(PREFIX)ar
 
-CFLAGS_COMMON = -MMD -g -O2 -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -ffreestanding \
+CFLAGS_COMMON = -MMD -g -O2 -mfpu=neon -mfloat-abi=hard -mtune=cortex-a7 -ffreestanding -Wa,-mimplicit-it=thumb \
 		-DREENTRANT_SYSCALLS_PROVIDED -D__DYNAMIC_REENT__ -DALLWINNER_BARE_METAL \
-		-I $(LIBH3DIR)/lib-h3/include -I $(LIBH3DIR)/lib-arm/include -I $(LIBH3DIR)/lib-hal/include -DORANGE_PI_ONE \
+		-I $(LIBH3DIR)/lib-h3/include -I $(LIBH3DIR)/lib-arm/include -I $(LIBH3DIR)/lib-hal/include -DNANOPI_NEO_AIR \
 		-I $(LWIPDIR)/include
 
 # debugging: detect stack smashing
@@ -57,4 +57,3 @@ $(OBJDIR)/%.o: %.S
 
 %.bin: %.elf
 	$(OBJCOPY) -O binary --remove-section .uncached $< $@
-

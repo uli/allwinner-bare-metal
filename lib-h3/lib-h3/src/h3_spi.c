@@ -287,7 +287,7 @@ void __attribute__((cold)) h3_spi_begin(void) {
 #endif
 
 	// Defaults
-	h3_spi_setBitOrder(H3_SPI_BIT_ORDER_MSBFIRST);
+	h3_spi_setBitOrder(H3_SPI_BIT_ORDER_LSBFIRST);
 	h3_spi_setDataMode(H3_SPI_MODE0);
 	h3_spi_chipSelect(H3_SPI_CS0);
 	h3_spi_setChipSelectPolarity(H3_SPI_CS0, LOW);

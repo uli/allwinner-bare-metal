@@ -70,12 +70,27 @@ void set_pin_pull(uint32_t port_addr, uint32_t pin, uint32_t pull)
 
 void gpio_irq_set_trigger(uint32_t port_addr, int pin, uint8_t mode)
 {
-  set_pin_mode(port_addr + 0x200, pin, mode);
+	//set_pin_mode(port_addr + 0x200, pin, mode);
+	volatile struct port_irq_registers *port = (volatile struct port_irq_registers *)(port_addr);
+
+	if (pin < 8) {
+		port->cfg0 &= ~(7 << ((pin - 0) * 4));
+		port->cfg0 |= (mode << ((pin - 0) * 4));
+	} else if (pin < 16) {
+		port->cfg1 &= ~(7 << ((pin - 8) * 4));
+		port->cfg1 |= (mode << ((pin - 8) * 4));
+	} else if (pin < 24) {
+		port->cfg2 &= ~(7 << ((pin - 16) * 4));
+		port->cfg2 |= (mode << ((pin - 16) * 4));
+	} else {
+		port->cfg3 &= ~(7 << ((pin - 24) * 4));
+		port->cfg3 |= (mode << ((pin - 24) * 4));
+	}
 }
 
 void gpio_irq_enable(uint32_t port_addr, int pin, int enable)
 {
-  volatile struct port_irq_registers *port = (volatile struct port_irq_registers *)(port_addr + 0x200);
+  volatile struct port_irq_registers *port = (volatile struct port_irq_registers *)(port_addr);// + 0x200);
   if (enable)
     port->ctl |= BIT(pin);
   else
@@ -84,6 +99,6 @@ void gpio_irq_enable(uint32_t port_addr, int pin, int enable)
 
 void gpio_irq_ack(uint32_t port_addr)
 {
-  volatile struct port_irq_registers *port = (volatile struct port_irq_registers *)(port_addr + 0x200);
+  volatile struct port_irq_registers *port = (volatile struct port_irq_registers *)(port_addr);// + 0x200);
   port->status = port->status;
 }
