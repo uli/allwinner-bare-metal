@@ -106,8 +106,8 @@ int main(const int argc, const char **argv)
 	width = video_encoder->video_w;
 	height = video_encoder->video_h;
 
-	if (!ve_open())
-		return EXIT_FAILURE;
+	while (!ve_open())
+		usleep(10000);
 
 	// Find lowest unused file name.
 	while (file_count < 10000) {
