@@ -59,6 +59,7 @@ int main(const int argc, const char **argv)
     (void)argc; (void)argv;
 
     signal(SIGINT, sigint_handler);
+    signal(SIGTERM, sigint_handler);
 
     // Map shared memory communication regions.
     // We use fixed ID mappings so we don't have to translate bare-metal pointers.
