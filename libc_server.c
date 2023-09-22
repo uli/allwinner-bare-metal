@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/wait.h>
 #include <errno.h>
 #include <stdio.h>
@@ -46,6 +47,11 @@ struct newlib_stat {
   /* gid_t */   unsigned short st_gid;
   /* dev_t */   unsigned short st_rdev;
   /* off_t */   long           st_size;
+};
+
+struct newlib_timeval {
+  uint64_t tv_sec;
+  uint64_t tv_usec;
 };
 
 #undef _NO_PROTOTYPES
@@ -115,6 +121,7 @@ const call4 libc_functors[LIBC_LAST] = {
     [LIBC_WAIT] = (void *)wait,
     [LIBC_JHLIBC_FORKPTYEXEC] = (void *)jhlibc_forkptyexec,
     [LIBC_SYSTEM] = (void *)system,
+    [LIBC_GETTIMEOFDAY] = (void *)gettimeofday,
 };
 
 static void translate_stat(struct newlib_stat *dst, struct stat *src)
@@ -134,6 +141,12 @@ static void translate_dirent(struct awb_dirent *dst, struct dirent *src)
     dst->d_type = src->d_type;	// XXX: do these need translation?
     strncpy(dst->d_name, src->d_name, sizeof(dst->d_name) - 1);
     dst->d_name[sizeof(dst->d_name) - 1] = 0;
+}
+
+static void translate_timeval(struct newlib_timeval *ntv, const struct timeval *tv)
+{
+    ntv->tv_sec = tv->tv_sec;
+    ntv->tv_usec = tv->tv_usec;
 }
 
 // discount version of newlib's fcntl.h
@@ -276,6 +289,11 @@ int main(void)
             case LIBC_OPEN:
                 call->args[1] = translate_fcntl_flags(call->args[1]);
                 break;
+            case LIBC_GETTIMEOFDAY:
+                trans_dest = call->args[0];
+                call->args[0] = (param_t)malloc(sizeof(struct timeval));
+                // XXX: handle OOM
+                break;
             default:
                 break;
         }
@@ -301,6 +319,12 @@ int main(void)
                                      (struct dirent *)call->retval);
                     call->retval = (param_t)call->compound_retval;
                 }
+                break;
+            case LIBC_GETTIMEOFDAY:
+                if (call->retval == 0)
+                    translate_timeval((struct newlib_timeval *)trans_dest, (struct timeval *)call->args[0]);
+                free((void *)call->args[0]);
+                call->args[0] = trans_dest;
                 break;
             default:
                 break;

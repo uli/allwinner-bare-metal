@@ -36,6 +36,7 @@ enum libc_funcs {
     LIBC_WAIT,
     LIBC_JHLIBC_FORKPTYEXEC,
     LIBC_SYSTEM,
+    LIBC_GETTIMEOFDAY,
     LIBC_LAST
 };
 
