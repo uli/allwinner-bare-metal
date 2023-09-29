@@ -124,7 +124,6 @@ int _fstat_r(struct _reent *r, int fd, struct stat * st)
 
 int _open_r(struct _reent *r, const char *path, int c_flags)
 {
-	printf("opn %s\n", path);
 	return LIBC_CALL2(LIBC_OPEN, r->_errno, path, c_flags);
 }
 
