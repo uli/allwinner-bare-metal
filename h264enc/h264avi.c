@@ -4,14 +4,11 @@
 // Creates AVI files with H.264 video and PCM audio track.
 
 #include "h264avi.h"
+#include "../video_encoder.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define AUDIO_SAMPLE_RATE 48000
-#define AUDIO_SAMPLE_BYTES 2	// 16 bit
-#define AUDIO_CHANNELS 2
 
 typedef unsigned int FOURCC;
 typedef unsigned int DWORD;
@@ -214,7 +211,7 @@ void avi_write_header(struct avi_context *c, int w, int h, int fps)
     c->auds.wLanguage = 0;
     c->auds.dwInitialFrames = 0;
     c->auds.dwScale = 1;
-    c->auds.dwRate = AUDIO_SAMPLE_RATE;
+    c->auds.dwRate = VE_AUDIO_SAMPLE_RATE;
     c->auds.dwStart = 0;
     // fill in c->auds.dwLength (samples) in avi_finalize()
     c->auds.dwSuggestedBufferSize = 4096; // ???
@@ -232,11 +229,11 @@ void avi_write_header(struct avi_context *c, int w, int h, int fps)
 
     memset(&c->strfa, 0, sizeof(c->strfa));
     c->strfa.wFormatTag = 1;
-    c->strfa.nChannels = AUDIO_CHANNELS;
-    c->strfa.nSamplesPerSec = AUDIO_SAMPLE_RATE;
-    c->strfa.nAvgBytesPerSec = AUDIO_SAMPLE_RATE * AUDIO_CHANNELS * AUDIO_SAMPLE_BYTES;
-    c->strfa.nBlockAlign = AUDIO_CHANNELS * AUDIO_SAMPLE_BYTES;
-    c->strfa.wBitsPerSample = AUDIO_SAMPLE_BYTES * 8;
+    c->strfa.nChannels = VE_AUDIO_CHANNELS;
+    c->strfa.nSamplesPerSec = VE_AUDIO_SAMPLE_RATE;
+    c->strfa.nAvgBytesPerSec = VE_AUDIO_SAMPLE_RATE * VE_AUDIO_CHANNELS * VE_AUDIO_SAMPLE_BYTES;
+    c->strfa.nBlockAlign = VE_AUDIO_CHANNELS * VE_AUDIO_SAMPLE_BYTES;
+    c->strfa.wBitsPerSample = VE_AUDIO_SAMPLE_BYTES * 8;
     c->strfa.cbSize = 0; // ???
     fwrite(&c->strfa, sizeof(c->strfa), 1, fp);
 
@@ -281,7 +278,7 @@ void avi_write_audio(struct avi_context *c, void *samples, int size)
     fwrite(samples, size, 1, c->fp);
     while (ftell(c->fp) % 2 != 0)
       fputc(0, c->fp);
-    c->sample_count += size / AUDIO_CHANNELS / AUDIO_SAMPLE_BYTES;
+    c->sample_count += size / VE_AUDIO_CHANNELS / VE_AUDIO_SAMPLE_BYTES;
 }
 
 void avi_finalize(struct avi_context *c)
