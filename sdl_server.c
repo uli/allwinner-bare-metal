@@ -23,6 +23,11 @@ void printkey(SDL_KeyboardEvent kev)
            kev.keysym.scancode, kev.keysym.mod, evbuf->write_pos);
 }
 
+void printaxis(SDL_ControllerAxisEvent aev)
+{
+    printf("ax%d v %d\n", aev.axis, aev.value);
+}
+
 int main(int argc, char **argv)
 {
     SDL_Event event;
@@ -84,6 +89,9 @@ int main(int argc, char **argv)
                     break;
                 case SDL_KEYUP:
                     printkey(event.key);
+                    break;
+                case SDL_CONTROLLERAXISMOTION:
+                    printaxis(event.caxis);
                     break;
                 case SDL_QUIT:
                     goto out;
