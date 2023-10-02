@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2021 Ulrich Hecht
 
+//#define SMP_DEBUG
+
 #include <stdint.h>
 
 #include "mmu.h"
@@ -23,6 +25,9 @@ void smp_start_secondary_core(int cpuid, secondary_task_t task, void *stack, uin
 #ifdef JAILHOUSE
   // Use PSCI to bring up the core
   // We use the "unused" vector in the loader program as entry point.
+#ifdef SMP_DEBUG
+  printf("%s starting core %d stack %p size %d (0x%x)\n", __FUNCTION__, cpuid, stack, stack_size, _smp_secondary_sp);
+#endif
   asm("movw r0, #0xba60\n"
       "movt r0, #0x95c1\n"	// PSCI_CPU_ON_V0_1_UBOOT
       "mov r1, %0\n"		// cpuid
@@ -47,12 +52,18 @@ void init_sp_irq(uint32_t addr);
 
 void _smp_startup_secondary(int cpuid)
 {
+#ifdef SMP_DEBUG
+  register volatile uint32_t sp asm("sp");
+#endif
   init_sp_irq(_smp_secondary_sp + 0x400);
 
 #ifndef JAILHOUSE
   mmu_init();
 #endif
   uart_print("Secondary boot\r\n");
+#ifdef SMP_DEBUG
+  uart_print_uint32(sp);uart_print_uint32(_smp_secondary_sp);
+#endif
   while (1) {
     if (tasks[cpuid])
       tasks[cpuid]();
