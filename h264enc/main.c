@@ -31,6 +31,7 @@
 #include "ve.h"
 #include "h264enc.h"
 #include "h264avi.h"
+#include "audio_in.h"
 
 // Engine BASIC interface
 #include "../video_encoder.h"
@@ -53,6 +54,7 @@ static void scrolllock_led(int enable)
 	asprintf(&cmd, "for i in /sys/class/leds/input*::scrolllock ; do echo %d >$i/brightness ; done", enable);
 	system(cmd);
 }
+
 
 int main(const int argc, const char **argv)
 {
@@ -130,6 +132,8 @@ int main(const int argc, const char **argv)
 		return EXIT_FAILURE;
 	}
 
+	open_mic();
+
 	scrolllock_led(1);
 
 	struct avi_context *avi = avi_new_file(out);
@@ -160,7 +164,7 @@ int main(const int argc, const char **argv)
 
 	while (video_encoder->enabled && !quit) {
 		if (video_encoder->video_frame_no == last_video_frame_no &&
-		       video_encoder->audio_frame_no == last_audio_frame_no) {
+		    video_encoder->audio_frame_no == last_audio_frame_no) {
 			asm("wfe");
 			continue;
 		}
@@ -169,8 +173,13 @@ int main(const int argc, const char **argv)
 			if (video_encoder->audio_frame_no > last_audio_frame_no + 1)
 				printf("audio frame drop %d->%d\n", last_audio_frame_no, video_encoder->audio_frame_no);
 
+			void *out_buf = video_encoder->audio_buffer;
+
+			if (mix_mic())
+				out_buf = mix_buffer;
+
 			last_audio_frame_no = video_encoder->audio_frame_no;
-			avi_write_audio(avi, video_encoder->audio_buffer, video_encoder->audio_size);
+			avi_write_audio(avi, out_buf, video_encoder->audio_size);
 		}
 
 		if (video_encoder->video_frame_no != last_video_frame_no) {
@@ -199,6 +208,7 @@ err:
 	ve_close();
 	avi_finalize(avi);
 	fclose(out);
+	close_mic();
 
 	scrolllock_led(0);
     }

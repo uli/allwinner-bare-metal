@@ -148,7 +148,7 @@ rule link_lib
 
 EOT
 
-JH_VIDEO_RECORDER_SOURCES="h264enc/h264enc.c h264enc/h264avi.c h264enc/main.c h264enc/ve.c"
+JH_VIDEO_RECORDER_SOURCES="h264enc/audio_in.c h264enc/h264enc.c h264enc/h264avi.c h264enc/main.c h264enc/ve.c"
 
 if test "$JAILHOUSE" == 1 ; then
 	cat <<EOT >>build.ninja
@@ -173,6 +173,7 @@ EOT
 
 	cat <<EOT >>build.ninja
 build video_recorder: jh_link ${JH_VIDEO_RECORDER_SOURCES//.c/.o}
+  jh_ldflags = -lasound
 
 EOT
 fi
