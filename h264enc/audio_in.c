@@ -71,7 +71,7 @@ void open_mic(void)
 		goto out;
 	}
 
-	if ((err = snd_pcm_hw_params_set_channels(capture_handle, hw_params, VE_AUDIO_CHANNELS)) < 0) {
+	if ((err = snd_pcm_hw_params_set_channels(capture_handle, hw_params, 1)) < 0) {
 		printf("cannot set channel count (%s)\n", snd_strerror(err));
 		goto out;
 	}
