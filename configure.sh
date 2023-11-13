@@ -165,6 +165,8 @@ build sdl_server: jh_link sdl_server.o
   jh_ldflags = -lSDL2
 build jailgdb.o: jh_cc jailgdb.c
 build jailgdb: jh_link jailgdb.o
+build init_comms.o: jh_cc init_comms.c
+build init_comms: jh_link init_comms.o
 EOT
 
 	for s in $JH_VIDEO_RECORDER_SOURCES ; do
