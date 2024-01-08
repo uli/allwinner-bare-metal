@@ -81,6 +81,7 @@ void startup()
   // Configure the UART for debugging
   uart_print("Booting!\r\n");
 
+#ifdef AWBM_PLATFORM_h3
   // Illuminate the power LED
   set_pin_mode(PORTL, 10, 1);  // PORT L10 output
   set_pin_data(PORTL, 10, 1);  // PORT L10 high
@@ -96,6 +97,8 @@ void startup()
 #endif
   h3_timer_init();
   h3_hs_timer_init();
+
+#endif	// AWBM_PLATFORM_h3
 
   // Configure display; try HDMI/DVI first, fall back to analog if it fails to initialize
   // XXX: We have to init the display because the system timer
@@ -115,8 +118,10 @@ void startup()
   network_init();
 #endif
 
+#ifdef AWBM_PLATFORM_h3
   h3_i2c_begin();
   h3_spi_begin();
+#endif
 
   uart_print("Ready!\r\n");
 
