@@ -53,9 +53,11 @@ void
   if (irq_pending(47))
     audio_queue_samples();
 
+#ifdef AWBM_PLATFORM_h3
   // analog audio
   if (irq_pending(82))
     codec_fiq_handler();
+#endif
 
 #ifndef JAILHOUSE
   // USB controllers
@@ -82,11 +84,13 @@ void
     hook_display_vblank();
   }
 
+#ifdef AWBM_PLATFORM_h3
   // RT-WB
   if (irq_pending(127)) {
     // XXX: notify somebody???
     DE_WB_STATUS |= 1;
   }
+#endif
 }
 
 // XXX: Something is really wrong here.
