@@ -224,14 +224,17 @@ static const uint32_t wb_fs_coeffs[] = {
 
 void display_capture_set_out_bufs(void *luma_buf, void *chroma_buf)
 {
+#ifdef AWBM_PLATFORM_h3
   DE_WB_A_CH0_ADDR = (uint32_t)luma_buf;
   DE_WB_B_CH0_ADDR = (uint32_t)luma_buf;
   DE_WB_A_CH1_ADDR = (uint32_t)chroma_buf;
   DE_WB_B_CH1_ADDR = (uint32_t)chroma_buf;
+#endif
 }
 
 void display_capture_init(int x, int y)
 {
+#ifdef AWBM_PLATFORM_h3
   // XXX: should we do that?
   //75 POKED sclk_gate,1:POKED hclk_gate,1:POKED ahb_reset,1:VSYNC
 
@@ -274,31 +277,39 @@ void display_capture_init(int x, int y)
   // deassert reset, clear IRQ flag
   DE_WB_GCTRL = BIT(29) | BIT(28);
   DE_WB_STATUS = BIT(0);
+#endif
 }
 
 void display_capture_kick(void)
 {
+#ifdef AWBM_PLATFORM_h3
   DE_WB_GCTRL |= BIT(0);
+#endif
 }
 
 int display_capture_frame_ready(void **luma, void **chroma)
 {
+#ifdef AWBM_PLATFORM_h3
   if (DE_WB_STATUS & BIT(0)) {
     *luma = (void *)DE_WB_A_CH0_ADDR;
     *chroma = (void *)DE_WB_A_CH1_ADDR;
     return 1;
   }
+#endif
 
   return 0;
 }
 
 void display_capture_ack_frame(void)
 {
+#ifdef AWBM_PLATFORM_h3
   DE_WB_STATUS |= BIT(0);
+#endif
 }
 
 void display_capture_stop(void)
 {
+#ifdef AWBM_PLATFORM_h3
   // gate clocks, assert reset
   DE_WB_GCTRL = BIT(4);
 
@@ -306,4 +317,5 @@ void display_capture_stop(void)
   DE_SCLK_GATE &= ~BIT(2);
   DE_HCLK_GATE &= ~BIT(2);
   DE_AHB_RESET &= ~BIT(2);
+#endif
 }
