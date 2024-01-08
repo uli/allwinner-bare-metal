@@ -151,7 +151,14 @@ int display_init(const struct display_phys_mode_t *mode)
     default_timing.flags            = (DISPLAY_FLAGS_HSYNC_LOW | DISPLAY_FLAGS_VSYNC_LOW);
   };
 
+#ifdef AWBM_PLATFORM_h3
   if (h3_de2_init(&default_timing, (uint32_t)AWBM_BASE_ADDR) == 0) {
+#elif defined(AWBM_PLATFORM_h616)
+  // XXX: initialize HDMI
+  if (1) {
+#else
+#error missing display initialization
+#endif
     display_is_digital = 1;
     LCD0_GINT1         = 1;
     LCD0_GINT0         = BIT(30);
