@@ -76,13 +76,16 @@ uint32_t sys_mem_free(void)
 
 void sys_reset(void)
 {
+#ifdef AWBM_PLATFORM_h3	// XXX: "&& !JAILHOUSE"?
   h3_watchdog_enable();
+#endif
   uart_print("reset!\r\n");
   for (;;);
 }
 
 void sys_set_cpu_multiplier(int factor)
 {
+#ifdef AWBM_PLATFORM_h3
   if (factor > SYS_CPU_MULTIPLIER_MAX)
     factor = SYS_CPU_MULTIPLIER_MAX;
   else if (factor < SYS_CPU_MULTIPLIER_MIN)
@@ -100,4 +103,7 @@ void sys_set_cpu_multiplier(int factor)
 
   PLL_CPUX_CTRL = (PLL_CPUX_CTRL & ~(PLL_CPUX_FACTOR_K_MASK | PLL_CPUX_FACTOR_N_MASK)) |
     (factor_n << PLL_CPUX_FACTOR_N_SHIFT) | (factor_k << PLL_CPUX_FACTOR_K_SHIFT);
+#else
+#warning unimplemented
+#endif
 }
