@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+int display_is_pal;
+
+#ifdef AWBM_PLATFORM_h3
+
 #define TVE_BASE 0x01e00000
 
 #include "ccu.h"
@@ -119,8 +123,6 @@ void tve_update_buffer(void)
 {
   DE_MIXER1_GLB_DBUFFER = 1;
 }
-
-int display_is_pal;
 
 void tve_init(int pal)
 {
@@ -398,3 +400,25 @@ void tve_set_visible_buffer(volatile uint32_t *buf)
   DE_MIXER1_OVL_UI_TOP_LADD(0) = (uint32_t)buf;
   DE_MIXER1_OVL_UI_BOT_LADD(0) = (uint32_t)buf;  // XXX: necessary?
 }
+
+#else	// AWBM_PLATFORM_h3
+
+void tve_init(int pal)
+{
+  display_is_pal = pal;
+}
+
+void tve_de2_init(void)
+{
+}
+
+void tve_update_buffer(void)
+{
+}
+
+void tve_set_visible_buffer(volatile uint32_t *buf)
+{
+  (void)buf;
+}
+
+#endif	// AWBM_PLATFORM_h3
