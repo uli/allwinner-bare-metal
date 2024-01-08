@@ -4,8 +4,14 @@
 
 void gpio_init()
 {
+#ifdef AWBM_PLATFORM_h3
   BUS_CLK_GATING2 |= (1 << 5);
   APB0_CLK_GATING |= (1 << 0);
+#elif defined(AWBM_PLATFORM_h616)
+  // Neither APB1 nor the ports seem to have any gates.
+#else
+#error unknown platform
+#endif
 }
 
 void set_pin_mode(uint32_t port_addr, uint32_t pin, uint32_t mode)
