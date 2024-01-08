@@ -28,14 +28,27 @@ struct port_irq_registers {
 };
 
 // The PORT registers base address.
-#define PIO_BASE          0x01C20800
+#ifdef AWBM_PLATFORM_h3
+  #define PIO_BASE	  0x01C20800
+#elif defined(AWBM_PLATFORM_h616)
+  #define PIO_BASE	  0x0300b000
+#else
+#error unknown platform
+#endif
+
 #define PORTA             PIO_BASE + 0 * 0x24
 #define PORTC             PIO_BASE + 2 * 0x24
 #define PORTD             PIO_BASE + 3 * 0x24
 #define PORTE             PIO_BASE + 4 * 0x24
 #define PORTF             PIO_BASE + 5 * 0x24
 #define PORTG             PIO_BASE + 6 * 0x24
-#define PORTL             0x01F02C00
+
+#ifdef AWBM_PLATFORM_h3
+  #define PORTL		  0x01F02C00
+#elif defined(AWBM_PLATFORM_h616)
+  #define PORTL		  0x07022000
+#endif
+
 #define PIO_PORT(n)	  ((n) == 7 ? PORTL : PIO_BASE + (n) * 0x24)
 
 #define PIO_PULL_OFF	0
