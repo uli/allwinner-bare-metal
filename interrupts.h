@@ -4,7 +4,13 @@
 extern "C" {
 #endif
 
-#define GICD_BASE 0x01C81000
+#ifdef AWBM_PLATFORM_h3
+  #define GIC_BASE 0x01c80000
+#elif defined(AWBM_PLATFORM_h616)
+  #define GIC_BASE 0x03020000
+#endif
+
+#define GICD_BASE (GIC_BASE + 0x1000)
 
 struct gicd_reg {
   uint32_t ctlr;           /* 0x000 */
@@ -30,7 +36,8 @@ struct gicd_reg {
   uint32_t rfu3[52];
 };
 
-#define GICC_BASE 0x01C82000
+#define GICC_BASE (GIC_BASE + 0x2000)
+
 struct gicc_reg {
   uint32_t ctlr;         /* 0x000 */
   uint32_t pmr;          /* 0x004 */
