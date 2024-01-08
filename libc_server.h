@@ -8,13 +8,7 @@
 #error INT_MAX/LONG_MAX not defined
 #endif
 
-// Find a data type that fits both pointers and integers.
-
-#if INT_MAX == LONG_MAX
-typedef uint32_t param_t;
-#else
 typedef uint64_t param_t;
-#endif
 
 enum libc_funcs {
     LIBC_WRITE,

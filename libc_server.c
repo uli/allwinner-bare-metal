@@ -46,7 +46,7 @@ struct newlib_stat {
   /* uid_t */   unsigned short st_uid;
   /* gid_t */   unsigned short st_gid;
   /* dev_t */   unsigned short st_rdev;
-  /* off_t */   long           st_size;
+  /* off_t */   int32_t        st_size;
 };
 
 struct newlib_timeval {
