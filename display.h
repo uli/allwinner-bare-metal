@@ -27,7 +27,12 @@ extern int display_is_pal;
 #define VIDEO_RAM_BYTES 0x180000
 
 // The HDMI registers base address.
-#define HDMI_BASE     0x01EE0000
+#ifdef AWBM_PLATFORM_h3
+  #define HDMI_BASE     0x01EE0000
+#elif defined(AWBM_PLATFORM_h616)
+  #define HDMI_BASE     0x06000000
+#endif
+
 #define HDMI_PHY_BASE (HDMI_BASE + 0x10000)
 
 #define HDMI_REG8(off)  *(volatile uint8_t *)(HDMI_BASE + (off))
@@ -116,9 +121,15 @@ extern int display_is_pal;
 #define HDMI_AUD_CTS3		HDMI_REG8(0x3205)
 #define HDMI_AUD_INPUTCLKFS	HDMI_REG8(0x3206)
 
-
 // LCD/TCON
-#define LCD0_BASE 0x01C0C000
+#ifdef AWBM_PLATFORM_h3
+  #define LCD0_BASE 0x01C0C000
+  #define LCD1_BASE 0x01C0D000
+#elif defined(AWBM_PLATFORM_h616)
+  #define LCD0_BASE 0x06515000
+  #define LCD1_BASE 0x06516000
+#endif
+
 #define LCD0_GCTL             *(volatile uint32_t*)(LCD0_BASE + 0x000)
 #define LCD0_GINT0            *(volatile uint32_t*)(LCD0_BASE + 0x004)
 #define LCD0_GINT1            *(volatile uint32_t*)(LCD0_BASE + 0x008)
@@ -130,7 +141,6 @@ extern int display_is_pal;
 #define LCD0_TCON1_BASIC4     *(volatile uint32_t*)(LCD0_BASE + 0x0A4)
 #define LCD0_TCON1_BASIC5     *(volatile uint32_t*)(LCD0_BASE + 0x0A8)
 
-#define LCD1_BASE 0x01C0D000
 #define LCD1_GCTL             *(volatile uint32_t*)(LCD1_BASE + 0x000)
 #define LCD1_GINT0            *(volatile uint32_t*)(LCD1_BASE + 0x004)
 #define LCD1_GINT1            *(volatile uint32_t*)(LCD1_BASE + 0x008)
@@ -142,35 +152,74 @@ extern int display_is_pal;
 #define LCD1_TCON1_BASIC4     *(volatile uint32_t*)(LCD1_BASE + 0x0A4)
 #define LCD1_TCON1_BASIC5     *(volatile uint32_t*)(LCD1_BASE + 0x0A8)
 
+// XXX: H3 only?
 #define LCD1_TCON1_PS_SYNC    *(volatile uint32_t*)(LCD1_BASE + 0x0B0)
 
 #define LCD1_TCON1_IO_POL     *(volatile uint32_t*)(LCD1_BASE + 0x0F0)
 #define LCD1_TCON1_IO_TRI     *(volatile uint32_t*)(LCD1_BASE + 0x0F4)
+// end H3 only?
 
 #define LCD1_TCON_CEU_CTL          *(volatile uint32_t*)(LCD1_BASE + 0x100)
 #define LCD1_TCON_CEU_COEF_MUL(n)  *(volatile uint32_t*)(LCD1_BASE + 0x110 + (n) * 4)
 #define LCD1_TCON_CEU_COEF_RANG(n) *(volatile uint32_t*)(LCD1_BASE + 0x140 + (n) * 4)
 
+// XXX: H3 only?
 #define LCD1_TCON1_GAMMA_TABLE(n)  *(volatile uint32_t*)(LCD1_BASE + 0x400 + (n) * 4)
+// end H3 only?
+
+#ifdef AWBM_PLATFORM_h3
+  #define LCD0_IRQ 118
+  #define LCD1_IRQ 119
+#elif defined(AWBM_PLATFORM_h616)
+  #define LCD0_IRQ 98
+  #define LCD1_IRQ 99
+#endif
 
 // DE2
+
+// same for H616 (DE3.3)
 #define DE_BASE 0x01000000
-#define DE_SCLK_GATE                  *(volatile uint32_t*)(DE_BASE + 0x000)
-#define DE_HCLK_GATE                  *(volatile uint32_t*)(DE_BASE + 0x004)
-#define DE_AHB_RESET                  *(volatile uint32_t*)(DE_BASE + 0x008)
-#define DE_SCLK_DIV                   *(volatile uint32_t*)(DE_BASE + 0x00C)
-#define DE_DE2TCON_MUX                *(volatile uint32_t*)(DE_BASE + 0x010)
-#define DE_CMD_CTL                    *(volatile uint32_t*)(DE_BASE + 0x014)
+
+#ifdef AWBM_PLATFORM_h3
+  #define DE_CLOCK_BASE		      DE_BASE
+#elif defined(AWBM_PLATFORM_h616)
+  #define DE_CLOCK_BASE		      (DE_BASE + 0x8000)
+#endif
+
+#define DE_SCLK_GATE                  *(volatile uint32_t*)(DE_CLOCK_BASE + 0x000)
+#define DE_HCLK_GATE                  *(volatile uint32_t*)(DE_CLOCK_BASE + 0x004)
+#define DE_AHB_RESET                  *(volatile uint32_t*)(DE_CLOCK_BASE + 0x008)
+#define DE_SCLK_DIV                   *(volatile uint32_t*)(DE_CLOCK_BASE + 0x00C)
+#define DE_DE2TCON_MUX                *(volatile uint32_t*)(DE_CLOCK_BASE + 0x010)
+#define DE_CMD_CTL                    *(volatile uint32_t*)(DE_CLOCK_BASE + 0x014)
 
 // Mixer 0
 #define DE_MIXER0                     (DE_BASE + 0x100000)
-#define DE_MIXER0_GLB                 (DE_MIXER0 + 0x0)
+
+#ifdef AWBM_PLATFORM_h3
+  #define DE_MIXER0_GLB		      (DE_MIXER0 + 0x0)
+#elif defined(AWBM_PLATFORM_h616)
+  #define DE_MIXER0_GLB		      (DE_BASE + 0x8100)
+#endif
+
 #define DE_MIXER0_GLB_CTL             *(volatile uint32_t*)(DE_MIXER0_GLB + 0x000)
 #define DE_MIXER0_GLB_STS             *(volatile uint32_t*)(DE_MIXER0_GLB + 0x004)
-#define DE_MIXER0_GLB_DBUFFER         *(volatile uint32_t*)(DE_MIXER0_GLB + 0x008)
-#define DE_MIXER0_GLB_SIZE            *(volatile uint32_t*)(DE_MIXER0_GLB + 0x00C)
 
-#define DE_MIXER0_BLD                 (DE_MIXER0 + 0x1000)
+#ifdef AWBM_PLATFORM_h3
+  #define DE_MIXER0_GLB_DBUFFER       *(volatile uint32_t*)(DE_MIXER0_GLB + 0x008)
+  #define DE_MIXER0_GLB_SIZE          *(volatile uint32_t*)(DE_MIXER0_GLB + 0x00C)
+#elif defined(AWBM_PLATFORM_h616)
+  #define DE_MIXER0_GLB_DBUFFER       *(volatile uint32_t*)(DE_MIXER0_GLB + 0x010)
+  #define DE_MIXER0_GLB_SIZE          *(volatile uint32_t*)(DE_MIXER0_GLB + 0x008)
+  #define DE_MIXER0_GLB_CLK           *(volatile uint32_t*)(DE_MIXER0_GLB + 0x00C)
+#endif
+
+#ifdef AWBM_PLATFORM_h3
+  #define DE_MIXER0_BLD		      (DE_MIXER0 + 0x1000)
+#elif defined(AWBM_PLATFORM_h616)
+  #define DE_MIXER0_BLD		      (DE_MIXER0 + 0x00181000)
+#endif
+
 #define DE_MIXER0_BLD_FILL_COLOR_CTL  *(volatile uint32_t*)(DE_MIXER0_BLD + 0x000)
 #define DE_MIXER0_BLD_FILL_COLOR(x)   *(volatile uint32_t*)(DE_MIXER0_BLD + 0x004 + x * 0x10)
 #define DE_MIXER0_BLD_CH_ISIZE(x)     *(volatile uint32_t*)(DE_MIXER0_BLD + 0x008 + x * 0x10)
@@ -186,7 +235,13 @@ extern int display_is_pal;
 #define DE_MIXER0_BLD_KEY_MIN(x)      *(volatile uint32_t*)(DE_MIXER0_BLD + 0x0E0 + x * 0x4)
 #define DE_MIXER0_BLD_OUT_COLOR       *(volatile uint32_t*)(DE_MIXER0_BLD + 0x0FC)
 
-#define DE_MIXER0_OVL_V               (DE_MIXER0 + 0x2000)
+// XXX: probably same offset on DE3, not 100% clear in docs
+#ifdef AWBM_PLATFORM_h3
+  #define DE_MIXER0_OVL_V	      (DE_MIXER0 + 0x2000)
+#elif defined(AWBM_PLATFORM_h616)
+  #define DE_MIXER0_OVL_V	      (DE_MIXER0 + 0x1000)
+#endif
+
 #define DE_MIXER0_OVL_V_ATTCTL(x)     *(volatile uint32_t*)(DE_MIXER0_OVL_V + 0x00 + x * 0x30)
 #define DE_MIXER0_OVL_V_MBSIZE(x)     *(volatile uint32_t*)(DE_MIXER0_OVL_V + 0x04 + x * 0x30)
 #define DE_MIXER0_OVL_V_COOR(x)       *(volatile uint32_t*)(DE_MIXER0_OVL_V + 0x08 + x * 0x30)
@@ -208,7 +263,12 @@ extern int display_is_pal;
 #define DE_MIXER0_OVL_V_BOT_HADD2     *(volatile uint32_t*)(DE_MIXER0_OVL_V + 0xE4)
 #define DE_MIXER0_OVL_V_SIZE          *(volatile uint32_t*)(DE_MIXER0_OVL_V + 0xE8)
 
-#define DE_MIXER0_VS_BASE             (DE_MIXER0 + 0x20000)
+#ifdef AWBM_PLATFORM_h3
+  #define DE_MIXER0_VS_BASE	      (DE_MIXER0 + 0x20000)
+#elif defined(AWBM_PLATFORM_h616)
+  #define DE_MIXER0_VS_BASE	      (DE_MIXER0 + 0x4000)
+#endif
+
 #define DE_MIXER0_VS_CTRL             *(volatile uint32_t*)(DE_MIXER0_VS_BASE + 0x00)
 #define DE_MIXER0_VS_STATUS           *(volatile uint32_t*)(DE_MIXER0_VS_BASE + 0x08)
 #define DE_MIXER0_VS_FIELD_CTRL       *(volatile uint32_t*)(DE_MIXER0_VS_BASE + 0x0C)
@@ -231,6 +291,9 @@ extern int display_is_pal;
 #define DE_MIXER0_VS_C_HCOEF0(x)      *(volatile uint32_t*)(DE_MIXER0_VS_BASE + 0x600 + x * 4)
 #define DE_MIXER0_VS_C_HCOEF1(x)      *(volatile uint32_t*)(DE_MIXER0_VS_BASE + 0x700 + x * 4)
 #define DE_MIXER0_VS_C_VCOEF(x)       *(volatile uint32_t*)(DE_MIXER0_VS_BASE + 0x800 + x * 4)
+
+
+#ifdef AWBM_PLATFORM_h3
 
 // Mixer 1
 #define DE_MIXER1                     (DE_BASE + 0x200000)
@@ -327,8 +390,12 @@ extern int display_is_pal;
 #define DE_MIXER1_UIS_VPHASE1(n)      *(volatile uint32_t*)(DE_MIXER1_UIS_BASE(n) + 0x9C)
 #define DE_MIXER1_UIS_HCOEF(n, x)     *(volatile uint32_t*)(DE_MIXER1_UIS_BASE(n) + 0x200 + x * 4)
 
+#endif // AWBM_PLATFORM_h3
+
 #define DE_SIZE(x, y) ((((y)-1) << 16) | ((x)-1))
 #define DE_SIZE_PHYS  DE_SIZE(DISPLAY_PHYS_RES_X, DISPLAY_PHYS_RES_Y)
+
+#ifdef AWBM_PLATFORM_h3
 
 #define DE_WB                         (DE_BASE + 0x10000)
 
@@ -354,6 +421,8 @@ extern int display_is_pal;
 #define DE_WB_FS_HSTEP     *(volatile uint32_t*)(DE_WB + 0x88)
 #define DE_WB_FS_VSTEP     *(volatile uint32_t*)(DE_WB + 0x8C)
 #define DE_WB_INT          *(volatile uint32_t*)(DE_WB + 0x48)
+
+#endif	// AWBM_PLATFORM_h3
 
 void display_set_mode(int x, int y, int ovx, int ovy);
 void display_swap_buffers();
@@ -396,6 +465,8 @@ void display_capture_kick(void);
 void display_capture_stop(void);
 int display_capture_frame_ready(void **luma_buf, void **chroma_buf);
 void display_capture_ack_frame(void);
+
+void display_g2d_blit(void *src, int src_total_w, int src_total_h, int src_x, int src_y, int src_w, int src_h, void *dst, int dst_total_w, int dst_total_h, int dst_x, int dst_y, int dst_w, int dst_h);
 
 #ifdef __cplusplus
 }
