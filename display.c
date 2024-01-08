@@ -157,7 +157,7 @@ int display_init(const struct display_phys_mode_t *mode)
     display_is_digital = 1;
     LCD0_GINT1         = 1;
     LCD0_GINT0         = BIT(30);
-    irq_enable(118);  // LCD0
+    irq_enable(LCD0_IRQ);
     return 0;
   } else {
     display_is_digital = 0;
