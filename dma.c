@@ -1,3 +1,5 @@
+#if !defined(JAILHOUSE) && defined(AWBM_PLATFORM_h3)
+
 #include <stdint.h>
 
 #include "ccu.h"
@@ -54,3 +56,5 @@ void dma_wait(int channel)
 {
   while (DMA_STA_REG & (1 << channel)) {}
 }
+
+#endif	// !JAILHOUSE && AWBM_PLATFORM_h3
