@@ -41,8 +41,6 @@ void display_enable_filter(int onoff)
   DE_MIXER0_GLB_DBUFFER = 1;
 }
 
-// This function configured DE2 as follows:
-// MIXER0 -> WB -> MIXER1 -> HDMI
 static void de2_init()
 {
   DE_MIXER0_GLB_CTL = 0;
