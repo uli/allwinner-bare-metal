@@ -71,12 +71,12 @@ void
 
   // LCD controllers 0 and 1
   // NB: Only one of these will be enabled at any time.
-  if (irq_pending(118)) {
+  if (irq_pending(LCD0_IRQ)) {
     tick_counter++;
     LCD0_GINT0 &= ~(1 << 14);
     hook_display_vblank();
   }
-  if (irq_pending(119)) {
+  if (irq_pending(LCD1_IRQ)) {
     tick_counter++;
     LCD1_GINT0 &= ~(1 << 14);
     hook_display_vblank();
