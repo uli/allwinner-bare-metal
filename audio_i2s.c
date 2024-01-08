@@ -17,6 +17,7 @@ void __attribute__((weak)) hook_audio_get_sample(int16_t *l, int16_t *r)
 
 void audio_queue_samples(void)
 {
+#ifdef AWBM_PLATFORM_h3
 	while (((I2S_FSTA(2) >> 16) & 0xff) > 2) {
 		int16_t l, r;
 		hook_audio_get_sample(&l, &r);
@@ -24,7 +25,12 @@ void audio_queue_samples(void)
 		I2S_TXFIFO(2) = r;
 	}
 	// TXEI clears itself when the FIFO is full again
+#else
+#warning unimplemented
+#endif
 }
+
+#ifdef AWBM_PLATFORM_h3
 
 void audio_i2s2_init(void)
 {
@@ -106,8 +112,13 @@ void audio_i2s2_off(void)
 	// XXX: hub enable/disable? Not enabled in register trace.
 }
 
+#else	// AWBM_PLATFORM_h3
+#warning unimplemented
+#endif	// AWBM_PLATFORM_h3
+
 void audio_start(int buf_len)
 {
+#ifdef AWBM_PLATFORM_h3
   h3_codec_begin();
   h3_codec_set_buffer_length(buf_len);
 
@@ -115,4 +126,7 @@ void audio_start(int buf_len)
 
   audio_i2s2_on();
   h3_codec_start();
+#else
+#warning unimplemented
+#endif
 }
