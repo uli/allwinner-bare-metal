@@ -359,7 +359,7 @@ void tve_init(int pal)
   // XXX: This should be a vblank interrupt, not a line interrupt.
   LCD1_GINT1 = 1;
   LCD1_GINT0 = BIT(30);
-  irq_enable(119);
+  irq_enable(LCD1_IRQ);
 }
 
 void tve_de2_init(void)
