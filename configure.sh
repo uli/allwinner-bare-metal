@@ -7,6 +7,7 @@ test -n "$UBSAN_FULL" && UBSAN_FLAGS="-fsanitize=undefined -fno-sanitize=float-c
 test "$GDBSTUB" == "on" && GDB=1 || GDB=0
 test "$LIBH3_MMC" == "off" && LIBH3_MMC=0 || LIBH3_MMC=1
 test -n "$JAILHOUSE" && JAILHOUSE=1 || JAILHOUSE=0
+test -n "$PLATFORM" && PLATFORM="$PLATFORM" || PLATFORM="h3"
 
 test -z "$OSDIR" && OSDIR=`pwd`
 test -z "$LIBH3DIR" && LIBH3DIR=$OSDIR/lib-h3
@@ -26,7 +27,7 @@ test "$JAILHOUSE" == 1 && JAILHOUSE_FLAGS="-DJAILHOUSE -DJAILHOUSE_SDL_HEADER=\\
 test "$JAILHOUSE" == 1 && LIBC_IO_FILES="libc_io_jh.c" || LIBC_IO_FILES="libc_io.c"
 test "$JAILHOUSE" == 1 && LINKER_LD="linker_jh.ld" || LINKER_LD="linker.ld"
 
-OPT_FLAGS="$STACK_PROT_FLAGS $UBSAN_FLAGS $GDB_FLAGS $LIBH3_MMC_FLAGS $JAILHOUSE_FLAGS"
+OPT_FLAGS="$STACK_PROT_FLAGS $UBSAN_FLAGS $GDB_FLAGS $LIBH3_MMC_FLAGS $JAILHOUSE_FLAGS -DAWBM_PLATFORM_${PLATFORM}"
 
 test -z "$MAKE" && MAKE=make
 
