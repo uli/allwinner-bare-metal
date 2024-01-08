@@ -2,6 +2,8 @@
 extern "C" {
 #endif
 
+#ifdef AWBM_PLATFORM_h3
+
 // The CCU registers base address.
 #define CCU_BASE 0x01C20000
 
@@ -91,6 +93,16 @@ extern "C" {
 
 #define PLL_CPUX_FACTOR_K_MASK	0x00000030UL
 #define PLL_CPUX_FACTOR_N_MASK  0x00001f00UL
+
+#elif defined(AWBM_PLATFORM_h616)
+
+#define CCU_BASE 0x03001000
+
+#define UART_BGR_REG          *(volatile uint32_t *)(CCU_BASE + 0x90c)
+
+#else
+#error unknown platform
+#endif
 
 #ifdef __cplusplus
 }
