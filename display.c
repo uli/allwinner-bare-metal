@@ -45,6 +45,16 @@ void display_enable_filter(int onoff)
 // MIXER0 -> WB -> MIXER1 -> HDMI
 static void de2_init()
 {
+  DE_MIXER0_GLB_CTL = 0;
+#ifdef AWBM_PLATFORM_h616
+  DE_MIXER0_GLB_CLK = 0;
+#endif
+  DE_AHB_RESET &= ~BIT(0);
+  DE_SCLK_GATE &= ~BIT(0);
+  DE_HCLK_GATE &= ~BIT(0);
+
+  udelay(100);
+
   DE_AHB_RESET |= BIT(0);
   DE_SCLK_GATE |= BIT(0);
   DE_HCLK_GATE |= BIT(0);
@@ -55,6 +65,9 @@ static void de2_init()
     *(volatile uint32_t *)(addr) = 0;
 
   DE_MIXER0_GLB_CTL  = 1;
+#ifdef AWBM_PLATFORM_h616
+  DE_MIXER0_GLB_CLK = 1;
+#endif
   DE_MIXER0_GLB_SIZE = ((DISPLAY_PHYS_RES_Y - 1) << 16) | (DISPLAY_PHYS_RES_X - 1);
 
   DE_MIXER0_BLD_FILL_COLOR_CTL = 0x100;
@@ -62,8 +75,9 @@ static void de2_init()
   DE_MIXER0_BLD_SIZE           = ((DISPLAY_PHYS_RES_Y - 1) << 16) | (DISPLAY_PHYS_RES_X - 1);
   DE_MIXER0_BLD_CH_ISIZE(0)    = ((DISPLAY_PHYS_RES_Y - 1) << 16) | (DISPLAY_PHYS_RES_X - 1);
 
+  DE_MIXER0_OVL_V_ATTCTL(0)    = BIT(15);
+
   // The output takes a dsp.x*dsp.y area from a total (dsp.x+dsp.ovx)*(dsp.y+dsp.ovy) buffer
-  DE_MIXER0_OVL_V_ATTCTL(0)    = BIT(15) | BIT(0);
   DE_MIXER0_OVL_V_MBSIZE(0)    = ((dsp.y - 1) << 16) | (dsp.x - 1);
   DE_MIXER0_OVL_V_COOR(0)      = 0;
   DE_MIXER0_OVL_V_PITCH0(0)    = dsp.fb_width * 4;  // Scan line in bytes including overscan
@@ -71,7 +85,10 @@ static void de2_init()
 
   DE_MIXER0_OVL_V_SIZE = ((dsp.y - 1) << 16) | (dsp.x - 1);
 
-  DE_MIXER0_VS_CTRL     = 1;
+  DE_MIXER0_OVL_V_ATTCTL(0) |= BIT(0);
+
+  DE_MIXER0_VS_CTRL     = 0;
+
   DE_MIXER0_VS_OUT_SIZE = ((DISPLAY_PHYS_RES_Y - 1) << 16) | (DISPLAY_PHYS_RES_X - 1);
   DE_MIXER0_VS_Y_SIZE   = ((dsp.y - 1) << 16) | (dsp.x - 1);
   double scale_x        = (double)dsp.x * (double)0x100000 / (double)DISPLAY_PHYS_RES_X;
@@ -83,6 +100,8 @@ static void de2_init()
   DE_MIXER0_VS_C_VSTEP  = (uint32_t)scale_y;
 
   de2_update_filter(0);
+
+  DE_MIXER0_VS_CTRL     = 1;
 
   DE_MIXER0_GLB_DBUFFER = 1;
 }
