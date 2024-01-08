@@ -5,7 +5,15 @@ extern "C" {
 #include <stdint.h>
 
 // The UART registers base address.
-#define UART_BASE(n) ((n) < 4 ? 0x01C28000 + (n) * 0x400 : 0x01F02800)
+#ifdef AWBM_PLATFORM_h3
+  #define UART_BASE_ADDR 0x01C28000
+  #define UART_BASE(n) ((n) < 4 ? UART_BASE_ADDR + (n) * 0x400 : 0x01F02800)
+#elif defined(AWBM_PLATFORM_h616)
+  #define UART_BASE_ADDR 0x05000000
+  #define UART_BASE(n) (UART_BASE_ADDR + (n) * 0x400)
+#else
+  #error unknown platform
+#endif
 
 // Macros to access UART registers.
 #define UART_RBR(n) *(volatile uint32_t *)(UART_BASE(n) + 0x00)

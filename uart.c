@@ -16,8 +16,14 @@ void uart_init(int n)
 
   // Enable clock
   if (n < 4) {
+#ifdef AWBM_PLATFORM_h3
     BUS_CLK_GATING3 |= BIT(16 + n);
     BUS_SOFT_RST4 |= BIT(16 + n);
+#elif defined(AWBM_PLATFORM_h616)
+    UART_BGR_REG |= BIT(16 + n) | BIT(n);
+#else
+#error unknown platform
+#endif
   } else {
     // XXX: S_UART?
   }
