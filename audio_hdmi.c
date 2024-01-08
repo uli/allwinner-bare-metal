@@ -3,6 +3,7 @@
 
 void audio_hdmi_init(void)
 {
+#ifdef AWBM_PLATFORM_h3
 	// Audio setup borrowed from Allwinner vendor HDMI driver for Linux.
 	// Register addresses have been "descrambled" (see
 	// https://linux-sunxi.org/DWC_HDMI_Controller for details).
@@ -58,4 +59,5 @@ void audio_hdmi_init(void)
 	HDMI_MC_CLKDIS = 0x74 | 0x00;
 
 	HDMI_PHY_UNSCRAMBLE = 0;
+#endif
 }
