@@ -17,6 +17,8 @@ test -z "$CROSS_COMPILE" && CROSS_COMPILE=~/x-tools/arm-unknown-eabihf/bin/arm-u
 test -z "$OBJDIR" && OBJDIR=$OSDIR/build
 
 test "$LIBH3_MMC" == 1 && LIBH3_MMC_FLAGS="-DLIBH3_MMC -DSD_WRITE_SUPPORT"
+test "$PLATFORM" == h3 && LIBH3_LDFLAGS="-lh3" || LIBH3_LDFLAGS=""
+
 test "$GDB" == 1 && GDB_FLAGS="-DGDBSTUB"
 
 test -z "$JAILHOUSE_SYSROOT" && JAILHOUSE_SYSROOT=../buildroot_jh/output/host/arm-buildroot-linux-gnueabihf/sysroot
@@ -73,7 +75,7 @@ rule cxx
   command = $CXX -MD -MF \$out.d \$aw_cxxflags \$cxxflags -c \$in -o \$out
 rule link
   command = $CC \$aw_cflags \$cflags \$aw_ldflags -o \$out \$in -Wl,--wrap,__stack_chk_fail -Wl,-wrap,__malloc_lock -Wl,-wrap,__malloc_unlock -Wl,-wrap,system -lc \$
-            -L$OSDIR -L$LIBH3DIR/lib-h3/lib_h3 -L$LIBH3DIR/lib-arm/lib_h3 \$libs -los -lh3 -larm -lc -lm $COMPILER_LDFLAGS
+            -L$OSDIR -L$LIBH3DIR/lib-h3/lib_h3 -L$LIBH3DIR/lib-arm/lib_h3 \$libs -los $LIBH3_LDFLAGS -larm -lc -lm $COMPILER_LDFLAGS
 
 rule bin
   command = $OBJCOPY -O binary --remove-section .uncached \$in \$out
