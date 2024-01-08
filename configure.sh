@@ -108,10 +108,11 @@ rm lwip.files
 SOURCES="boot.S startup.c uart.c ports.c mmu.c system.c display.c interrupts.c \
 	audio_hdmi.c audio_i2s.c exceptions.c cache.S display_filter.c \
 	dma.c rtc.c smp.c spinlock.c ubsan.c tve.c \
-	libc_common.c ${LIBC_IO_FILES} \
-	network.c ${COREFILES} ${CORE4FILES} ${NETIFFILES} ${HTTPFILES} ${TFTPFILES} $LWIPDIR/api/err.c"
+	libc_common.c ${LIBC_IO_FILES}"
 
-test "$JAILHOUSE" == 1 || SOURCES="$SOURCES usb.c fs.c \
+test "$JAILHOUSE" == 1 || SOURCES="$SOURCES \
+	network.c ${COREFILES} ${CORE4FILES} ${NETIFFILES} ${HTTPFILES} ${TFTPFILES} $LWIPDIR/api/err.c \
+	usb.c fs.c \
 	tinyusb/src/host/ohci/ohci1.c tinyusb/src/host/ohci/ohci2.c tinyusb/src/host/ohci/ohci3.c\
 	tinyusb/src/host/usbh1.c tinyusb/src/host/usbh2.c tinyusb/src/host/usbh3.c \
 	tinyusb/src/host/hub1.c tinyusb/src/host/hub2.c tinyusb/src/host/hub3.c \
