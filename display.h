@@ -38,6 +38,8 @@ extern int display_is_pal;
 #define HDMI_REG8(off)  *(volatile uint8_t *)(HDMI_BASE + (off))
 #define HDMI_REG32(off) *(volatile uint32_t *)(HDMI_BASE + (off))
 
+#ifdef AWBM_PLATFORM_h3
+
 // HDMI register helpers.
 #define HDMI_PHY_POL          *(volatile uint32_t*)(HDMI_BASE + 0x10000)
 #define HDMI_PHY_READ_EN      *(volatile uint32_t*)(HDMI_BASE + 0x10010)
@@ -51,75 +53,9 @@ extern int display_is_pal;
 #define HDMI_PHY_STS          *(volatile uint32_t*)(HDMI_BASE + 0x10038)
 #define HDMI_PHY_CEC          *(volatile uint32_t*)(HDMI_BASE + 0x1003C)
 
-#define HDMI_FC_INVIDCONF     *(volatile uint8_t*)(HDMI_BASE + 0x1000)
+#endif
 
-#define HDMI_FC_INHACTIV0     *(volatile uint8_t*)(HDMI_BASE + 0x1001)
-#define HDMI_FC_INHACTIV1     *(volatile uint8_t*)(HDMI_BASE + 0x1002)
-#define HDMI_FC_INHBLANK0     *(volatile uint8_t*)(HDMI_BASE + 0x1003)
-#define HDMI_FC_INHBLANK1     *(volatile uint8_t*)(HDMI_BASE + 0x1004)
-
-#define HDMI_FC_INVACTIV0     *(volatile uint8_t*)(HDMI_BASE + 0x1005)
-#define HDMI_FC_INVACTIV1     *(volatile uint8_t*)(HDMI_BASE + 0x1006)
-#define HDMI_FC_INVBLANK      *(volatile uint8_t*)(HDMI_BASE + 0x1007)
-
-#define HDMI_FC_HSYNCINDELAY0 *(volatile uint8_t*)(HDMI_BASE + 0x1008)
-#define HDMI_FC_HSYNCINDELAY1 *(volatile uint8_t*)(HDMI_BASE + 0x1009)
-#define HDMI_FC_HSYNCINWIDTH0 *(volatile uint8_t*)(HDMI_BASE + 0x100A)
-#define HDMI_FC_HSYNCINWIDTH1 *(volatile uint8_t*)(HDMI_BASE + 0x100B)
-#define HDMI_FC_VSYNCINDELAY  *(volatile uint8_t*)(HDMI_BASE + 0x100C)
-#define HDMI_FC_VSYNCINWIDTH  *(volatile uint8_t*)(HDMI_BASE + 0x100D)
-
-#define HDMI_FC_CTRLDUR       *(volatile uint8_t*)(HDMI_BASE + 0x1011)
-#define HDMI_FC_EXCTRLDUR     *(volatile uint8_t*)(HDMI_BASE + 0x1012)
-#define HDMI_FC_EXCTRLSPAC    *(volatile uint8_t*)(HDMI_BASE + 0x1013)
-#define HDMI_FC_CH0PREAM      *(volatile uint8_t*)(HDMI_BASE + 0x1014)
-#define HDMI_FC_CH1PREAM      *(volatile uint8_t*)(HDMI_BASE + 0x1015)
-#define HDMI_FC_CH2PREAM      *(volatile uint8_t*)(HDMI_BASE + 0x1016)
-#define HDMI_MC_FLOWCTRL      *(volatile uint8_t*)(HDMI_BASE + 0x4004)
-#define HDMI_MC_CLKDIS        *(volatile uint8_t*)(HDMI_BASE + 0x4001)
-#define HDMI_MC_SWRSTZREQ     HDMI_REG8(0x4002)
-
-#define HDMI_VP_STUFF         *(volatile uint8_t*)(HDMI_BASE + 0x0802)
-#define HDMI_VP_CONF          *(volatile uint8_t*)(HDMI_BASE + 0x0804)
-
-#define HDMI_TX_INVID0        *(volatile uint8_t*)(HDMI_BASE + 0x0200)
-#define HDMI_TX_INSTUFFING    *(volatile uint8_t*)(HDMI_BASE + 0x0201)
-
-// Audio register names from
-// http://rockchip.fr/Rockchip%20RK3399%20TRM%20V1.3%20Part2.pdf
-// (Different revisions of the this HDMI IP are used in various SoCs;
-// some vendors provide documentation, and some don't.)
-
-#define HDMI_FC_AUDIOCONF0	HDMI_REG8(0x1025)
-#define HDMI_FC_AUDIOCONF1	HDMI_REG8(0x1026)
-#define HDMI_FC_AUDIOCONF2	HDMI_REG8(0x1027)
-#define HDMI_FC_AUDIOCONF3	HDMI_REG8(0x1028)
-
-#define HDMI_FC_AUDSCONF	HDMI_REG8(0x1063)
-#define HDMI_FC_AUDSV		HDMI_REG8(0x1065)
-#define HDMI_FC_AUDSU		HDMI_REG8(0x1066)
-#define HDMI_FC_AUDSCHNL0	HDMI_REG8(0x1067)
-#define HDMI_FC_AUDSCHNL1	HDMI_REG8(0x1068)
-#define HDMI_FC_AUDSCHNL2	HDMI_REG8(0x1069)
-#define HDMI_FC_AUDSCHNL3	HDMI_REG8(0x106a)
-#define HDMI_FC_AUDSCHNL4	HDMI_REG8(0x106b)
-#define HDMI_FC_AUDSCHNL5	HDMI_REG8(0x106c)
-#define HDMI_FC_AUDSCHNL6	HDMI_REG8(0x106d)
-#define HDMI_FC_AUDSCHNL7	HDMI_REG8(0x106e)
-#define HDMI_FC_AUDSCHNL8	HDMI_REG8(0x106f)
-
-#define HDMI_AUD_CONF0		HDMI_REG8(0x3100)
-#define HDMI_AUD_CONF1		HDMI_REG8(0x3101)
-#define HDMI_AUD_INT		HDMI_REG8(0x3102)
-#define HDMI_AUD_CONF2		HDMI_REG8(0x3103)
-
-#define HDMI_AUD_N1		HDMI_REG8(0x3200)
-#define HDMI_AUD_N2		HDMI_REG8(0x3201)
-#define HDMI_AUD_N3		HDMI_REG8(0x3102)
-#define HDMI_AUD_CTS1		HDMI_REG8(0x3203)
-#define HDMI_AUD_CTS2		HDMI_REG8(0x3204)
-#define HDMI_AUD_CTS3		HDMI_REG8(0x3205)
-#define HDMI_AUD_INPUTCLKFS	HDMI_REG8(0x3206)
+#include "dw_hdmi.h"
 
 // LCD/TCON
 #ifdef AWBM_PLATFORM_h3
