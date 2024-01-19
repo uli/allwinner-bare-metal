@@ -102,6 +102,23 @@ extern "C" {
 
 #define UART_BGR_REG		MEM(CCU_BASE + 0x90c)
 
+#define HDMI0_CLK_REG		MEM(CCU_BASE + 0xb00)
+#define HDMI0_SLOW_CLK_REG	MEM(CCU_BASE + 0xb04)
+#define HDMI_CEC_CLK_REG	MEM(CCU_BASE + 0xb10)
+#define HDMI_BGR_REG		MEM(CCU_BASE + 0xb1c)
+
+#define DISPLAY_IF_TOP_BGR_REG	MEM(CCU_BASE + 0xb5c)
+
+#define TCON_TV0_CLK_REG	MEM(CCU_BASE + 0xb80)
+#define TCON_TV1_CLK_REG	MEM(CCU_BASE + 0xb84)
+#define TCON_TV_BGR_REG		MEM(CCU_BASE + 0xb9c)
+
+#define PLL_VIDEO0_CTRL_REG	MEM(CCU_BASE + 0x040)
+#define PLL_DE_CTRL_REG		MEM(CCU_BASE + 0x060)
+
+#define DE_CLK_REG		MEM(CCU_BASE + 0x600)
+#define DE_BGR_REG		MEM(CCU_BASE + 0x60c)
+
 #else
 #error unknown platform
 #endif
