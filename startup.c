@@ -100,6 +100,8 @@ void startup()
 
 #endif	// AWBM_PLATFORM_h3
 
+  __libc_init_array();
+
   // Configure display; try HDMI/DVI first, fall back to analog if it fails to initialize
   // XXX: We have to init the display because the system timer
   // initialization uses it for calibration.
@@ -129,7 +131,7 @@ void startup()
   set_pin_mode(PORTF, 6, 0);  // SD CD pin
 #endif
 
-  __libc_init_array();
+//  __libc_init_array();
 
   main(0, NULL);
   _reset();
