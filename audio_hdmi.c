@@ -4,6 +4,7 @@
 
 void audio_hdmi_init(void)
 {
+#ifdef AWBM_PLATFORM_h3
 	// Audio setup borrowed from Allwinner vendor HDMI driver for Linux.
 
 #ifdef AWBM_PLATFORM_h3
@@ -64,4 +65,5 @@ void audio_hdmi_init(void)
 #ifdef AWBM_PLATFORM_h3
 	HDMI_PHY_UNSCRAMBLE = 0;
 #endif
+#endif	// AWBM_PLATFORM_h3
 }
