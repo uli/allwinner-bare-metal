@@ -25,10 +25,38 @@ void audio_queue_samples(void)
 		I2S_TXFIFO(2) = r;
 	}
 	// TXEI clears itself when the FIFO is full again
+#elif defined(AWBM_PLATFORM_h616)
+	while ((AHUB_APBIF_TXFIFO_STS(1) & 0x7f) > 2) {
+		int16_t l, r;
+		hook_audio_get_sample(&l, &r);
+		AHUB_APBIF_TXFIFO(1) = l;
+		AHUB_APBIF_TXFIFO(1) = r;
+	}
+	// TXnE clears itself when the FIFO is no longer empty.
 #else
 #warning unimplemented
 #endif
 }
+
+#ifdef AWBM_PLATFORM_h616
+
+#define DMA_BASE		0x3002000
+#define DMA_CHAN_BASE(n)	(DMA_BASE + (n) * 0x40)
+#define DMA_PAUSE(n)		MEM(DMA_CHAN_BASE(n) + 0x104)
+
+void audio_ahub_init(void)
+{
+	// Hijack AHUB by pausing DMA.
+	// XXX: scan DMA channel destinations to find the one that targets AHUB
+	DMA_PAUSE(0) |= 1;
+
+	AHUB_APBIF_TXIRQ_CTRL(1) |= 1;	// enable TXnEI_EN (FIFO empty interrupt)
+
+	// Assume that Linux has set up the rest.
+
+	irq_enable(HDMI_AUDIO_IRQ);
+}
+#endif
 
 #ifdef AWBM_PLATFORM_h3
 
@@ -126,6 +154,8 @@ void audio_start(int buf_len)
 
   audio_i2s2_on();
   h3_codec_start();
+#elif defined(AWBM_PLATFORM_h616)
+  audio_ahub_init();
 #else
 #warning unimplemented
 #endif

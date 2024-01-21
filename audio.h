@@ -16,6 +16,8 @@ void audio_i2s2_on(void);
 
 void audio_queue_samples(void);
 
+#ifdef AWBM_PLATFORM_h3
+
 #define I2S_BASE_BASE	0x01c22000
 #define I2S_BASE(n)	(I2S_BASE_BASE + (n) * 0x400)
 
@@ -83,6 +85,20 @@ void audio_queue_samples(void);
 
 #define I2S_RXCHMAP(n)		I2S_REG(n, 0x58)
 #define I2S_RXCHMAP_CH_SAMPLE(ch, n)	((n) << ((ch) * 4))
+
+#endif
+
+#ifdef AWBM_PLATFORM_h616
+#define AHUB_BASE_BASE		0x5097000
+#define AHUB_BASE(n)		(AHUB_BASE_BASE + (n) * 0x30)
+#define AHUB_I2S_BASE(n)	(AHUB_BASE_BASE + (n) * 0x100)
+#define AHUB_DAM_BASE(n)	(AHUB_BASE_BASE + (n) * 0x80)
+
+#define AHUB_APBIF_TXIRQ_CTRL(n)	MEM(AHUB_BASE(n) + 0x14)
+#define AHUB_APBIF_TXFIFO_STS(n)	MEM(AHUB_BASE(n) + 0x24)
+#define AHUB_APBIF_TXFIFO(n)		MEM(AHUB_BASE(n) + 0x30)
+
+#endif
 
 void hook_audio_get_sample(int16_t *l, int16_t *r);
 
