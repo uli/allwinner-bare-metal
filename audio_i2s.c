@@ -90,7 +90,7 @@ void audio_i2s2_on(void)
 	I2S_RXCNT(2) = 0;	// clear RX counter
 	I2S_TXCNT(2) = 0;	// clear TX counter
 	I2S_INT(2) = I2S_INT_TXEI_EN;		// enable TX FIFO empty IRQ
-	irq_enable(47);
+	irq_enable(HDMI_AUDIO_IRQ);
 
 	// BCLK_OUT | LRCK_OUT: "codec clk & frm slave,ap is master"
 	// MODE_SEL(1): "Left mode (offset 0: LJ mode; offset 1: I2S mode"
@@ -100,7 +100,7 @@ void audio_i2s2_on(void)
 
 void audio_i2s2_off(void)
 {
-	irq_disable(47);
+	irq_disable(HDMI_AUDIO_IRQ);
 
 	// disable RX
 	I2S_FCTL(2) |= I2S_FCTL_FRX;	// flush RX FIFO

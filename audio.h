@@ -4,6 +4,12 @@ extern "C" {
 
 #include "display.h"
 
+#ifdef AWBM_PLATFORM_h3
+#define HDMI_AUDIO_IRQ 47	// I2S
+#elif defined(AWBM_PLATFORM_h616)
+#define HDMI_AUDIO_IRQ 56	// AHUB
+#endif
+
 void audio_hdmi_init(void);
 void audio_i2s2_init(void);
 void audio_i2s2_on(void);

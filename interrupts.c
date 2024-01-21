@@ -50,7 +50,7 @@ void
   }
 
   // digital audio
-  if (irq_pending(47))
+  if (irq_pending(HDMI_AUDIO_IRQ))
     audio_queue_samples();
 
 #ifdef AWBM_PLATFORM_h3
