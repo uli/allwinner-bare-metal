@@ -43,16 +43,30 @@ void audio_queue_samples(void)
 #define DMA_BASE		0x3002000
 #define DMA_CHAN_BASE(n)	(DMA_BASE + (n) * 0x40)
 #define DMA_PAUSE(n)		MEM(DMA_CHAN_BASE(n) + 0x104)
+#define DMA_CUR_DEST_REG(n)	MEM(DMA_CHAN_BASE(n) + 0x114)
 
 void audio_ahub_init(void)
 {
-	// Hijack AHUB by pausing DMA.
-	// XXX: scan DMA channel destinations to find the one that targets AHUB
-	DMA_PAUSE(0) |= 1;
+	// Hijack AHUB and codec by pausing DMA.
+
+	// We assume that the Linux cell has brought the devices up and
+	// keeps them running.
+	// Linux uses DMA to feed the AHUB and codec FIFOs. We cannot hijack
+	// the DMA controller because Linux needs it for other things.
+	// Instead, we pause the DMA channels that are feeding the FIFOs and
+	// use the AHUB's unused IRQ to feed them manually.
+
+	for (int ch = 0; ch < 16; ++ch) {
+		if ((DMA_CUR_DEST_REG(ch) & 0xfffff000) == AHUB_BASE_BASE) {
+			DMA_PAUSE(ch) |= 1;
+			// XXX: find out the TXDIF no. instead of hardcoding it
+		}
+		if ((DMA_CUR_DEST_REG(ch) & 0xfffff000) == AC_BASE) {
+			DMA_PAUSE(ch) |=1;
+		}
+	}
 
 	AHUB_APBIF_TXIRQ_CTRL(1) |= 1;	// enable TXnEI_EN (FIFO empty interrupt)
-
-	// Assume that Linux has set up the rest.
 
 	irq_enable(HDMI_AUDIO_IRQ);
 }
