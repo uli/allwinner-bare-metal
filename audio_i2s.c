@@ -29,8 +29,19 @@ void audio_queue_samples(void)
 	while ((AHUB_APBIF_TXFIFO_STS(1) & 0x7f) > 2) {
 		int16_t l, r;
 		hook_audio_get_sample(&l, &r);
+
+		// Feed AHUB and analog codec FIFOs.
+		// We are running this off the AHUB interrupt. We can do
+		// that because the AHUB and the codec run off clocks
+		// derived from the same source (they are, aren't they?).
+		// The audio codec also has a larger FIFO than the AHUB (128
+		// vs. 64 samples).
+
+		// XXX: find out the TXDIF no. instead of hardcoding it
 		AHUB_APBIF_TXFIFO(1) = l;
+		AC_DAC_TXDATA = l;
 		AHUB_APBIF_TXFIFO(1) = r;
+		AC_DAC_TXDATA = r;
 	}
 	// TXnE clears itself when the FIFO is no longer empty.
 #else
