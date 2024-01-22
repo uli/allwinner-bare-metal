@@ -89,6 +89,7 @@ void audio_queue_samples(void);
 #endif
 
 #ifdef AWBM_PLATFORM_h616
+
 #define AHUB_BASE_BASE		0x5097000
 #define AHUB_BASE(n)		(AHUB_BASE_BASE + (n) * 0x30)
 #define AHUB_I2S_BASE(n)	(AHUB_BASE_BASE + (n) * 0x100)
@@ -97,6 +98,9 @@ void audio_queue_samples(void);
 #define AHUB_APBIF_TXIRQ_CTRL(n)	MEM(AHUB_BASE(n) + 0x14)
 #define AHUB_APBIF_TXFIFO_STS(n)	MEM(AHUB_BASE(n) + 0x24)
 #define AHUB_APBIF_TXFIFO(n)		MEM(AHUB_BASE(n) + 0x30)
+
+#define AC_BASE		0x5096000
+#define AC_DAC_TXDATA	MEM(AC_BASE + 0x20)
 
 #endif
 
