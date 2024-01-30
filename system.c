@@ -4,6 +4,11 @@
 #include "system.h"
 #include "uart.h"
 
+#ifdef AWBM_PLATFORM_h3
+// used by the lib-h3 EMAC driver
+uint8_t libh3_coherent_region[1048576]  __attribute__ ((section ("UNCACHED")));
+#endif
+
 static uint32_t sys_freq;
 static uint32_t sys_per_usec;
 

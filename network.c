@@ -19,9 +19,6 @@ extern void emac_eth_send(void*, int);
 extern int emac_eth_recv(uint8_t **);
 extern void emac_free_pkt(void);
 
-// used by the lib-h3 EMAC driver
-uint8_t libh3_coherent_region[1048576]  __attribute__ ((section ("UNCACHED")));
-
 static struct pbuf *eth_recv_pbuf(void)
 {
   uint8_t *eth_data;
