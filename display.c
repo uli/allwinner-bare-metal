@@ -43,15 +43,15 @@ void display_enable_filter(int onoff)
 
 static void de2_init()
 {
-  DE_MIXER0_GLB_CTL = 0;
 #ifdef AWBM_PLATFORM_h616
+  DE_MIXER0_GLB_CTL = 0;
   DE_MIXER0_GLB_CLK = 0;
-#endif
   DE_AHB_RESET &= ~BIT(0);
   DE_SCLK_GATE &= ~BIT(0);
   DE_HCLK_GATE &= ~BIT(0);
 
   udelay(100);
+#endif
 
   DE_AHB_RESET |= BIT(0);
   DE_SCLK_GATE |= BIT(0);
