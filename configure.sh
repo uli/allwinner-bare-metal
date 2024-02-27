@@ -158,7 +158,7 @@ if test "$JAILHOUSE" == 1 ; then
 	cat <<EOT >>build.ninja
 rule jh_cc
   depfile = \$out.d
-  command = $JAILHOUSE_CC -MD -MF \$out.d -DJAILHOUSE -Wall -W -c \$in -o \$out
+  command = $JAILHOUSE_CC -MD -MF \$out.d -DJAILHOUSE -DAWBM_PLATFORM_${PLATFORM} -Wall -W -c \$in -o \$out
 rule jh_link
   command = $JAILHOUSE_CC -o \$out \$in \$jh_ldflags
 

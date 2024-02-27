@@ -8,7 +8,19 @@
 #error INT_MAX/LONG_MAX not defined
 #endif
 
+// Find a data type that fits both pointers and integers.
+
+// XXX: Instead of hardcoding the platform this should use the Linux cell
+// architecture.
+// Problem is that this header is parsed when compiling both
+// the libc server (32-bit or 64-bit) and the payload (always 32-bit)...
+#ifdef AWBM_PLATFORM_h3
+typedef uint32_t param_t;
+#elif defined(AWBM_PLATFORM_h616)
 typedef uint64_t param_t;
+#else
+#error platform param_t type undefined
+#endif
 
 enum libc_funcs {
     LIBC_WRITE,
